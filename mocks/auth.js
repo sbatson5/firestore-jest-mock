@@ -36,10 +36,8 @@ class FakeAuth {
   }
 
   get currentUser() {
-    return {
-      uid: this.currentUserRecord.uid,
-      data: this.currentUserRecord,
-    };
+    const { uid, ...data } = this.currentUser;
+    return { uid, data };
   }
 };
 
