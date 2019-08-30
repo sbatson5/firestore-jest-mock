@@ -57,7 +57,7 @@ This is just meant to assert that your methods call the appropriate ones against
 1. Clone this repository
 
    ```bash
-   git@github.com:Upstatement/firestore-jest-mock.git && cd <firestore-jest-mock>
+   git@github.com:Upstatement/firestore-jest-mock.git && cd firestore-jest-mock
    ```
 
 2. Install dependencies
