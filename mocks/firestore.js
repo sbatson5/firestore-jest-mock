@@ -8,6 +8,10 @@ const mockAdd = jest.fn();
 const mockSet = jest.fn();
 const mockDelete = jest.fn();
 const mockOrderBy = jest.fn();
+const mockLimit = jest.fn();
+
+const mockBatchDelete = jest.fn();
+const mockBatchCommit = jest.fn();
 
 function buildDocFromHash(hash) {
   return {
@@ -79,8 +83,12 @@ class FakeFirestore {
   batch() {
     mockBatch(...arguments);
     return {
-      delete() { },
-      commit() { },
+      delete() {
+        mockBatchDelete(...arguments);
+      },
+      commit() {
+        mockBatchCommit(...arguments);
+      },
     };
   }
 
@@ -116,6 +124,11 @@ class FakeFirestore {
     mockOrderBy(...arguments);
     return this;
   }
+
+  limit() {
+    mockLimit(...arguments);
+    return this;
+  }
 };
 
 module.exports = {
@@ -130,4 +143,6 @@ module.exports = {
   mockSet,
   mockUpdate,
   mockWhere,
+  mockBatchDelete,
+  mockBatchCommit,
 };
