@@ -13,7 +13,7 @@ const mockLimit = jest.fn();
 const mockBatchDelete = jest.fn();
 const mockBatchCommit = jest.fn();
 
-function buildDocFromHash(hash) {
+function buildDocFromHash(hash = {}) {
   return {
     exists: !!hash || false,
     id: hash.id || 'abc123',
@@ -47,25 +47,27 @@ class FakeFirestore {
 
   get() {
     if (this.recordToFetch) {
-      return buildDocFromHash(this.recordToFetch);
+      return Promise.resolve(buildDocFromHash(this.recordToFetch));
     }
-
+    let contentToReturn;
     const requestedRecords = this.database[this.collectionName] || [];
     if (this.isFetchingSingle) {
       if (requestedRecords.length < 1 || !this.recordToFetch) {
-        return { exists: false };
+        contentToReturn = { exists: false };
+      } else if (Array.isArray(requestedRecords)) {
+        contentToReturn = buildDocFromHash(requestedRecords[0]);
+      } else {
+        contentToReturn = buildDocFromHash(requestedRecords);
       }
-      if (Array.isArray(requestedRecords)) {
-        return buildDocFromHash(requestedRecords[0]);
-      }
-      return buildDocFromHash(requestedRecords);
     } else {
       const multipleRecords = requestedRecords.filter(rec => !!rec);
-      return {
+      contentToReturn = {
         empty: multipleRecords.length < 1,
         docs: multipleRecords.map(buildDocFromHash),
       };
     }
+
+    return Promise.resolve(contentToReturn);
   }
 
   getAll() {
@@ -100,24 +102,24 @@ class FakeFirestore {
     return this;
   }
 
-  update() {
+  update(object) {
     mockUpdate(...arguments);
-    return this;
+    return Promise.resolve(buildDocFromHash(object));
   }
 
-  set() {
+  set(object) {
     mockSet(...arguments);
-    return this;
+    return Promise.resolve(buildDocFromHash(object));
   }
 
-  add() {
+  add(object) {
     mockAdd(...arguments);
-    return this;
+    return Promise.resolve(buildDocFromHash(object));
   }
 
   delete() {
     mockDelete(...arguments);
-    return this;
+    return Promise.resolve();
   }
 
   orderBy() {
