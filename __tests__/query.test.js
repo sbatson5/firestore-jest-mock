@@ -44,4 +44,4 @@ describe('test', () => {
     expect(mockCollection).toHaveBeenCalledWith('animals');
     expect(mockGet).toHaveBeenCalled();
   });
-})
+});
