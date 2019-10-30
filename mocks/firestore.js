@@ -2,6 +2,7 @@ const mockCollection = jest.fn();
 const mockDoc = jest.fn();
 const mockWhere = jest.fn();
 const mockBatch = jest.fn();
+const mockGet = jest.fn();
 const mockGetAll = jest.fn();
 const mockUpdate = jest.fn();
 const mockAdd = jest.fn();
@@ -46,6 +47,8 @@ class FakeFirestore {
   }
 
   get() {
+    mockGet(...arguments);
+
     if (this.recordToFetch) {
       return Promise.resolve(buildDocFromHash(this.recordToFetch));
     }
@@ -140,6 +143,7 @@ module.exports = {
   mockCollection,
   mockDelete,
   mockDoc,
+  mockGet,
   mockGetAll,
   mockOrderBy,
   mockSet,
