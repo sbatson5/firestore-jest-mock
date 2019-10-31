@@ -91,10 +91,7 @@ class FakeFirestore {
       .map(record => buildDocFromHash(record))
       .filter(record => !!record.id);
 
-    return Promise.resolve({
-      empty: records.length < 1,
-      docs: records
-    });
+    return Promise.resolve(records);
   }
 
   batch() {
