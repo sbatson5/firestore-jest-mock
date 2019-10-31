@@ -26,6 +26,19 @@ function buildDocFromHash(hash = {}) {
   };
 }
 
+function buildQuerySnapShot(requestedRecords) {
+  const multipleRecords = requestedRecords.filter(rec => !!rec);
+  const docs = multipleRecords.map(buildDocFromHash);
+
+  return {
+    empty: multipleRecords.length < 1,
+    docs,
+    forEach(callback) {
+      return docs.forEach(callback);
+    }
+  };
+}
+
 class FakeFirestore {
   constructor(stubbedDatabase = {}) {
     this.isFetchingSingle = false;
@@ -63,11 +76,7 @@ class FakeFirestore {
         contentToReturn = buildDocFromHash(requestedRecords);
       }
     } else {
-      const multipleRecords = requestedRecords.filter(rec => !!rec);
-      contentToReturn = {
-        empty: multipleRecords.length < 1,
-        docs: multipleRecords.map(buildDocFromHash),
-      };
+      contentToReturn = buildQuerySnapShot(requestedRecords);
     }
 
     return Promise.resolve(contentToReturn);
