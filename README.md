@@ -13,6 +13,8 @@ This is <strong>not</strong> a pseudo-database -- it is only for testing you are
   - [What's in the Box](#whats-in-the-box)
     - [What would you want to test?](#what-would-you-want-to-test)
       - [I wrote a where clause, but all the records were returned!](#i-wrote-a-where-clause-but-all-the-records-were-returned)
+    - [Functions you can test](#functions-you-can-test)
+      - [Firestore](#firestore)
   - [Installation](#installation)
   - [Contributing](#contributing)
   - [Code of Conduct](#code-of-conduct)
@@ -109,6 +111,27 @@ The `where` clause in the mocked firestore will not actually query the data at a
 We are not recreating firestore in this mock, just exposing an API that allows us to write assertions.
 It is also not the job of the developer (you) to test that firestore filtered the data appropriately.
 Your application doesn't double-check firestore's response -- it trusts that it's always correct!
+
+### Functions you can test
+
+#### Firestore
+
+| Method | User |
+| --- | --- |
+| mockCollection | Assert the correct collection is being queries |
+| mockDoc | Assert the correct record is being fetched by id. Tells the mock you are fetching a single record |
+| mockWhere | Assert the correct query is written. Tells the mock you are fetching multiple records |
+| mockBatch | Assert batch was called |
+| mockBatchDelete | Assert correct refs are passed |
+| mockBatchCommit | Assert commit is called. Returns a promise  |
+| mockGet | Assert get is called. Returns a promise resolving either to a single doc or querySnapshot |
+| mockGetAll | Assert correct refs are passed. Returns a promise resolving to array of docs. |
+| mockUpdate | Assert correct params are passed to update. Returns a promise |
+| mockAdd | Assert correct params are passed to add. Returns a promise resolving to the doc with new id |
+| mockSet | Assert correct params are passed to set. Returns a promise |
+| mockDelete | Assert delete is called on ref. Returns a promise |
+| mockOrderBy | Assert correct field is passed to orderBy |
+| mockLimit | Assert limit is set properly |
 
 ## Installation
 
