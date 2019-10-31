@@ -2,16 +2,18 @@
 
 > Jest Mock for testing Google Cloud Firestore
 
-A simple way to mock calls to Cloud Firestore.
+A simple way to mock calls to Cloud Firestore, allowing you to asser that you are requesting data correctly.
+
+This is <strong>not</strong> a pseudo-database -- it is only for testing you are interfacing with firebase/firestore the way you expect.
 
 ## Table of Contents
 
 - [Mock Firestore](#mock-firestore)
   - [Table of Contents](#table-of-contents)
   - [What's in the Box](#whats-in-the-box)
-  - [System Requirements](#system-requirements)
+    - [What would you want to test?](#what-would-you-want-to-test)
+      - [I wrote a where clause, but all the records were returned!](#i-wrote-a-where-clause-but-all-the-records-were-returned)
   - [Installation](#installation)
-  - [Getting Started](#getting-started)
   - [Contributing](#contributing)
   - [Code of Conduct](#code-of-conduct)
   - [About Upstatement](#about-upstatement)
@@ -23,60 +25,104 @@ This library provides an easy to use mocked version of firestore.
 Example usage:
 
 ```js
-const { FakeFirestore } = require('firestore-jest-mock');
-
-const fakeDataBase = {
-  users: [
-    { id: 'abc123', name: 'Homer Simpson'}, 
-    { id: 'abc456', name: 'Lisa Simpson' }
-  ],
-  posts: [
-    { id: '123abc', title: 'Really cool title' }
-  ]
-}
-
-jest.mock('firebase', () => {
-  return {
-    firestore: new FakeFirestore(fakeDataBase)
-  };
-})
+const { mockFirebase } = require('firestore-jest-mock');
+// Create a fake firestore with a `users` and `posts` collection
+mockFirebase({
+  database: {
+    users: [
+      { id: 'abc123', name: 'Homer Simpson'}, 
+      { id: 'abc456', name: 'Lisa Simpson' }
+    ],
+    posts: [
+      { id: '123abc', title: 'Really cool title' }
+    ]
+  }
+});
 ```
 
 This will populate a fake database with a `users` and `posts` collection.
 
-TODO: add example of testing that certain methods are called
+Now you can write a queries or requests for data just as you would with firestore:
 
-Note that this is not a substitute for Firestore and will *not* run actual queries against this collection.
-This is just meant to assert that your methods call the appropriate ones against firestore.
+```js
+const firebase = require('firebase'); // or import firebase from 'firebase';
+const db = firebase.firestore();
 
-## System Requirements
+db.collection('users').get().then((userDocs) => {
+  // write assertions here
+});
+```
 
+### What would you want to test?
+
+The job of the this library is not to test firestore, but to allow you to test your code without hitting firebase.
+Take this example:
+
+```js
+function maybeGetUsersInState(state) {
+  const query = firestore.collection('users');
+  
+  if (state) {
+    query = query.where('state', '==', state);
+  }
+
+  return query.get();
+}
+```
+
+We have a conditional query here.  
+If you pass `state` to this function, we will query against it; otherwise, we just get all of the users.
+So, you may want to write a test that ensures you are querying correctly:
+
+```js
+const { mockFirebase } = require('firestore-jest-mock');
+
+// Import that mock versions of the functions you expect to be called
+const { mockCollection, mockWhere } = require('firestore-jest-mock/mocks/firestore');
+describe('we can query', () => {
+  mockFirebase({
+    database: {
+      users: [
+        { id: 'abc123', name: 'Homer Simpson'}, 
+        { id: 'abc456', name: 'Lisa Simpson' }
+      ]
+    }
+  });
+
+  test('query with state', async () => {
+    await maybeGetUsersInState('alabama');
+
+    // Assert that we call the correct firestore methods
+    expect(mockCollection).toHaveBeenCalledWith('users');
+    expect(mockWhere).toHaveBeenCalledWith('state', '==', 'alabama');
+  })
+});
+```
+
+In this test, we don't necessarily care what gets returned from firestore (it's not our job to test firestore), but instead we try to assert that we built our query correctly.
+> If I pass a state to this function, does it properly query the `users` collection?
+That's what we want to answer.
+
+#### I wrote a where clause, but all the records were returned!
+
+The `where` clause in the mocked firestore will not actually query the data at all.
+We are not recreating firestore in this mock, just exposing an API that allows us to write assertions.
+It is also not the job of the developer (you) to test that firestore filtered the data appropriately.
+Your application doesn't double-check firestore's response -- it trusts that it's always correct!
 
 ## Installation
 
-1. Clone this repository
+With [npm](https://www.npmjs.com):
 
-   ```bash
-   git@github.com:Upstatement/firestore-jest-mock.git && cd firestore-jest-mock
-   ```
+```shell
+$ npm install firestore-jest-mock --save-dev
+```
 
-2. Install dependencies
+With [yarn](https://yarnpkg.com/):
 
-   ```bash
-   npm install
-   ```
-
-## Getting Started
-
-1. To start up the project run
-
-   ```bash
-   npm start
-   ```
-
-1. Visit [insert URL here](/) to view your project
-
-Also add something about development workflow if applicable
+```shell
+$ yarn add firestore-jest-mock --dev
+```
 
 ## Contributing
 
