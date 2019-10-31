@@ -4,6 +4,7 @@ const { mockInitializeApp } = require('../mocks/firebase');
 const {
   mockAdd,
   mockSet,
+  mockUpdate
 } = require('../mocks/firestore');
 
 let firebase;
@@ -15,7 +16,10 @@ describe('we can start a firebase application', () => {
         { id: 'abc123', first: 'Bob', last: 'builder', born: 1998 },
         { id: '123abc', first: 'Blues', last: 'builder', born: 1996 }
       ],
-      cities: [{ id: 'LA', name: 'Los Angeles', state: 'CA', country: 'USA' }]
+      cities: [
+        { id: 'LA', name: 'Los Angeles', state: 'CA', country: 'USA' },
+        { id: 'DC', name: 'Disctric of Columbia', state: 'DC', country: 'USA' }
+      ]
     }
   });
 
@@ -80,5 +84,19 @@ describe('we can start a firebase application', () => {
         expect(mockSet).toHaveBeenCalledWith({ name: 'Los Angeles', state: 'CA', country: 'USA' });
       });
     });
+
+    test('updating a city', () => {
+      const db = firebase.firestore();
+      // Example from documentation:
+      // https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
+      const washingtonRef = db.collection("cities").doc("DC");
+
+      // Set the "capital" field of the city 'DC'
+      return washingtonRef.update({
+        capital: true
+      }).then(function () {
+        expect(mockUpdate).toHaveBeenCalledWith({ capital: true });
+      });
+    })
   });
 });
