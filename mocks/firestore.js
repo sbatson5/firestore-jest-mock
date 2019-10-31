@@ -2,6 +2,7 @@ const mockCollection = jest.fn();
 const mockDoc = jest.fn();
 const mockWhere = jest.fn();
 const mockBatch = jest.fn();
+const mockGet = jest.fn();
 const mockGetAll = jest.fn();
 const mockUpdate = jest.fn();
 const mockAdd = jest.fn();
@@ -22,6 +23,19 @@ function buildDocFromHash(hash = {}) {
       delete copy.id;
       return copy;
     },
+  };
+}
+
+function buildQuerySnapShot(requestedRecords) {
+  const multipleRecords = requestedRecords.filter(rec => !!rec);
+  const docs = multipleRecords.map(buildDocFromHash);
+
+  return {
+    empty: multipleRecords.length < 1,
+    docs,
+    forEach(callback) {
+      return docs.forEach(callback);
+    }
   };
 }
 
@@ -46,6 +60,8 @@ class FakeFirestore {
   }
 
   get() {
+    mockGet(...arguments);
+
     if (this.recordToFetch) {
       return Promise.resolve(buildDocFromHash(this.recordToFetch));
     }
@@ -60,11 +76,7 @@ class FakeFirestore {
         contentToReturn = buildDocFromHash(requestedRecords);
       }
     } else {
-      const multipleRecords = requestedRecords.filter(rec => !!rec);
-      contentToReturn = {
-        empty: multipleRecords.length < 1,
-        docs: multipleRecords.map(buildDocFromHash),
-      };
+      contentToReturn = buildQuerySnapShot(requestedRecords);
     }
 
     return Promise.resolve(contentToReturn);
@@ -79,7 +91,10 @@ class FakeFirestore {
       .map(record => buildDocFromHash(record))
       .filter(record => !!record.id);
 
-    return records;
+    return Promise.resolve({
+      empty: records.length < 1,
+      docs: records
+    });
   }
 
   batch() {
@@ -90,6 +105,7 @@ class FakeFirestore {
       },
       commit() {
         mockBatchCommit(...arguments);
+        return Promise.resolve();
       },
     };
   }
@@ -140,6 +156,7 @@ module.exports = {
   mockCollection,
   mockDelete,
   mockDoc,
+  mockGet,
   mockGetAll,
   mockOrderBy,
   mockSet,
