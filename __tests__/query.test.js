@@ -1,32 +1,19 @@
 const {
-  mockAdd,
-  mockBatch,
   mockCollection,
   mockGet,
-  mockUpdate,
   mockWhere,
 } = require('../mocks/firestore');
 
-const { FakeFirestore, FakeAuth } = require('firestore-jest-mock');
+const { mockFirebase } = require('../mocks/firebase');
 
 describe('test', () => {
-  const mockFirebase = () => jest.mock('firebase', () => ({
-    initializeApp() { },
-    credential: {
-      cert() { },
-    },
-    auth() {
-      return new FakeAuth({ uid: 'homer-user' });
-    },
-    firestore() {
-      return new FakeFirestore({
-        animals: [{ name: 'monkey', type: 'mammal' }, { name: 'elephant', type: 'mammal' }]
-      });
-    },
-  }));
-
   test('It can query firestore', async () => {
-    mockFirebase();
+    mockFirebase({
+      database: {
+        animals: [{ name: 'monkey', type: 'mammal' }, { name: 'elephant', type: 'mammal' }]
+      },
+      currentUser: { uid: 'homer-user' }
+    });
     const firebase = require('firebase');
     firebase.initializeApp({
       apiKey: '### FIREBASE API KEY ###',
