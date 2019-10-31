@@ -4,7 +4,7 @@ const {
   mockWhere,
 } = require('../mocks/firestore');
 
-const { mockFirebase } = require('../mocks/firebase');
+const { mockFirebase } = require('firestore-jest-mock');
 
 describe('test', () => {
   test('It can query firestore', async () => {
