@@ -96,6 +96,7 @@ class FakeFirestore {
       },
       commit() {
         mockBatchCommit(...arguments);
+        return Promise.resolve();
       },
     };
   }
