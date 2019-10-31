@@ -45,14 +45,16 @@ mockFirebase({
 
 This will populate a fake database with a `users` and `posts` collection.
 
-Now you can write a queries or requests for data just as you would with firestore:
+Now you can write queries or requests for data just as you would with firestore:
 
 ```js
-const firebase = require('firebase'); // or import firebase from 'firebase';
-const db = firebase.firestore();
-
-db.collection('users').get().then((userDocs) => {
-  // write assertions here
+test('testing stuff', () => {
+  const firebase = require('firebase'); // or import firebase from 'firebase';
+  const db = firebase.firestore();
+  
+  db.collection('users').get().then((userDocs) => {
+    // write assertions here
+  });
 });
 ```
 
@@ -96,7 +98,7 @@ describe('we can query', () => {
     // Assert that we call the correct firestore methods
     expect(mockCollection).toHaveBeenCalledWith('users');
     expect(mockWhere).toHaveBeenCalledWith('state', '==', 'alabama');
-  })
+  });
 });
 ```
 
@@ -106,7 +108,7 @@ That's what we want to answer.
 
 #### I wrote a where clause, but all the records were returned!
 
-The `where` clause in the mocked firestore will not actually query the data at all.
+The `where` clause in the mocked firestore will not actually filter the data at all.
 We are not recreating firestore in this mock, just exposing an API that allows us to write assertions.
 It is also not the job of the developer (you) to test that firestore filtered the data appropriately.
 Your application doesn't double-check firestore's response -- it trusts that it's always correct!
