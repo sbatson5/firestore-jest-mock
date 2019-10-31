@@ -60,9 +60,7 @@ describe('Single records versus queries', () => {
     const secondRecord = db.collection('characters').doc('krusty');
 
     const records = await db.getAll(firstRecord, secondRecord);
-    expect(records.empty).toBe(false);
-    expect(records).toHaveProperty('docs', expect.any(Array))
-    expect(records.docs[0]).toHaveProperty('id', 'homer')
-    expect(records.docs[0].data()).toHaveProperty('name', 'Homer')
+    expect(records[0]).toHaveProperty('id', 'homer')
+    expect(records[0].data()).toHaveProperty('name', 'Homer')
   });
 });
