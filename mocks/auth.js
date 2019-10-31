@@ -13,7 +13,7 @@ class FakeAuth {
 
   createUserWithEmailAndPassword() {
     mockCreateUserWithEmailAndPassword(...arguments);
-    return { user: this.currentUserRecord };
+    return Promise.resolve({ user: this.currentUserRecord });
   }
 
   deleteUser() {
@@ -23,7 +23,7 @@ class FakeAuth {
 
   signInWithEmailAndPassword() {
     mockSignInWithEmailAndPassword(...arguments);
-    return { user: this.currentUserRecord };
+    return Promise.resolve({ user: this.currentUserRecord });
   }
 
   sendPasswordResetEmail() {
@@ -32,7 +32,7 @@ class FakeAuth {
 
   verifyIdToken() {
     mockVerifyIdToken(...arguments);
-    return this.currentUserRecord;
+    return Promise.resolve(this.currentUserRecord);
   }
 
   get currentUser() {

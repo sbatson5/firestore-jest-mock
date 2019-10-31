@@ -13,6 +13,9 @@ This is <strong>not</strong> a pseudo-database -- it is only for testing you are
   - [What's in the Box](#whats-in-the-box)
     - [What would you want to test?](#what-would-you-want-to-test)
       - [I wrote a where clause, but all the records were returned!](#i-wrote-a-where-clause-but-all-the-records-were-returned)
+    - [Functions you can test](#functions-you-can-test)
+      - [Firestore](#firestore)
+      - [Auth](#auth)
   - [Installation](#installation)
   - [Contributing](#contributing)
   - [Code of Conduct](#code-of-conduct)
@@ -42,14 +45,16 @@ mockFirebase({
 
 This will populate a fake database with a `users` and `posts` collection.
 
-Now you can write a queries or requests for data just as you would with firestore:
+Now you can write queries or requests for data just as you would with firestore:
 
 ```js
-const firebase = require('firebase'); // or import firebase from 'firebase';
-const db = firebase.firestore();
-
-db.collection('users').get().then((userDocs) => {
-  // write assertions here
+test('testing stuff', () => {
+  const firebase = require('firebase'); // or import firebase from 'firebase';
+  const db = firebase.firestore();
+  
+  db.collection('users').get().then((userDocs) => {
+    // write assertions here
+  });
 });
 ```
 
@@ -70,14 +75,12 @@ function maybeGetUsersInState(state) {
 }
 ```
 
-We have a conditional query here.  
-If you pass `state` to this function, we will query against it; otherwise, we just get all of the users.
-So, you may want to write a test that ensures you are querying correctly:
+We have a conditional query here. If you pass `state` to this function, we will query against it; otherwise, we just get all of the users. So, you may want to write a test that ensures you are querying correctly:
 
 ```js
 const { mockFirebase } = require('firestore-jest-mock');
 
-// Import that mock versions of the functions you expect to be called
+// Import the mock versions of the functions you expect to be called
 const { mockCollection, mockWhere } = require('firestore-jest-mock/mocks/firestore');
 describe('we can query', () => {
   mockFirebase({
@@ -95,7 +98,7 @@ describe('we can query', () => {
     // Assert that we call the correct firestore methods
     expect(mockCollection).toHaveBeenCalledWith('users');
     expect(mockWhere).toHaveBeenCalledWith('state', '==', 'alabama');
-  })
+  });
 });
 ```
 
@@ -105,10 +108,42 @@ That's what we want to answer.
 
 #### I wrote a where clause, but all the records were returned!
 
-The `where` clause in the mocked firestore will not actually query the data at all.
+The `where` clause in the mocked firestore will not actually filter the data at all.
 We are not recreating firestore in this mock, just exposing an API that allows us to write assertions.
 It is also not the job of the developer (you) to test that firestore filtered the data appropriately.
 Your application doesn't double-check firestore's response -- it trusts that it's always correct!
+
+### Functions you can test
+
+#### Firestore
+
+| Method | Use | Method in Firestore |
+| --- | --- | --- |
+| mockCollection | Assert the correct collection is being queries | [collection](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#collection) |
+| mockDoc | Assert the correct record is being fetched by id. Tells the mock you are fetching a single record | [doc](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#doc) |
+| mockWhere | Assert the correct query is written. Tells the mock you are fetching multiple records | [where](https://googleapis.dev/nodejs/firestore/latest/Query.html#where) |
+| mockBatch | Assert batch was called | [batch](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#batch) |
+| mockBatchDelete | Assert correct refs are passed | [batch delete](https://googleapis.dev/nodejs/firestore/latest/WriteBatch.html#delete) |
+| mockBatchCommit | Assert commit is called. Returns a promise  | [batch commit](https://googleapis.dev/nodejs/firestore/latest/WriteBatch.html#commit) |
+| mockGet | Assert get is called. Returns a promise resolving either to a single doc or querySnapshot | [get](https://googleapis.dev/nodejs/firestore/latest/Query.html#get) |
+| mockGetAll | Assert correct refs are passed. Returns a promise resolving to array of docs. | [getAll](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#getAll) |
+| mockUpdate | Assert correct params are passed to update. Returns a promise | [update](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#update) |
+| mockAdd | Assert correct params are passed to add. Returns a promise resolving to the doc with new id | [add](https://googleapis.dev/nodejs/firestore/latest/CollectionReference.html#add) |
+| mockSet | Assert correct params are passed to set. Returns a promise | [set](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#set) |
+| mockDelete | Assert delete is called on ref. Returns a promise | [delete](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#delete) |
+| mockOrderBy | Assert correct field is passed to orderBy | [orderBy](https://googleapis.dev/nodejs/firestore/latest/Query.html#orderBy) |
+| mockLimit | Assert limit is set properly | [limit](https://googleapis.dev/nodejs/firestore/latest/Query.html#limit) |
+
+#### Auth
+
+| Method | Use | Method in Firebase |
+| --- | --- | --- |
+| mockCreateUserWithEmailAndPassword | Assert correct email and password are passed. Returns a promise | [createUserWithEmailAndPassword](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#createuserwithemailandpassword) |
+| mockDeleteUser | Assert correct id is passed to delete method. Returns a promise | [deleteUser](https://firebase.google.com/docs/auth/admin/manage-users) |
+| mockSendVerificationEmail | Assert request for verification email was sent. Lives on the `currentUser` | [sendVerificationEmail](https://firebase.google.com/docs/reference/js/firebase.User#send-email-verification) |
+| mockSignInWithEmailAndPassword | Assert correct email and password were passed. Returns a promise | [signInWithEmailAndPassword](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#signinwithemailandpassword) |
+| mockSendPasswordResetEmail | Assert correct email was passed. | [sendPasswordResetEmail](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#send-password-reset-email) |
+| mockVerifyIdToken | Assert correct token is passed. Returns a promise | [verifyIdToken](https://firebase.google.com/docs/reference/admin/node/admin.auth.Auth.html#verifyidtoken) |
 
 ## Installation
 
