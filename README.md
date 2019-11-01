@@ -11,6 +11,7 @@ This is <strong>not</strong> a pseudo-database -- it is only for testing you are
 - [Mock Firestore](#mock-firestore)
   - [Table of Contents](#table-of-contents)
   - [What's in the Box](#whats-in-the-box)
+  - [`mockFirebase`](#mockfirebase)
     - [What would you want to test?](#what-would-you-want-to-test)
       - [I wrote a where clause, but all the records were returned!](#i-wrote-a-where-clause-but-all-the-records-were-returned)
     - [Functions you can test](#functions-you-can-test)
@@ -24,6 +25,12 @@ This is <strong>not</strong> a pseudo-database -- it is only for testing you are
 ## What's in the Box
 
 This library provides an easy to use mocked version of firestore.
+
+## `mockFirebase`
+
+The default method to use is `mockFirebase`, which returns a jest mock, overwriting `firebase` and `firebase-admin`. It accepts an object with two pieces:
+- `database` -- A mock of your collections
+- `currentUser` -- (optional) overwrites the currently logged in user
 
 Example usage:
 
@@ -98,6 +105,14 @@ describe('we can query', () => {
     // Assert that we call the correct firestore methods
     expect(mockCollection).toHaveBeenCalledWith('users');
     expect(mockWhere).toHaveBeenCalledWith('state', '==', 'alabama');
+  });
+
+  test('no state', async () => {
+    await maybeGetUsersInState();
+
+    // Assert that we call the correct firestore methods
+    expect(mockCollection).toHaveBeenCalledWith('users');
+    expect(mockWhere).not.toHaveBeenCalled();
   });
 });
 ```
