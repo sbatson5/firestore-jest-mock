@@ -13,6 +13,8 @@ const mockLimit = jest.fn();
 
 const mockBatchDelete = jest.fn();
 const mockBatchCommit = jest.fn();
+const mockBatchUpdate = jest.fn();
+const mockBatchSet = jest.fn();
 
 function buildDocFromHash(hash = {}) {
   return {
@@ -100,6 +102,12 @@ class FakeFirestore {
       delete() {
         mockBatchDelete(...arguments);
       },
+      set() {
+        mockBatchSet(...arguments);
+      },
+      update() {
+        mockBatchUpdate(...arguments);
+      },
       commit() {
         mockBatchCommit(...arguments);
         return Promise.resolve();
@@ -161,4 +169,6 @@ module.exports = {
   mockWhere,
   mockBatchDelete,
   mockBatchCommit,
+  mockBatchUpdate,
+  mockBatchSet
 };
