@@ -119,6 +119,7 @@ describe('we can query', () => {
 
 In this test, we don't necessarily care what gets returned from firestore (it's not our job to test firestore), but instead we try to assert that we built our query correctly.
 > If I pass a state to this function, does it properly query the `users` collection?
+
 That's what we want to answer.
 
 #### I wrote a where clause, but all the records were returned!
