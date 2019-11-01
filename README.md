@@ -1,4 +1,4 @@
-# Mock Firestore
+## Mock Firestore
 
 > Jest Mock for testing Google Cloud Firestore
 
@@ -9,18 +9,18 @@ This is <strong>not</strong> a pseudo-database -- it is only for testing you are
 ## Table of Contents
 
 - [Mock Firestore](#mock-firestore)
-  - [Table of Contents](#table-of-contents)
-  - [What's in the Box](#whats-in-the-box)
-  - [`mockFirebase`](#mockfirebase)
-    - [What would you want to test?](#what-would-you-want-to-test)
-      - [I wrote a where clause, but all the records were returned!](#i-wrote-a-where-clause-but-all-the-records-were-returned)
-    - [Functions you can test](#functions-you-can-test)
-      - [Firestore](#firestore)
-      - [Auth](#auth)
-  - [Installation](#installation)
-  - [Contributing](#contributing)
-  - [Code of Conduct](#code-of-conduct)
-  - [About Upstatement](#about-upstatement)
+- [Table of Contents](#table-of-contents)
+- [What's in the Box](#whats-in-the-box)
+- [`mockFirebase`](#mockfirebase)
+  - [What would you want to test?](#what-would-you-want-to-test)
+    - [I wrote a where clause, but all the records were returned!](#i-wrote-a-where-clause-but-all-the-records-were-returned)
+  - [Functions you can test](#functions-you-can-test)
+    - [Firestore](#firestore)
+    - [Auth](#auth)
+- [Installation](#installation)
+- [Contributing](#contributing)
+- [Code of Conduct](#code-of-conduct)
+- [About Upstatement](#about-upstatement)
 
 ## What's in the Box
 
