@@ -95,7 +95,7 @@ describe('we can start a firebase application', () => {
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
       const washingtonRef = db.collection("cities").doc("DC");
-      
+
       // Set the "capital" field of the city 'DC'
       return washingtonRef.update({
         capital: true
@@ -113,25 +113,25 @@ describe('we can start a firebase application', () => {
       const batch = db.batch();
 
       // Set the value of 'NYC'
-      const nycRef = db.collection("cities").doc("NYC");
-      batch.set(nycRef, { name: "New York City" });
+      const nycRef = db.collection('cities').doc('NYC');
+      batch.set(nycRef, { name: 'New York City' });
 
       // Update the population of 'SF'
-      const sfRef = db.collection("cities").doc("SF");
-      batch.update(sfRef, { "population": 1000000 });
+      const sfRef = db.collection('cities').doc('SF');
+      batch.update(sfRef, { 'population': 1000000 });
 
       // Delete the city 'LA'
-      const laRef = db.collection("cities").doc("LA");
+      const laRef = db.collection('cities').doc('LA');
       batch.delete(laRef);
 
       // Commit the batch
       batch.commit().then(function () {
         expect(mockBatch).toHaveBeenCalled();
         expect(mockBatchDelete).toHaveBeenCalledWith(laRef);
-        expect(mockBatchUpdate).toHaveBeenCalledWith(sfRef, { "population": 1000000 });
-        expect(mockBatchSet).toHaveBeenCalledWith(nycRef, { name: "New York City" });
+        expect(mockBatchUpdate).toHaveBeenCalledWith(sfRef, { 'population': 1000000 });
+        expect(mockBatchSet).toHaveBeenCalledWith(nycRef, { name: 'New York City' });
         expect(mockBatchCommit).toHaveBeenCalled();
       });
-    })
+    });
   });
 });
