@@ -135,7 +135,7 @@ Your application doesn't double-check firestore's response -- it trusts that it'
 
 | Method | Use | Method in Firestore |
 | --- | --- | --- |
-| mockCollection | Assert the correct collection is being queries | [collection](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#collection) |
+| mockCollection | Assert the correct collection is being queried | [collection](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#collection) |
 | mockDoc | Assert the correct record is being fetched by id. Tells the mock you are fetching a single record | [doc](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#doc) |
 | mockWhere | Assert the correct query is written. Tells the mock you are fetching multiple records | [where](https://googleapis.dev/nodejs/firestore/latest/Query.html#where) |
 | mockBatch | Assert batch was called | [batch](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#batch) |
