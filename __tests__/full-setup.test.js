@@ -4,10 +4,13 @@ const { mockInitializeApp } = require('../mocks/firebase');
 const {
   mockAdd,
   mockSet,
-  mockUpdate
+  mockUpdate,
+  mockBatch,
+  mockBatchCommit,
+  mockBatchDelete,
+  mockBatchUpdate,
+  mockBatchSet
 } = require('../mocks/firestore');
-
-let firebase;
 
 describe('we can start a firebase application', () => {
   mockFirebase({
@@ -24,8 +27,8 @@ describe('we can start a firebase application', () => {
   });
 
   beforeEach(() => {
-    firebase = require('firebase');
-    firebase.initializeApp({
+    this.firebase = require('firebase');
+    this.firebase.initializeApp({
       apiKey: '### FIREBASE API KEY ###',
       authDomain: '### FIREBASE AUTH DOMAIN ###',
       projectId: '### CLOUD FIRESTORE PROJECT ID ###'
@@ -33,13 +36,13 @@ describe('we can start a firebase application', () => {
   });
 
   test('We can start an application', async () => {
-    firebase.firestore();
+    this.firebase.firestore();
     expect(mockInitializeApp).toHaveBeenCalled();
   });
 
   describe('Examples from documentation', () => {
     test('add a user', () => {
-      const db = firebase.firestore();
+      const db = this.firebase.firestore();
 
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/quickstart#add_data
@@ -56,7 +59,7 @@ describe('we can start a firebase application', () => {
     });
 
     test('get all users', () => {
-      const db = firebase.firestore();
+      const db = this.firebase.firestore();
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/quickstart#read_data
   
@@ -72,7 +75,7 @@ describe('we can start a firebase application', () => {
     });
 
     test('set a city', () => {
-      const db = firebase.firestore();
+      const db = this.firebase.firestore();
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/manage-data/add-data#set_a_document\
   
@@ -86,7 +89,7 @@ describe('we can start a firebase application', () => {
     });
 
     test('updating a city', () => {
-      const db = firebase.firestore();
+      const db = this.firebase.firestore();
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
       const washingtonRef = db.collection("cities").doc("DC");
@@ -97,6 +100,36 @@ describe('we can start a firebase application', () => {
       }).then(function () {
         expect(mockUpdate).toHaveBeenCalledWith({ capital: true });
       });
-    })
+    });
+    
+    test('batch writes', () => {
+      const db = this.firebase.firestore();
+      // Example from documentation:
+      // https://cloud.google.com/firestore/docs/manage-data/transactions
+
+      // Get a new write batch
+      const batch = db.batch();
+
+      // Set the value of 'NYC'
+      const nycRef = db.collection('cities').doc('NYC');
+      batch.set(nycRef, { name: 'New York City' });
+
+      // Update the population of 'SF'
+      const sfRef = db.collection('cities').doc('SF');
+      batch.update(sfRef, { 'population': 1000000 });
+
+      // Delete the city 'LA'
+      const laRef = db.collection('cities').doc('LA');
+      batch.delete(laRef);
+
+      // Commit the batch
+      batch.commit().then(function () {
+        expect(mockBatch).toHaveBeenCalled();
+        expect(mockBatchDelete).toHaveBeenCalledWith(laRef);
+        expect(mockBatchUpdate).toHaveBeenCalledWith(sfRef, { 'population': 1000000 });
+        expect(mockBatchSet).toHaveBeenCalledWith(nycRef, { name: 'New York City' });
+        expect(mockBatchCommit).toHaveBeenCalled();
+      });
+    });
   });
 });
