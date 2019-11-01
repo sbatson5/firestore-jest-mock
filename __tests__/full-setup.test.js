@@ -12,8 +12,6 @@ const {
   mockBatchSet
 } = require('../mocks/firestore');
 
-let firebase;
-
 describe('we can start a firebase application', () => {
   mockFirebase({
     database: {
@@ -29,8 +27,8 @@ describe('we can start a firebase application', () => {
   });
 
   beforeEach(() => {
-    firebase = require('firebase');
-    firebase.initializeApp({
+    this.firebase = require('firebase');
+    this.firebase.initializeApp({
       apiKey: '### FIREBASE API KEY ###',
       authDomain: '### FIREBASE AUTH DOMAIN ###',
       projectId: '### CLOUD FIRESTORE PROJECT ID ###'
@@ -38,13 +36,13 @@ describe('we can start a firebase application', () => {
   });
 
   test('We can start an application', async () => {
-    firebase.firestore();
+    this.firebase.firestore();
     expect(mockInitializeApp).toHaveBeenCalled();
   });
 
   describe('Examples from documentation', () => {
     test('add a user', () => {
-      const db = firebase.firestore();
+      const db = this.firebase.firestore();
 
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/quickstart#add_data
@@ -61,7 +59,7 @@ describe('we can start a firebase application', () => {
     });
 
     test('get all users', () => {
-      const db = firebase.firestore();
+      const db = this.firebase.firestore();
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/quickstart#read_data
   
@@ -77,7 +75,7 @@ describe('we can start a firebase application', () => {
     });
 
     test('set a city', () => {
-      const db = firebase.firestore();
+      const db = this.firebase.firestore();
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/manage-data/add-data#set_a_document\
   
@@ -91,7 +89,7 @@ describe('we can start a firebase application', () => {
     });
 
     test('updating a city', () => {
-      const db = firebase.firestore();
+      const db = this.firebase.firestore();
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
       const washingtonRef = db.collection("cities").doc("DC");
@@ -105,7 +103,7 @@ describe('we can start a firebase application', () => {
     });
     
     test('batch writes', () => {
-      const db = firebase.firestore();
+      const db = this.firebase.firestore();
       // Example from documentation:
       // https://cloud.google.com/firestore/docs/manage-data/transactions
 
