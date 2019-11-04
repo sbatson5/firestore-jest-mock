@@ -2,7 +2,7 @@
 
 > Jest Mock for testing Google Cloud Firestore
 
-A simple way to mock calls to Cloud Firestore, allowing you to asser that you are requesting data correctly.
+A simple way to mock calls to Cloud Firestore, allowing you to assert that you are requesting data correctly.
 
 This is <strong>not</strong> a pseudo-database -- it is only for testing you are interfacing with firebase/firestore the way you expect.
 
