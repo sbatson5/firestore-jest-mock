@@ -157,7 +157,5 @@ describe('we can start a firebase application', () => {
         expect(mockBatchCommit).toHaveBeenCalled();
       });
     });
-
-
   });
 });
