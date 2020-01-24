@@ -5,5 +5,5 @@ const { mockFirebase } = require('./mocks/firebase');
 module.exports = {
   mockFirebase,
   FakeFirestore,
-  FakeAuth
+  FakeAuth,
 };

@@ -39,7 +39,7 @@ class FakeAuth {
     const { uid, ...data } = this.currentUser;
     return { uid, data };
   }
-};
+}
 
 module.exports = {
   FakeAuth,

@@ -2,25 +2,49 @@
   "name": "firestore-jest-mock",
   "version": "0.2.0",
   "description": "Jest helper for mocking Google Cloud Firestore",
+  "author": "",
+  "license": "MIT",
+  "keywords": [
+    "Jest",
+    "Firestore"
+  ],
   "main": "index.js",
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watchAll",
     "test:coverage": "jest --coverage"
   },
-  "keywords": [
-    "Jest",
-    "Firestore"
-  ],
-  "author": "",
-  "license": "MIT",
+  "lint-staged": {
+    "*.{js,css,json,md}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
   "devDependencies": {
     "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
+    "@upstatement/eslint-config": "^0.4.3",
+    "@upstatement/prettier-config": "^0.3.0",
+    "babel-eslint": "^10.0.3",
     "babel-jest": "^24.8.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-plugin-jest": "^23.6.0",
+    "firebase": "^6.3.1",
+    "firebase-admin": "^8.3.0",
+    "husky": "^4.2.1",
     "jest": "^24.8.0",
     "jest-watch-typeahead": "^0.3.1",
-    "firebase": "^6.3.1",
-    "firebase-admin": "^8.3.0"
+    "lint-staged": "^10.0.2",
+    "prettier": "^1.19.1"
   }
 }
