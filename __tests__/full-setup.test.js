@@ -2,9 +2,12 @@ const { mockFirebase } = require('firestore-jest-mock');
 const { mockInitializeApp } = require('../mocks/firebase');
 
 const {
+  mockGet,
   mockAdd,
   mockSet,
   mockUpdate,
+  mockWhere,
+  mockCollectionGroup,
   mockBatch,
   mockBatchCommit,
   mockBatchDelete,
@@ -46,7 +49,7 @@ describe('we can start a firebase application', () => {
 
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/quickstart#add_data
-  
+
       db.collection('users').add({
         first: 'Ada',
         last: 'Lovelace',
@@ -62,7 +65,7 @@ describe('we can start a firebase application', () => {
       const db = this.firebase.firestore();
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/quickstart#read_data
-  
+
       db.collection('users').get().then((querySnapshot) => {
         expect(querySnapshot.forEach).toBeTruthy();
         expect(querySnapshot.docs.length).toBe(2);
@@ -74,11 +77,34 @@ describe('we can start a firebase application', () => {
       });
     });
 
+    test('collectionGroup', () => {
+      const db = this.firebase.firestore();
+      // Example from documentation:
+      // https://firebase.google.com/docs/firestore/query-data/queries#collection-group-query
+
+      db.collectionGroup('cities')
+        .where('type', '==', 'museum')
+        .get()
+        .then(querySnapshot => {
+          expect(mockCollectionGroup).toHaveBeenCalledWith('cities');
+          expect(mockGet).toHaveBeenCalled();
+          expect(mockWhere).toHaveBeenCalledWith('type', '==', 'museum');
+
+          expect(querySnapshot.forEach).toBeTruthy();
+          expect(querySnapshot.docs.length).toBe(2);
+
+          querySnapshot.forEach((doc) => {
+            expect(doc.exists).toBe(true);
+            expect(doc.data()).toBeTruthy();
+          });
+        });
+    });
+
     test('set a city', () => {
       const db = this.firebase.firestore();
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/manage-data/add-data#set_a_document\
-  
+
       db.collection('cities').doc('LA').set({
         name: 'Los Angeles',
         state: 'CA',
@@ -101,7 +127,7 @@ describe('we can start a firebase application', () => {
         expect(mockUpdate).toHaveBeenCalledWith({ capital: true });
       });
     });
-    
+
     test('batch writes', () => {
       const db = this.firebase.firestore();
       // Example from documentation:
@@ -131,5 +157,7 @@ describe('we can start a firebase application', () => {
         expect(mockBatchCommit).toHaveBeenCalled();
       });
     });
+
+
   });
 });

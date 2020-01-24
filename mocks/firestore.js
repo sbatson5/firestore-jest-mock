@@ -1,4 +1,5 @@
 const mockCollection = jest.fn();
+const mockCollectionGroup = jest.fn();
 const mockDoc = jest.fn();
 const mockWhere = jest.fn();
 const mockBatch = jest.fn();
@@ -52,6 +53,14 @@ class FakeFirestore {
     this.isFetchingSingle = false;
     this.collectionName = collectionName;
     mockCollection(...arguments);
+    return this;
+  }
+
+  collectionGroup(collectionName) {
+    this.recordToFetch = null;
+    this.isFetchingSingle = false;
+    this.collectionName = collectionName;
+    mockCollectionGroup(...arguments);
     return this;
   }
 
@@ -159,6 +168,7 @@ module.exports = {
   mockAdd,
   mockBatch,
   mockCollection,
+  mockCollectionGroup,
   mockDelete,
   mockDoc,
   mockGet,
