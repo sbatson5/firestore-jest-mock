@@ -38,7 +38,7 @@ function buildQuerySnapShot(requestedRecords) {
     docs,
     forEach(callback) {
       return docs.forEach(callback);
-    }
+    },
   };
 }
 
@@ -161,7 +161,7 @@ class FakeFirestore {
     mockLimit(...arguments);
     return this;
   }
-};
+}
 
 module.exports = {
   FakeFirestore,
@@ -180,5 +180,5 @@ module.exports = {
   mockBatchDelete,
   mockBatchCommit,
   mockBatchUpdate,
-  mockBatchSet
+  mockBatchSet,
 };
