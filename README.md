@@ -9,19 +9,20 @@ This is _not_ a pseudo-database -- it is only for testing you are interfacing wi
 ## Table of Contents
 
 - [Mock Firestore](#mock-firestore)
-- [Table of Contents](#table-of-contents)
-- [What's in the Box](#whats-in-the-box)
-- [Installation](#installation)
-- [Usage](#usage)
-  - [`mockFirebase`](#mockfirebase)
-  - [What would you want to test?](#what-would-you-want-to-test)
-    - [I wrote a where clause, but all the records were returned!](#i-wrote-a-where-clause-but-all-the-records-were-returned)
-  - [Functions you can test](#functions-you-can-test)
-    - [Firestore](#firestore)
-    - [Auth](#auth)
-- [Contributing](#contributing)
-- [Code of Conduct](#code-of-conduct)
-- [About Upstatement](#about-upstatement)
+  - [Table of Contents](#table-of-contents)
+  - [What's in the Box](#whats-in-the-box)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [`mockFirebase`](#mockfirebase)
+    - [What would you want to test?](#what-would-you-want-to-test)
+    - [Don't forget to reset your mocks](#dont-forget-to-reset-your-mocks)
+      - [I wrote a where clause, but all the records were returned!](#i-wrote-a-where-clause-but-all-the-records-were-returned)
+    - [Functions you can test](#functions-you-can-test)
+      - [Firestore](#firestore)
+      - [Auth](#auth)
+  - [Contributing](#contributing)
+  - [Code of Conduct](#code-of-conduct)
+  - [About Upstatement](#about-upstatement)
 
 ## What's in the Box
 
@@ -140,6 +141,26 @@ In this test, we don't necessarily care what gets returned from firestore (it's 
 > If I pass a state to this function, does it properly query the `users` collection?
 
 That's what we want to answer.
+
+### Don't forget to reset your mocks
+
+In jest, mocks will not reset between test instances unless you specify them to.
+This can be an issue if you have two tests that make an asseration against something like `mockCollection`.
+If you call it in one test and assert that it was called in another test, you may get a false positive.
+
+Luckily, jest offers a few methods to reset or clear your mocks.
+
+- [clearAllMocks()](https://jestjs.io/docs/en/jest-object#jestclearallmocks) clears all the calls for all of your mocks. It's good to run this in a `beforeEach` to reset between each test
+
+```js
+jest.clearAllMocks();
+```
+
+- [mockClear()](https://jestjs.io/docs/en/mock-function-api.html#mockfnmockclear) this resets one specific mock function
+
+```js
+mockCollection.mockClear();
+```
 
 #### I wrote a where clause, but all the records were returned!
 
