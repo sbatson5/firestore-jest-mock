@@ -21,6 +21,4 @@ What happened.
 
 ## Environment
 
-- OS:
-- Browser and its version:
-- Docker version:
+- Node version:
