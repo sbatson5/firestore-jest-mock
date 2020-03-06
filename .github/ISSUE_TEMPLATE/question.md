@@ -1,6 +1,6 @@
 ---
 name: Question 🤔
-about: Usage question or discussion about Ups Dock.
+about: Usage question or discussion about Firestore Jest Mock.
 ---
 
 # Summary
