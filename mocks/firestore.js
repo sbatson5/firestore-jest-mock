@@ -29,6 +29,10 @@ function buildDocFromHash(hash = {}) {
   };
 }
 
+function idHasCollectionName(id) {
+  return id.match('/');
+}
+
 function buildQuerySnapShot(requestedRecords) {
   const multipleRecords = requestedRecords.filter(rec => !!rec);
   const docs = multipleRecords.map(buildDocFromHash);
@@ -48,8 +52,16 @@ class FakeFirestore {
     this.database = stubbedDatabase;
   }
 
-  collection(collectionName) {
+  set collectionName(collectionName) {
+    this._collectionName = collectionName;
     this.recordToFetch = null;
+  }
+
+  get collectionName() {
+    return this._collectionName;
+  }
+
+  collection(collectionName) {
     this.isFetchingSingle = false;
     this.collectionName = collectionName;
     mockCollection(...arguments);
@@ -57,7 +69,6 @@ class FakeFirestore {
   }
 
   collectionGroup(collectionName) {
-    this.recordToFetch = null;
     this.isFetchingSingle = false;
     this.collectionName = collectionName;
     mockCollectionGroup(...arguments);
@@ -125,6 +136,12 @@ class FakeFirestore {
   }
 
   doc(id) {
+    if (idHasCollectionName(id)) {
+      const pathArray = id.split('/');
+      id = pathArray.pop();
+      this.collectionName = pathArray.join('/');
+    }
+
     mockDoc(id);
     this.isFetchingSingle = true;
     const records = this.database[this.collectionName] || [];
