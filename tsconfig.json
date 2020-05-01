@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "target": "ES5",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"]
+  },
+  "include": ["mocks/**/*"],
+  "exclude": ["node_modules"]
+}

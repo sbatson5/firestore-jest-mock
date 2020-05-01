@@ -8,6 +8,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 *.log
+.vscode
 
 # Editor directories and files
 .idea
