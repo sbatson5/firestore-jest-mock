@@ -7,7 +7,7 @@ const {
   mockServerTimestampFieldValue,
 } = require('firestore-jest-mock/mocks/firestore');
 
-describe('Single records modified with field sentinels', () => {
+describe('Single values transformed by field sentinels', () => {
   beforeEach(() => {
     jest.resetModules();
     jest.clearAllMocks();
@@ -30,13 +30,13 @@ describe('Single records modified with field sentinels', () => {
     const increment = firestore.FieldValue.increment;
     const value = 5;
 
-    expect(increment().updateValue(value)).toBe(6);
-    expect(increment(1).updateValue(value)).toBe(6);
+    expect(increment().transform(value)).toBe(6);
+    expect(increment(1).transform(value)).toBe(6);
 
-    expect(increment(0).updateValue(value)).toBe(value);
+    expect(increment(0).transform(value)).toBe(value);
 
-    expect(increment(-1).updateValue(value)).toBe(4);
-    expect(increment(-8).updateValue(value)).toBe(-3);
+    expect(increment(-1).transform(value)).toBe(4);
+    expect(increment(-8).transform(value)).toBe(-3);
 
     expect(mockIncrementFieldValue).toHaveBeenCalled();
   });
@@ -44,10 +44,10 @@ describe('Single records modified with field sentinels', () => {
   test('it does not increment non-number values', () => {
     const increment = firestore.FieldValue.increment;
 
-    expect(increment().updateValue('5')).toBe(1);
-    expect(increment().updateValue()).toBe(1);
+    expect(increment().transform('5')).toBe(1);
+    expect(increment().transform()).toBe(1);
 
-    expect(increment(8).updateValue({})).toBe(8);
+    expect(increment(8).transform({})).toBe(8);
 
     expect(mockIncrementFieldValue).toHaveBeenCalled();
   });
@@ -56,26 +56,26 @@ describe('Single records modified with field sentinels', () => {
     const arrayUnion = firestore.FieldValue.arrayUnion;
     const value = [1, 2, 3];
 
-    expect(arrayUnion([4, 5, 6]).updateValue(value)).toStrictEqual([1, 2, 3, 4, 5, 6]);
-    expect(arrayUnion([3, 4, 5]).updateValue(value)).toStrictEqual([1, 2, 3, 4, 5]);
+    expect(arrayUnion([4, 5, 6]).transform(value)).toStrictEqual([1, 2, 3, 4, 5, 6]);
+    expect(arrayUnion([3, 4, 5]).transform(value)).toStrictEqual([1, 2, 3, 4, 5]);
 
-    expect(arrayUnion([4]).updateValue(value)).toStrictEqual([1, 2, 3, 4]);
-    expect(arrayUnion(4).updateValue(value)).toStrictEqual([1, 2, 3, 4]);
-    expect(arrayUnion([3]).updateValue(value)).toStrictEqual(value);
-    expect(arrayUnion(3).updateValue(value)).toStrictEqual(value);
-    expect(arrayUnion('3').updateValue(value)).toStrictEqual([1, 2, 3, '3']);
+    expect(arrayUnion([4]).transform(value)).toStrictEqual([1, 2, 3, 4]);
+    expect(arrayUnion(4).transform(value)).toStrictEqual([1, 2, 3, 4]);
+    expect(arrayUnion([3]).transform(value)).toStrictEqual(value);
+    expect(arrayUnion(3).transform(value)).toStrictEqual(value);
+    expect(arrayUnion('3').transform(value)).toStrictEqual([1, 2, 3, '3']);
 
-    expect(arrayUnion(value).updateValue(value)).toStrictEqual(value);
-    expect(arrayUnion([]).updateValue(value)).toStrictEqual(value);
-    expect(arrayUnion().updateValue(value)).toStrictEqual(value);
+    expect(arrayUnion(value).transform(value)).toStrictEqual(value);
+    expect(arrayUnion([]).transform(value)).toStrictEqual(value);
+    expect(arrayUnion().transform(value)).toStrictEqual(value);
 
     const num = 3;
-    expect(arrayUnion([3]).updateValue(num)).toStrictEqual([3]);
-    expect(arrayUnion([3]).updateValue(undefined)).toStrictEqual([3]);
+    expect(arrayUnion([3]).transform(num)).toStrictEqual([3]);
+    expect(arrayUnion([3]).transform(undefined)).toStrictEqual([3]);
 
     // A string should not be treated like a character array
     const str = '3';
-    expect(arrayUnion([3]).updateValue(str)).toStrictEqual([3]);
+    expect(arrayUnion([3]).transform(str)).toStrictEqual([3]);
 
     expect(mockArrayUnionFieldValue).toHaveBeenCalled();
   });
@@ -84,27 +84,27 @@ describe('Single records modified with field sentinels', () => {
     const arrayRemove = firestore.FieldValue.arrayRemove;
     const value = [1, 2, 3];
 
-    expect(arrayRemove([4, 5, 6]).updateValue(value)).toStrictEqual(value);
-    expect(arrayRemove([3, 4, 5]).updateValue(value)).toStrictEqual([1, 2]);
-    expect(arrayRemove('3').updateValue(value)).toStrictEqual(value);
+    expect(arrayRemove([4, 5, 6]).transform(value)).toStrictEqual(value);
+    expect(arrayRemove([3, 4, 5]).transform(value)).toStrictEqual([1, 2]);
+    expect(arrayRemove('3').transform(value)).toStrictEqual(value);
 
-    expect(arrayRemove(value).updateValue(value)).toStrictEqual([]);
-    expect(arrayRemove([]).updateValue(value)).toStrictEqual(value);
-    expect(arrayRemove().updateValue(value)).toStrictEqual(value);
+    expect(arrayRemove(value).transform(value)).toStrictEqual([]);
+    expect(arrayRemove([]).transform(value)).toStrictEqual(value);
+    expect(arrayRemove().transform(value)).toStrictEqual(value);
 
     const num = 3;
-    expect(arrayRemove([3]).updateValue(num)).toStrictEqual(num);
-    expect(arrayRemove([3]).updateValue(undefined)).toBeUndefined();
+    expect(arrayRemove([3]).transform(num)).toStrictEqual(num);
+    expect(arrayRemove([3]).transform(undefined)).toBeUndefined();
 
     // A string should not be treated like a character array
     const str = '3';
-    expect(arrayRemove([3]).updateValue(str)).toStrictEqual(str);
+    expect(arrayRemove([3]).transform(str)).toStrictEqual(str);
 
     expect(mockArrayRemoveFieldValue).toHaveBeenCalled();
   });
 
   test('it returns a Timestamp object', () => {
-    const timestamp = firestore.FieldValue.serverTimestamp().updateValue();
+    const timestamp = firestore.FieldValue.serverTimestamp().transform();
     expect(mockServerTimestampFieldValue).toHaveBeenCalled();
     expect(timestamp).toHaveProperty('seconds');
     expect(timestamp).toHaveProperty('nanoseconds');
@@ -116,9 +116,9 @@ describe('Single records modified with field sentinels', () => {
       some: 'thing',
     };
 
-    expect(deleteValue().updateValue(object.some)).toBeUndefined();
+    expect(deleteValue().transform(object.some)).toBeUndefined();
     expect(object.some).toBeDefined();
-    object.some = deleteValue().updateValue(object.some);
+    object.some = deleteValue().transform(object.some);
     expect(object.some).toBeUndefined();
 
     expect(mockDeleteFieldValue).toHaveBeenCalled();

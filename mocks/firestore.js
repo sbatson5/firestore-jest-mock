@@ -200,7 +200,7 @@ FakeFirestore.FieldValue = class {
     );
   }
 
-  updateValue(value) {
+  transform(value) {
     switch (this.type) {
       case 'arrayUnion':
         if (Array.isArray(value)) {
