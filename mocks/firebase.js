@@ -14,8 +14,10 @@ const firebaseStub = overrides => {
       return new FakeAuth(overrides.currentUser);
     },
 
-    firestore() {
-      return new FakeFirestore(overrides.database);
+    firestore: class extends FakeFirestore {
+      constructor() {
+        super(overrides.database);
+      }
     },
   };
 };
