@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
+    "outDir": "dist",
     "strict": true,
     "sourceMap": true,
+    "rootDirs": ["./src"],
     "baseUrl": ".",
     "target": "ES5",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"]
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "declaration": true
   },
-  "include": ["mocks/**/*"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }
