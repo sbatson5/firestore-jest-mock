@@ -8,8 +8,10 @@
     "Jest",
     "Firestore"
   ],
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "build": "rm -rf ./dist && tsc --project tsconfig.build.json",
     "test": "jest",
     "test:watch": "jest --watchAll",
     "test:coverage": "jest --coverage"
