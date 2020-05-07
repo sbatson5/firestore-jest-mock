@@ -223,8 +223,7 @@ FakeFirestore.FieldValue = class {
         }
       }
       case 'serverTimestamp': {
-        const now = Date.now();
-        return { seconds: now / 1000, nanoseconds: now % 1000 };
+        return FakeFirestore.Timestamp.now();
       }
       case 'delete':
         return undefined;
@@ -260,6 +259,26 @@ FakeFirestore.FieldValue = class {
   static delete() {
     mockDeleteFieldValue(...arguments);
     return new FakeFirestore.FieldValue('delete');
+  }
+};
+
+FakeFirestore.Timestamp = class {
+  constructor(seconds, nanoseconds) {
+    this.seconds = seconds;
+    this.nanoseconds = nanoseconds;
+  }
+
+  static now() {
+    const now = Date.now();
+    return new FakeFirestore.FieldValue.Timestamp(now / 1000, 0);
+  }
+
+  isEqual(other) {
+    return (
+      other instanceof FakeFirestore.FieldValue.Timestamp &&
+      other.seconds === this.seconds &&
+      other.nanoseconds === this.nanoseconds
+    );
   }
 };
 
