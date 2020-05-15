@@ -171,7 +171,7 @@ Your application doesn't double-check firestore's response -- it trusts that it'
 
 ### Functions you can test
 
-#### Firestore
+#### [Firestore](https://googleapis.dev/nodejs/firestore/latest/Firestore.html)
 
 | Method                | Use                                                                                               | Method in Firestore                                                                              |
 | --------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
@@ -191,7 +191,17 @@ Your application doesn't double-check firestore's response -- it trusts that it'
 | `mockOrderBy`         | Assert correct field is passed to orderBy                                                         | [orderBy](https://googleapis.dev/nodejs/firestore/latest/Query.html#orderBy)                     |
 | `mockLimit`           | Assert limit is set properly                                                                      | [limit](https://googleapis.dev/nodejs/firestore/latest/Query.html#limit)                         |
 
-#### Auth
+#### [Firestore.FieldValue](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html)
+
+| Method                          | Use                                                        | Method in Firestore                                                                                |
+| ------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `mockArrayRemoveFieldValue`     | Assert the correct elements are removed from an array      | [arrayRemove](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html#.arrayRemove)         |
+| `mockArrayUnionFieldValue`      | Assert the correct elements are added to an array          | [arrayUnion](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html#.arrayUnion)           |
+| `mockDeleteFieldValue`          | Assert the correct fields are removed from a document      | [delete](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html#.delete)                   |
+| `mockIncrementFieldValue`       | Assert a number field is incremented by the correct amount | [increment](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html#.increment)             |
+| `mockServerTimestampFieldValue` | Assert a server Firebase.Timestamp value will be stored    | [serverTimestamp](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html#.serverTimestamp) |
+
+#### [Auth](https://firebase.google.com/docs/reference/js/firebase.auth.Auth)
 
 | Method                               | Use                                                                        | Method in Firebase                                                                                                                     |
 | ------------------------------------ | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
