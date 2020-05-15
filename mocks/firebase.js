@@ -30,7 +30,8 @@ function mockModuleIfFound(moduleName, overrides) {
     require.resolve(moduleName);
     jest.doMock(moduleName, () => firebaseStub(overrides));
   } catch (e) {
-    // module ${moduleName} not found, skipping
+    // eslint-disable-next-line no-console
+    console.info('Module ${moduleName} not found, mocking skipped.');
   }
 }
 
