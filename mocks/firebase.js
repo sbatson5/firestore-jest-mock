@@ -28,11 +28,11 @@ const mockFirebase = (overrides = {}) => {
 function mockModuleIfFound(moduleName, overrides) {
   try {
     require.resolve(moduleName);
-    jest.mock(moduleName, () => firebaseStub(overrides));
-  } catch(e) {
+    jest.doMock(moduleName, () => firebaseStub(overrides));
+  } catch (e) {
     // module ${moduleName} not found, skipping
   }
-};
+}
 
 module.exports = {
   firebaseStub,
