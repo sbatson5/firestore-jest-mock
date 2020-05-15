@@ -23,9 +23,19 @@ const firebaseStub = overrides => {
 };
 
 const mockFirebase = (overrides = {}) => {
-  jest.mock('firebase', () => firebaseStub(overrides)) &&
-    jest.mock('firebase-admin', () => firebaseStub(overrides));
+  mockModuleIfFound('firebase', overrides);
+  mockModuleIfFound('firebase-admin', overrides);
 };
+
+function mockModuleIfFound(moduleName, overrides) {
+  try {
+    require.resolve(moduleName);
+    jest.doMock(moduleName, () => firebaseStub(overrides));
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.info('Module ${moduleName} not found, mocking skipped.');
+  }
+}
 
 module.exports = {
   firebaseStub,
