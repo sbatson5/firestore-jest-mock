@@ -14,7 +14,9 @@ const firebaseStub = overrides => {
       return new FakeAuth(overrides.currentUser);
     },
 
-    firestore() {
+    firestore: function firestoreConstructor() {
+      firestoreConstructor.FieldValue = FakeFirestore.FieldValue;
+      firestoreConstructor.Timestamp = FakeFirestore.Timestamp;
       return new FakeFirestore(overrides.database);
     },
   };
