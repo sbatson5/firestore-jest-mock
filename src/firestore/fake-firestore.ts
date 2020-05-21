@@ -1,11 +1,11 @@
-import { MockDatabase } from "../../types";
-import { FakeFirestoreDatabase } from "./database/fake-database";
-import { FakeCollectionRef, FakeQuerySnapshot, FakeQuery } from "./collection";
-import { FakeDocRef, FakeDocSnapshot } from "./doc";
-import { FakeFieldValue } from "./field-value";
-import { FakeTimestamp } from "./timestamp";
-import { FakeFieldPath } from "./field-path";
-import { jestMocks } from "../jest-fn";
+import { MockDatabase } from 'types';
+import { FakeFirestoreDatabase } from './database/fake-database';
+import { FakeCollectionRef, FakeQuerySnapshot, FakeQuery } from './collection';
+import { FakeDocRef, FakeDocSnapshot } from './doc';
+import { FakeFieldValue } from './field-value';
+import { FakeTimestamp } from './timestamp';
+import { FakeFieldPath } from './field-path';
+import { jestMocks } from '../jest-fn';
 
 /** A Fake class to replaces firestore object */
 export class FakeFirestore {
@@ -137,7 +137,7 @@ export const FakeFirestoreModuleRefs = {
   FieldValue: FakeFieldValue,
   Timestamp: FakeTimestamp,
   FieldPath: FakeFieldPath,
-  Firestore: FakeFirestore
+  Firestore: FakeFirestore,
   // WriteBatch: ,
   // WriteResult: ,
   // Transaction: ,

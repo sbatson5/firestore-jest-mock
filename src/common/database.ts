@@ -1,4 +1,4 @@
-import { CollectionDataRef } from 'index';
+import { CollectionDataRef } from '../index';
 
 /** Firestore mock database structure */
 export interface MockDatabase {
