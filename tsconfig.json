@@ -1,14 +1,22 @@
 {
   "compilerOptions": {
+    "module": "commonjs",
     "outDir": "dist",
-    "strict": true,
-    "sourceMap": true,
-    "rootDirs": ["./src"],
+    "target": "es2017",
+    "types": ["jest", "node"],
+    "rootDirs": ["./src", "./__tests__"],
     "baseUrl": ".",
-    "target": "ES5",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "declaration": true
+    "paths": {
+      "types": ["types/index.d.ts"]
+    },
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": false,
+    "strictPropertyInitialization": false,
+    "noUnusedParameters": false,
+    "noUnusedLocals": false,
+    "skipLibCheck": true
   },
-  "include": ["src"],
+  "compileOnSave": true,
+  "include": ["src/**/*", "__tests__", "types/index.d.ts"],
   "exclude": ["node_modules"]
 }
