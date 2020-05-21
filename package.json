@@ -11,7 +11,7 @@
   "main": "dist/index.js",
   "types": "types/index.d.ts",
   "scripts": {
-    "build": "rm -rf ./dist && tsc --project tsconfig.build.json",
+    "build": "rm -rf ./dist ./types && tsc --project tsconfig.build.json",
     "test": "jest",
     "test:watch": "jest --watchAll",
     "test:coverage": "jest --coverage"

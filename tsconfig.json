@@ -5,10 +5,13 @@
     "target": "es2017",
     "types": ["jest", "node"],
     "rootDirs": ["./src", "./__tests__"],
+    "declaration": true,
+    "declarationDir": "./types",
     "baseUrl": ".",
     "paths": {
-      "types": ["types/index.d.ts"]
+      "types": ["./src/common/types.ts"]
     },
+    "typeRoots": ["./types", "./node_modules/@types"],
     "allowSyntheticDefaultImports": true,
     "sourceMap": false,
     "strictPropertyInitialization": false,
@@ -18,5 +21,5 @@
   },
   "compileOnSave": true,
   "include": ["src/**/*", "__tests__", "types/index.d.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "types"]
 }

@@ -3,7 +3,7 @@ module.exports = {
   automock: false,
   testEnvironment: 'node',
   collectCoverage: true,
-  collectCoverageFrom: ['**/src/**/*'],
+  collectCoverageFrom: ['**/src/**/*.ts'],
   coverageDirectory: 'coverage/',
   coveragePathIgnorePatterns: ['<rootDir>/dist/', '<rootDir>/node_modules/'],
   globals: {
