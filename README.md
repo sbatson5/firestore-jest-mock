@@ -6,9 +6,16 @@ A simple way to mock calls to Cloud Firestore, allowing you to assert that you a
 
 This is _not_ a pseudo-database -- it is only for testing you are interfacing with firebase/firestore the way you expect.
 
+## ⚠️ WARNING ⚠️
+
+This library is **NOT** feature complete with all available methods exposed by Firestore.
+
+Small, easy to grok pull requests are welcome, but please note that there is no official roadmap for making this library fully featured.
+
 ## Table of Contents
 
 - [Mock Firestore](#mock-firestore)
+  - [⚠️ WARNING ⚠️](#️-warning-️)
   - [Table of Contents](#table-of-contents)
   - [What's in the Box](#whats-in-the-box)
   - [Installation](#installation)
@@ -19,6 +26,7 @@ This is _not_ a pseudo-database -- it is only for testing you are interfacing wi
       - [I wrote a where clause, but all the records were returned!](#i-wrote-a-where-clause-but-all-the-records-were-returned)
     - [Functions you can test](#functions-you-can-test)
       - [Firestore](#firestore)
+      - [Firestore.FieldValue](#firestorefieldvalue)
       - [Auth](#auth)
   - [Contributing](#contributing)
   - [Code of Conduct](#code-of-conduct)
