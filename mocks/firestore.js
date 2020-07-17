@@ -299,6 +299,7 @@ module.exports = {
   mockGet,
   mockGetAll,
   mockOrderBy,
+  mockLimit,
   mockOffset,
   mockSet,
   mockUpdate,
