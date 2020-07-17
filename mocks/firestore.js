@@ -11,6 +11,7 @@ const mockSet = jest.fn();
 const mockDelete = jest.fn();
 const mockOrderBy = jest.fn();
 const mockLimit = jest.fn();
+const mockOffset = jest.fn();
 
 const mockArrayRemoveFieldValue = jest.fn();
 const mockArrayUnionFieldValue = jest.fn();
@@ -184,6 +185,11 @@ class FakeFirestore {
     mockLimit(...arguments);
     return this;
   }
+
+  offset() {
+    mockOffset(...arguments);
+    return this;
+  }
 }
 
 FakeFirestore.FieldValue = class {
@@ -293,6 +299,7 @@ module.exports = {
   mockGet,
   mockGetAll,
   mockOrderBy,
+  mockOffset,
   mockSet,
   mockUpdate,
   mockWhere,
