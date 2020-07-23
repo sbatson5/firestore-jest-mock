@@ -276,6 +276,102 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
   }
 };
 
+FakeFirestore.FieldValue = class {
+  constructor(type, value) {
+    this.type = type;
+    this.value = value;
+  }
+
+  isEqual(other) {
+    return (
+      other instanceof FakeFirestore.FieldValue &&
+      other.type === this.type &&
+      other.value === this.value
+    );
+  }
+
+  transform(value) {
+    switch (this.type) {
+      case 'arrayUnion':
+        if (Array.isArray(value)) {
+          return value.concat(this.value.filter(v => !value.includes(v)));
+        } else {
+          return this.value;
+        }
+      case 'arrayRemove':
+        if (Array.isArray(value)) {
+          return value.filter(v => !this.value.includes(v));
+        } else {
+          return value;
+        }
+      case 'increment': {
+        const amount = Number(this.value);
+        if (typeof value === 'number') {
+          return value + amount;
+        } else {
+          return amount;
+        }
+      }
+      case 'serverTimestamp': {
+        return FakeFirestore.Timestamp.now();
+      }
+      case 'delete':
+        return undefined;
+    }
+  }
+
+  static arrayUnion(elements = []) {
+    mockArrayUnionFieldValue(...arguments);
+    if (!Array.isArray(elements)) {
+      elements = [elements];
+    }
+    return new FakeFirestore.FieldValue('arrayUnion', elements);
+  }
+
+  static arrayRemove(elements) {
+    mockArrayRemoveFieldValue(...arguments);
+    if (!Array.isArray(elements)) {
+      elements = [elements];
+    }
+    return new FakeFirestore.FieldValue('arrayRemove', elements);
+  }
+
+  static increment(amount = 1) {
+    mockIncrementFieldValue(...arguments);
+    return new FakeFirestore.FieldValue('increment', amount);
+  }
+
+  static serverTimestamp() {
+    mockServerTimestampFieldValue(...arguments);
+    return new FakeFirestore.FieldValue('serverTimestamp');
+  }
+
+  static delete() {
+    mockDeleteFieldValue(...arguments);
+    return new FakeFirestore.FieldValue('delete');
+  }
+};
+
+FakeFirestore.Timestamp = class {
+  constructor(seconds, nanoseconds) {
+    this.seconds = seconds;
+    this.nanoseconds = nanoseconds;
+  }
+
+  static now() {
+    const now = Date.now();
+    return new FakeFirestore.Timestamp(now / 1000, 0);
+  }
+
+  isEqual(other) {
+    return (
+      other instanceof FakeFirestore.FieldValue.Timestamp &&
+      other.seconds === this.seconds &&
+      other.nanoseconds === this.nanoseconds
+    );
+  }
+};
+
 module.exports = {
   FakeFirestore,
   mockBatch,
