@@ -188,22 +188,22 @@ describe('we can query', () => {
       users: [
         {
           id: 'abc123',
-          name: 'Homer Simpson'
+          name: 'Homer Simpson',
         },
         {
           id: 'abc456',
-          name: 'Lisa Simpson'
+          name: 'Lisa Simpson',
         },
         {
           id: 'abc789',
           name: 'Dwight Schrute',
           _collections: {
-            employment: {
+            employment: [
               { id: '123abc', employer: 'Dunder Mifflin' },
-              { id: '123def', employer: 'Schrute Farms' }
-            }
-          }
-        }
+              { id: '123def', employer: 'Schrute Farms' },
+            ],
+          },
+        },
       ],
     },
   });
