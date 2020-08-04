@@ -217,6 +217,15 @@ Your application doesn't double-check firestore's response -- it trusts that it'
 | `mockIncrementFieldValue`       | Assert a number field is incremented by the correct amount | [increment](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html#.increment)             |
 | `mockServerTimestampFieldValue` | Assert a server Firebase.Timestamp value will be stored    | [serverTimestamp](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html#.serverTimestamp) |
 
+#### [Firestore.Transaction](https://googleapis.dev/nodejs/firestore/latest/Transaction.html)
+
+| Method                  | Use                                                                                     | Method in Firestore                                                              |
+| ----------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `mockGetTransaction`    | Assert transaction.get is called with correct params. Returns a promise                 | [get](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#get)       |
+| `mockSetTransaction`    | Assert transaction.set is called with correct params. Returns the transaction object    | [set](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#set)       |
+| `mockUpdateTransaction` | Assert transaction.update is called with correct params. Returns the transaction object | [update](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#update) |
+| `mockDeleteTransaction` | Assert transaction.delete is called with correct params. Returns the transaction object | [delete](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#delete) |
+
 #### [Auth](https://firebase.google.com/docs/reference/js/firebase.auth.Auth)
 
 | Method                               | Use                                                                        | Method in Firebase                                                                                                                     |
