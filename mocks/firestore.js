@@ -1,3 +1,4 @@
+const mockRunTransaction = jest.fn();
 const mockCollection = jest.fn();
 const mockCollectionGroup = jest.fn();
 const mockDoc = jest.fn();
@@ -20,6 +21,7 @@ const mockBatchUpdate = jest.fn();
 const mockBatchSet = jest.fn();
 
 const query = require('./query');
+const transaction = require('./transaction');
 
 const buildDocFromHash = require('./helpers/buildDocFromHash');
 const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
@@ -59,24 +61,26 @@ class FakeFirestore {
   }
 
   get() {
-    if (this.recordToFetch) {
+    query.mocks.mockGet(...arguments);
+
+    if (this.recordToFetch && this.recordToFetch.exists !== false) {
       return Promise.resolve(buildDocFromHash(this.recordToFetch));
     }
-    let contentToReturn;
+    let result;
     const requestedRecords = this.database[this.collectionName] || [];
     if (this.isFetchingSingle) {
-      if (requestedRecords.length < 1 || !this.recordToFetch) {
-        contentToReturn = { exists: false };
+      if (requestedRecords.length < 1 || this.recordToFetch.exists === false) {
+        result = buildDocFromHash(null, this.recordToFetch.id);
       } else if (Array.isArray(requestedRecords)) {
-        contentToReturn = buildDocFromHash(requestedRecords[0]);
+        result = buildDocFromHash(requestedRecords[0]);
       } else {
-        contentToReturn = buildDocFromHash(requestedRecords);
+        result = buildDocFromHash(requestedRecords);
       }
     } else {
-      contentToReturn = buildQuerySnapShot(requestedRecords);
+      result = buildQuerySnapShot(requestedRecords);
     }
 
-    return Promise.resolve(contentToReturn);
+    return Promise.resolve(result);
   }
 
   getAll() {
@@ -120,7 +124,7 @@ class FakeFirestore {
     mockDoc(id);
     this.isFetchingSingle = true;
     const records = this.database[this.collectionName] || [];
-    this.recordToFetch = records.find(record => record.id === id);
+    this.recordToFetch = records.find(record => record.id === id) || { id, exists: false };
     return this;
   }
 
@@ -168,9 +172,15 @@ class FakeFirestore {
   startAt() {
     return this.query.startAt(...arguments);
   }
+
+  runTransaction(updateFunction) {
+    mockRunTransaction(...arguments);
+    return updateFunction(new FakeFirestore.Transaction());
+  }
 }
 
 FakeFirestore.Query = query.Query;
+FakeFirestore.Transaction = transaction.Transaction;
 
 FakeFirestore.FieldValue = class {
   constructor(type, value) {
@@ -272,18 +282,14 @@ module.exports = {
   FakeFirestore,
   mockAdd,
   mockBatch,
+  mockRunTransaction,
   mockCollection,
   mockCollectionGroup,
   mockDelete,
   mockDoc,
-  mockGet: query.mocks.mockGet,
   mockGetAll,
-  mockOrderBy: query.mocks.mockOrderBy,
-  mockLimit: query.mocks.mockLimit,
-  mockOffset: query.mocks.mockOffset,
   mockSet,
   mockUpdate,
-  mockWhere: query.mocks.mockWhere,
   mockArrayRemoveFieldValue,
   mockArrayUnionFieldValue,
   mockDeleteFieldValue,
@@ -293,4 +299,10 @@ module.exports = {
   mockBatchCommit,
   mockBatchUpdate,
   mockBatchSet,
+  mockGet: query.mocks.mockGet,
+  mockOrderBy: query.mocks.mockOrderBy,
+  mockLimit: query.mocks.mockLimit,
+  mockOffset: query.mocks.mockOffset,
+  mockWhere: query.mocks.mockWhere,
+  ...transaction.mocks,
 };
