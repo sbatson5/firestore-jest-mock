@@ -21,7 +21,7 @@ class FakeAuth {
 
   deleteUser() {
     mockDeleteUser(...arguments);
-    return Promise.resolve('Success');
+    return Promise.resolve('👍');
   }
 
   signInWithEmailAndPassword() {
