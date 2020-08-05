@@ -21,7 +21,7 @@ class FakeAuth {
 
   deleteUser() {
     mockDeleteUser(...arguments);
-    return Promise.resolve('Success');
+    return Promise.resolve('👍');
   }
 
   signInWithEmailAndPassword() {
@@ -39,12 +39,11 @@ class FakeAuth {
   }
 
   getUser() {
-    return Promise.resolve(mockGetUser(...arguments));
+    return Promise.resolve(mockGetUser(...arguments) || {});
   }
 
   setCustomUserClaims() {
-    mockSetCustomUserClaims(...arguments);
-    return Promise.resolve({});
+    return Promise.resolve(mockSetCustomUserClaims(...arguments) || {});
   }
 
   get currentUser() {
