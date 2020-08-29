@@ -19,7 +19,7 @@ const mockBatchCommit = jest.fn();
 const mockBatchUpdate = jest.fn();
 const mockBatchSet = jest.fn();
 
-const query = require('./query');
+const { Query, mocks } = require('./query');
 
 const buildDocFromHash = require('./helpers/buildDocFromHash');
 const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
@@ -32,7 +32,7 @@ class FakeFirestore {
   constructor(stubbedDatabase = {}) {
     this.isFetchingSingle = false;
     this.database = stubbedDatabase;
-    this.query = new query.Query('', this);
+    this.query = new Query('', this);
   }
 
   set collectionName(collectionName) {
@@ -59,6 +59,7 @@ class FakeFirestore {
   }
 
   get() {
+    mocks.mockGet(...arguments);
     if (this.recordToFetch) {
       return Promise.resolve(buildDocFromHash(this.recordToFetch));
     }
@@ -170,7 +171,7 @@ class FakeFirestore {
   }
 }
 
-FakeFirestore.Query = query.Query;
+FakeFirestore.Query = Query;
 
 FakeFirestore.FieldValue = class {
   constructor(type, value) {
@@ -276,14 +277,14 @@ module.exports = {
   mockCollectionGroup,
   mockDelete,
   mockDoc,
-  mockGet: query.mocks.mockGet,
+  mockGet: mocks.mockGet,
   mockGetAll,
-  mockOrderBy: query.mocks.mockOrderBy,
-  mockLimit: query.mocks.mockLimit,
-  mockOffset: query.mocks.mockOffset,
+  mockOrderBy: mocks.mockOrderBy,
+  mockLimit: mocks.mockLimit,
+  mockOffset: mocks.mockOffset,
   mockSet,
   mockUpdate,
-  mockWhere: query.mocks.mockWhere,
+  mockWhere: mocks.mockWhere,
   mockArrayRemoveFieldValue,
   mockArrayUnionFieldValue,
   mockDeleteFieldValue,
