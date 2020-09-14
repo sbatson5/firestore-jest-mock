@@ -186,19 +186,26 @@ Your application doesn't double-check firestore's response -- it trusts that it'
 | `mockCollection`      | Assert the correct collection is being queried                                                    | [collection](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#collection)           |
 | `mockCollectionGroup` | Assert the correct collectionGroup is being queried                                               | [collectionGroup](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#collectionGroup) |
 | `mockDoc`             | Assert the correct record is being fetched by id. Tells the mock you are fetching a single record | [doc](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#doc)                         |
-| `mockWhere`           | Assert the correct query is written. Tells the mock you are fetching multiple records             | [where](https://googleapis.dev/nodejs/firestore/latest/Query.html#where)                         |
 | `mockBatch`           | Assert batch was called                                                                           | [batch](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#batch)                     |
 | `mockBatchDelete`     | Assert correct refs are passed                                                                    | [batch delete](https://googleapis.dev/nodejs/firestore/latest/WriteBatch.html#delete)            |
 | `mockBatchCommit`     | Assert commit is called. Returns a promise                                                        | [batch commit](https://googleapis.dev/nodejs/firestore/latest/WriteBatch.html#commit)            |
-| `mockGet`             | Assert get is called. Returns a promise resolving either to a single doc or querySnapshot         | [get](https://googleapis.dev/nodejs/firestore/latest/Query.html#get)                             |
 | `mockGetAll`          | Assert correct refs are passed. Returns a promise resolving to array of docs.                     | [getAll](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#getAll)                   |
 | `mockUpdate`          | Assert correct params are passed to update. Returns a promise                                     | [update](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#update)           |
 | `mockAdd`             | Assert correct params are passed to add. Returns a promise resolving to the doc with new id       | [add](https://googleapis.dev/nodejs/firestore/latest/CollectionReference.html#add)               |
 | `mockSet`             | Assert correct params are passed to set. Returns a promise                                        | [set](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#set)                 |
 | `mockDelete`          | Assert delete is called on ref. Returns a promise                                                 | [delete](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#delete)           |
-| `mockOrderBy`         | Assert correct field is passed to orderBy                                                         | [orderBy](https://googleapis.dev/nodejs/firestore/latest/Query.html#orderBy)                     |
-| `mockLimit`           | Assert limit is set properly                                                                      | [limit](https://googleapis.dev/nodejs/firestore/latest/Query.html#limit)                         |
-| `mockOffset`          | Assert offset is set properly                                                                     | [offset](https://googleapis.dev/nodejs/firestore/latest/Query.html#offset)                       |
+
+#### [Firestore.Query](https://googleapis.dev/nodejs/firestore/latest/Query.html)
+
+| Method           | Use                                                                                       | Method in Firestore                                                                |
+| ---------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `mockGet`        | Assert get is called. Returns a promise resolving either to a single doc or querySnapshot | [get](https://googleapis.dev/nodejs/firestore/latest/Query.html#get)               |
+| `mockWhere`      | Assert the correct query is written. Tells the mock you are fetching multiple records     | [where](https://googleapis.dev/nodejs/firestore/latest/Query.html#where)           |
+| `mockLimit`      | Assert limit is set properly                                                              | [limit](https://googleapis.dev/nodejs/firestore/latest/Query.html#limit)           |
+| `mockOrderBy`    | Assert correct field is passed to orderBy                                                 | [orderBy](https://googleapis.dev/nodejs/firestore/latest/Query.html#orderBy)       |
+| `mockOffset`     | Assert offset is set properly                                                             | [offset](https://googleapis.dev/nodejs/firestore/latest/Query.html#offset)         |
+| `mockStartAfter` | Assert startAfter is called                                                               | [startAfter](https://googleapis.dev/nodejs/firestore/latest/Query.html#startAfter) |
+| `mockStartAt`    | Assert startAt is called                                                                  | [startAt](https://googleapis.dev/nodejs/firestore/latest/Query.html#startAt)       |
 
 #### [Firestore.FieldValue](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html)
 
