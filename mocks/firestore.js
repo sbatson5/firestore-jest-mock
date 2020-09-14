@@ -63,7 +63,7 @@ class FakeFirestore {
       return Promise.resolve(buildDocFromHash(this.recordToFetch));
     }
     let result;
-    const requestedRecords = this.database[this.collectionName] || [];
+    const requestedRecords = this.currentCollection();
     if (this.isFetchingSingle) {
       if (requestedRecords.length < 1 || this.recordToFetch.exists === false) {
         result = buildDocFromHash(null, this.recordToFetch.id);
@@ -80,7 +80,7 @@ class FakeFirestore {
   }
 
   getAll() {
-    const requestedRecords = this.database[this.collectionName];
+    const requestedRecords = this.currentCollection();
 
     mockGetAll(...arguments);
 
@@ -119,7 +119,7 @@ class FakeFirestore {
 
     mockDoc(id);
     this.isFetchingSingle = true;
-    const records = this.database[this.collectionName] || [];
+    const records = this.currentCollection();
     this.recordToFetch = records.find(record => record.id === id) || { id, exists: false };
     return this;
   }
@@ -172,6 +172,29 @@ class FakeFirestore {
   runTransaction(updateFunction) {
     mockRunTransaction(...arguments);
     return updateFunction(new FakeFirestore.Transaction());
+  }
+
+  currentCollection() {
+    const segments = this.collectionName.split('/');
+    if (segments.length === 0) {
+      return this.database;
+    }
+    let collection = this.database[segments[0]];
+    // A path is a repeating pattern of collection/doc/colllection/doc
+    // Ensure we end on a collection by limiting to nearest odd number
+    const nSegments = segments.length - (1 - (segments.length % 2));
+    for (let i = 1; i < nSegments && collection; i++) {
+      const p = segments[i];
+      // Every 2nd element in the path is a collection
+      if (i % 2 === 0) {
+        collection = collection._collections
+          ? (collection = collection._collections[p])
+          : undefined;
+      } else {
+        collection = collection.find(c => c.id === p);
+      }
+    }
+    return collection || [];
   }
 }
 

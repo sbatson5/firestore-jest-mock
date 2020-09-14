@@ -14,6 +14,26 @@ describe('Single records versus queries', () => {
         name: 'Homer',
         occupation: 'technician',
         address: { street: '742 Evergreen Terrace' },
+        _collections: {
+          family: [
+            {
+              id: 'marge',
+              name: 'Marge',
+            },
+            {
+              id: 'bart',
+              name: 'Bart',
+            },
+            {
+              id: 'lisa',
+              name: 'Lisa',
+            },
+            {
+              id: 'maggie',
+              name: 'Maggie',
+            },
+          ],
+        },
       },
       { id: 'krusty', name: 'Krusty', occupation: 'clown' },
     ],
@@ -58,6 +78,28 @@ describe('Single records versus queries', () => {
 
         expect(record.get('name')).toEqual('Homer');
         expect(record.get('address.street')).toEqual('742 Evergreen Terrace');
+      }));
+
+  test('it can fetch a nested record', () =>
+    db
+      .doc('characters/homer/family/marge')
+      .get()
+      .then(record => {
+        expect(record.exists).toBe(true);
+        expect(record.id).toBe('marge');
+        const data = record.data();
+        expect(data.name).toBe('Marge');
+      }));
+
+  test('it can fetch a nested collection', () =>
+    db
+      .collection('characters/homer/family')
+      .getAll()
+      .then(records => {
+        expect(records.length).toBe(4);
+        const record = records[0];
+        expect(record.exists).toBe(true);
+        expect(record.get('name')).toBe('Marge');
       }));
 
   test('it can fetch a single record with a promise without a specified collection', () =>
