@@ -99,6 +99,7 @@ describe('Single records versus queries', () => {
         expect(records.length).toBe(4);
         const record = records[0];
         expect(record.exists).toBe(true);
+        expect(record).toHaveProperty('id', 'marge');
         expect(record.get('name')).toBe('Marge');
       }));
 
