@@ -9,7 +9,12 @@ describe('Single records versus queries', () => {
 
   const db = new FakeFirestore({
     characters: [
-      { id: 'homer', name: 'Homer', occupation: 'technician' },
+      {
+        id: 'homer',
+        name: 'Homer',
+        occupation: 'technician',
+        address: { street: '742 Evergreen Terrace' },
+      },
       { id: 'krusty', name: 'Krusty', occupation: 'clown' },
     ],
   });
@@ -34,30 +39,35 @@ describe('Single records versus queries', () => {
     expect(record.exists).toBe(false);
   });
 
-  test('it can fetch a single record with a promise', () => db
-    .collection('characters')
-    .doc('homer')
-    .get()
-    .then(record => {
-      expect(record.exists).toBe(true);
-      expect(record.id).toBe('homer');
-      const data = record.data();
-      expect(mockCollection).toHaveBeenCalledWith('characters');
-      expect(data).toHaveProperty('name', 'Homer');
-      expect(data).toHaveProperty('occupation', 'technician');
-    }));
+  test('it can fetch a single record with a promise', () =>
+    db
+      .collection('characters')
+      .doc('homer')
+      .get()
+      .then(record => {
+        expect(record.exists).toBe(true);
+        expect(record.id).toBe('homer');
+        const data = record.data();
+        expect(mockCollection).toHaveBeenCalledWith('characters');
+        expect(data).toHaveProperty('name', 'Homer');
+        expect(data).toHaveProperty('occupation', 'technician');
 
-  test('it can fetch a single record with a promise without a specified collection', () => db
-    .doc('characters/homer')
-    .get()
-    .then(record => {
-      expect(record.exists).toBe(true);
-      expect(record.id).toBe('homer');
-      const data = record.data();
-      expect(mockCollection).not.toHaveBeenCalled();
-      expect(data).toHaveProperty('name', 'Homer');
-      expect(data).toHaveProperty('occupation', 'technician');
-    }));
+        expect(record.get('name')).toEqual('Homer');
+        expect(record.get('address.street')).toEqual('742 Evergreen Terrace');
+      }));
+
+  test('it can fetch a single record with a promise without a specified collection', () =>
+    db
+      .doc('characters/homer')
+      .get()
+      .then(record => {
+        expect(record.exists).toBe(true);
+        expect(record.id).toBe('homer');
+        const data = record.data();
+        expect(mockCollection).not.toHaveBeenCalled();
+        expect(data).toHaveProperty('name', 'Homer');
+        expect(data).toHaveProperty('occupation', 'technician');
+      }));
 
   test('it can fetch multiple records and returns documents', async () => {
     const records = await db
@@ -79,16 +89,17 @@ describe('Single records versus queries', () => {
     expect(records.empty).toBe(true);
   });
 
-  test('it can fetch multiple records as a promise', () => db
-    .collection('characters')
-    .where('name', '==', 'Homer')
-    .get()
-    .then(records => {
-      expect(records.empty).toBe(false);
-      expect(records).toHaveProperty('docs', expect.any(Array));
-      expect(records.docs[0]).toHaveProperty('id', 'homer');
-      expect(records.docs[0].data()).toHaveProperty('name', 'Homer');
-    }));
+  test('it can fetch multiple records as a promise', () =>
+    db
+      .collection('characters')
+      .where('name', '==', 'Homer')
+      .get()
+      .then(records => {
+        expect(records.empty).toBe(false);
+        expect(records).toHaveProperty('docs', expect.any(Array));
+        expect(records.docs[0]).toHaveProperty('id', 'homer');
+        expect(records.docs[0].data()).toHaveProperty('name', 'Homer');
+      }));
 
   test('it can return all records', async () => {
     const firstRecord = db.collection('characters').doc('homer');
