@@ -253,12 +253,18 @@ FakeFirestore.Timestamp = class {
   constructor(seconds, nanoseconds) {
     this.seconds = seconds;
     this.nanoseconds = nanoseconds;
+
+    if (nanoseconds < 0 || nanoseconds > 999999999) {
+      throw new Error('Nanoseconds must be non-negative and less than 999999999')
+    }
   }
 
-  static now() {
-    const now = Date.now();
-    return new FakeFirestore.Timestamp(now / 1000, 0);
-  }
+  static now = () => fromMillis(Date.now());
+  static fromDate = (date) => fromMillis(date.getTime());
+  static fromMillis = (millis) => new FakeFirestore.Timestamp(Math.floor(millis / 1000), (millis % 1000) * 1000);
+
+  toDate = () => new Date(this.toMillis())
+  toMillis = () => (this.seconds * 1000) + (this.nanoseconds / 1000);
 
   isEqual(other) {
     return (
