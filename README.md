@@ -222,6 +222,7 @@ Your application doesn't double-check firestore's response -- it trusts that it'
 | Method                  | Use                                                                                     | Method in Firestore                                                              |
 | ----------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
 | `mockGetTransaction`    | Assert transaction.get is called with correct params. Returns a promise                 | [get](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#get)       |
+| `mockGetAllTransaction` | Assert transaction.getAll is called with correct params. Returns a promise              | [get](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#getAll)    |
 | `mockSetTransaction`    | Assert transaction.set is called with correct params. Returns the transaction object    | [set](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#set)       |
 | `mockUpdateTransaction` | Assert transaction.update is called with correct params. Returns the transaction object | [update](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#update) |
 | `mockDeleteTransaction` | Assert transaction.delete is called with correct params. Returns the transaction object | [delete](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#delete) |

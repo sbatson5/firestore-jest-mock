@@ -3,7 +3,6 @@ const mockCollection = jest.fn();
 const mockCollectionGroup = jest.fn();
 const mockDoc = jest.fn();
 const mockBatch = jest.fn();
-const mockGetAll = jest.fn();
 const mockUpdate = jest.fn();
 const mockAdd = jest.fn();
 const mockSet = jest.fn();
@@ -86,7 +85,7 @@ class FakeFirestore {
   getAll() {
     const requestedRecords = this.database[this.collectionName];
 
-    mockGetAll(...arguments);
+    transaction.mocks.mockGetAll(...arguments);
 
     const records = requestedRecords
       .map(record => buildDocFromHash(record))
@@ -287,7 +286,6 @@ module.exports = {
   mockCollectionGroup,
   mockDelete,
   mockDoc,
-  mockGetAll,
   mockSet,
   mockUpdate,
   mockArrayRemoveFieldValue,
