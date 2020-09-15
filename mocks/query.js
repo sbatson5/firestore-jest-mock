@@ -18,7 +18,6 @@ class Query {
     mockGet(...arguments);
     // Use DFS to find all records in collections that match collectionName
     const requestedRecords = [];
-    // requestedRecords.push(...this.firestore.database[this.collectionName]);
 
     const st = [this.firestore.database];
     // At each collection list node, get collection in collection list whose id
