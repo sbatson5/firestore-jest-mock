@@ -19,6 +19,7 @@ const firebaseStub = overrides => {
       firestoreConstructor.Transaction = FakeFirestore.Transaction;
       firestoreConstructor.FieldValue = FakeFirestore.FieldValue;
       firestoreConstructor.Timestamp = FakeFirestore.Timestamp;
+
       return new FakeFirestore(overrides.database);
     },
   };
