@@ -9,6 +9,8 @@ const {
   mockSetTransaction,
   mockGet,
   mockGetTransaction,
+  mockGetAll,
+  mockGetAllTransaction,
 } = require('firestore-jest-mock/mocks/firestore');
 
 describe('Transactions', () => {
@@ -112,5 +114,21 @@ describe('Transactions', () => {
       expect(mockDelete).toHaveBeenCalled();
     });
     expect(mockDeleteTransaction).toHaveBeenCalled();
+  });
+
+  test('mockGetAll is accessible', async () => {
+    expect.assertions(4);
+    expect(mockGetAllTransaction).not.toHaveBeenCalled();
+    const ref1 = db.collection('some').doc('body');
+    const ref2 = ref1.collection('once').doc('told');
+
+    await db.runTransaction(async transaction => {
+      // FIXME: getAll is not defined on the client library, so this is a shot in the dark
+      const result = await transaction.getAll(ref1, ref2);
+
+      expect(result).toBeInstanceOf(Array);
+      expect(mockGetAll).toHaveBeenCalled();
+    });
+    expect(mockGetAllTransaction).toHaveBeenCalled();
   });
 });
