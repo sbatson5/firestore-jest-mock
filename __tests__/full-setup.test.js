@@ -12,7 +12,7 @@ const {
   mockBatchCommit,
   mockBatchDelete,
   mockBatchUpdate,
-  mockBatchSet
+  mockBatchSet,
 } = require('../mocks/firestore');
 
 describe('we can start a firebase application', () => {
@@ -20,13 +20,13 @@ describe('we can start a firebase application', () => {
     database: {
       users: [
         { id: 'abc123', first: 'Bob', last: 'builder', born: 1998 },
-        { id: '123abc', first: 'Blues', last: 'builder', born: 1996 }
+        { id: '123abc', first: 'Blues', last: 'builder', born: 1996 },
       ],
       cities: [
         { id: 'LA', name: 'Los Angeles', state: 'CA', country: 'USA' },
-        { id: 'DC', name: 'Disctric of Columbia', state: 'DC', country: 'USA' }
-      ]
-    }
+        { id: 'DC', name: 'Disctric of Columbia', state: 'DC', country: 'USA' },
+      ],
+    },
   });
 
   beforeEach(() => {
@@ -34,7 +34,7 @@ describe('we can start a firebase application', () => {
     this.firebase.initializeApp({
       apiKey: '### FIREBASE API KEY ###',
       authDomain: '### FIREBASE AUTH DOMAIN ###',
-      projectId: '### CLOUD FIRESTORE PROJECT ID ###'
+      projectId: '### CLOUD FIRESTORE PROJECT ID ###',
     });
   });
 
@@ -50,15 +50,18 @@ describe('we can start a firebase application', () => {
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/quickstart#add_data
 
-      db.collection('users').add({
-        first: 'Ada',
-        last: 'Lovelace',
-        born: 1815
-      }).then(function (docRef) {
-        expect(mockAdd).toHaveBeenCalled();
-        expect(docRef).toHaveProperty('id', 'abc123');
-        expect(docRef.data()).toHaveProperty('first', 'Ada');
-      });
+      return db
+        .collection('users')
+        .add({
+          first: 'Ada',
+          last: 'Lovelace',
+          born: 1815,
+        })
+        .then(function(docRef) {
+          expect(mockAdd).toHaveBeenCalled();
+          expect(docRef).toHaveProperty('id', 'abc123');
+          expect(docRef.data()).toHaveProperty('first', 'Ada');
+        });
     });
 
     test('get all users', () => {
@@ -66,15 +69,18 @@ describe('we can start a firebase application', () => {
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/quickstart#read_data
 
-      db.collection('users').get().then((querySnapshot) => {
-        expect(querySnapshot.forEach).toBeTruthy();
-        expect(querySnapshot.docs.length).toBe(2);
+      return db
+        .collection('users')
+        .get()
+        .then(querySnapshot => {
+          expect(querySnapshot.forEach).toBeTruthy();
+          expect(querySnapshot.docs.length).toBe(2);
 
-        querySnapshot.forEach((doc) => {
-          expect(doc.exists).toBe(true);
-          expect(doc.data()).toBeTruthy();
+          querySnapshot.forEach(doc => {
+            expect(doc.exists).toBe(true);
+            expect(doc.data()).toBeTruthy();
+          });
         });
-      });
     });
 
     test('collectionGroup', () => {
@@ -82,7 +88,8 @@ describe('we can start a firebase application', () => {
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/query-data/queries#collection-group-query
 
-      db.collectionGroup('cities')
+      return db
+        .collectionGroup('cities')
         .where('type', '==', 'museum')
         .get()
         .then(querySnapshot => {
@@ -93,7 +100,7 @@ describe('we can start a firebase application', () => {
           expect(querySnapshot.forEach).toBeTruthy();
           expect(querySnapshot.docs.length).toBe(2);
 
-          querySnapshot.forEach((doc) => {
+          querySnapshot.forEach(doc => {
             expect(doc.exists).toBe(true);
             expect(doc.data()).toBeTruthy();
           });
@@ -105,27 +112,37 @@ describe('we can start a firebase application', () => {
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/manage-data/add-data#set_a_document\
 
-      db.collection('cities').doc('LA').set({
-        name: 'Los Angeles',
-        state: 'CA',
-        country: 'USA'
-      }).then(function () {
-        expect(mockSet).toHaveBeenCalledWith({ name: 'Los Angeles', state: 'CA', country: 'USA' });
-      });
+      return db
+        .collection('cities')
+        .doc('LA')
+        .set({
+          name: 'Los Angeles',
+          state: 'CA',
+          country: 'USA',
+        })
+        .then(function() {
+          expect(mockSet).toHaveBeenCalledWith({
+            name: 'Los Angeles',
+            state: 'CA',
+            country: 'USA',
+          });
+        });
     });
 
     test('updating a city', () => {
       const db = this.firebase.firestore();
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
-      const washingtonRef = db.collection("cities").doc("DC");
+      const washingtonRef = db.collection('cities').doc('DC');
 
       // Set the "capital" field of the city 'DC'
-      return washingtonRef.update({
-        capital: true
-      }).then(function () {
-        expect(mockUpdate).toHaveBeenCalledWith({ capital: true });
-      });
+      return washingtonRef
+        .update({
+          capital: true,
+        })
+        .then(function() {
+          expect(mockUpdate).toHaveBeenCalledWith({ capital: true });
+        });
     });
 
     test('batch writes', () => {
@@ -142,17 +159,17 @@ describe('we can start a firebase application', () => {
 
       // Update the population of 'SF'
       const sfRef = db.collection('cities').doc('SF');
-      batch.update(sfRef, { 'population': 1000000 });
+      batch.update(sfRef, { population: 1000000 });
 
       // Delete the city 'LA'
       const laRef = db.collection('cities').doc('LA');
       batch.delete(laRef);
 
       // Commit the batch
-      batch.commit().then(function () {
+      return batch.commit().then(function() {
         expect(mockBatch).toHaveBeenCalled();
         expect(mockBatchDelete).toHaveBeenCalledWith(laRef);
-        expect(mockBatchUpdate).toHaveBeenCalledWith(sfRef, { 'population': 1000000 });
+        expect(mockBatchUpdate).toHaveBeenCalledWith(sfRef, { population: 1000000 });
         expect(mockBatchSet).toHaveBeenCalledWith(nycRef, { name: 'New York City' });
         expect(mockBatchCommit).toHaveBeenCalled();
       });
