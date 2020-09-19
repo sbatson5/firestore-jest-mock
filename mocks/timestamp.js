@@ -18,17 +18,16 @@ class Timestamp {
   }
 
   toDate() {
-    const d = new Date(0);
-    d.setSeconds(this.seconds);
-    d.setMilliseconds(this.nanoseconds / 1000000);
-    return mockTimestampToDate(...arguments) || d;
+    return mockTimestampToDate(...arguments) || new Date(this._toMillis());
   }
 
   toMillis() {
-    const d = new Date(0);
-    d.setSeconds(this.seconds);
-    d.setMilliseconds(this.nanoseconds / 1000000);
-    return mockTimestampToMillis(...arguments) || d.getMilliseconds();
+    return mockTimestampToMillis(...arguments) || this._toMillis();
+  }
+
+  // Dates only return whole-number millis
+  _toMillis() {
+    return this.seconds * 1000 + Math.round(this.nanoseconds / 1000000);
   }
 
   valueOf() {
@@ -36,16 +35,17 @@ class Timestamp {
   }
 
   static fromDate(date) {
-    return (
-      mockTimestampFromDate(...arguments) ||
-      new Timestamp(date.getSeconds(), date.getMilliseconds() * 1000000)
-    );
+    return mockTimestampFromDate(...arguments) || Timestamp._fromMillis(date.getTime());
   }
 
   static fromMillis(millis) {
-    const d = new Date(0);
-    d.setMilliseconds(millis);
-    return mockTimestampFromMillis(...arguments) || Timestamp.fromDate(d);
+    return mockTimestampFromMillis(...arguments) || Timestamp._fromMillis(millis);
+  }
+
+  static _fromMillis(millis) {
+    const seconds = Math.floor(millis / 1000);
+    const nanoseconds = 1000000 * (millis % 1000);
+    return new Timestamp(seconds, nanoseconds);
   }
 
   static now() {

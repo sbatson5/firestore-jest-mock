@@ -48,7 +48,7 @@ describe('Timestamp mock', () => {
     const now = new Date();
     mockTimestampToMillis.mockReturnValueOnce(now.getMilliseconds());
     expect(timestamp.toMillis()).toBe(now.getMilliseconds());
-    expect(timestamp.toMillis()).toBe(0); // second call should be the original
+    expect(timestamp.toMillis()).toBe(40000); // second call should be the original (40s)
     expect(mockTimestampToMillis).toHaveBeenCalledTimes(2);
   });
 
