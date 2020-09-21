@@ -278,7 +278,7 @@ FakeFirestore.Timestamp = class {
 
   toDate() {
     const d = new Date(0);
-    d.setSeconds(this.seconds);
+    d.setTime(this.seconds * 1000);
     d.setMilliseconds(this.nanoseconds / 1000000);
     return mockTimestampToDate(...arguments) || d;
   }
@@ -297,7 +297,7 @@ FakeFirestore.Timestamp = class {
   static fromDate(date) {
     return (
       mockTimestampFromDate(...arguments) ||
-      new FakeFirestore.Timestamp(date.getSeconds(), date.getMilliseconds() * 1000000)
+      new FakeFirestore.Timestamp(date.getTime() * 0.001, date.getMilliseconds() * 1000000)
     );
   }
 

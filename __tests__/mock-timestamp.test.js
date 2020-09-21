@@ -57,7 +57,7 @@ describe('Timestamp mock', () => {
     const timestamp = FakeFirestore.Timestamp.fromDate(now);
     expect(timestamp).toBeDefined();
     expect(timestamp).toBeInstanceOf(FakeFirestore.Timestamp);
-    expect(timestamp.toDate().getSeconds()).toBe(now.getSeconds());
+    expect(timestamp.toDate().getTime()).toBe(now.getTime());
   });
 
   test('it creates an instance roughly from a millisecond representation', () => {
