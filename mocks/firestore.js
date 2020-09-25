@@ -178,9 +178,9 @@ class FakeFirestore {
     return this.query.startAt(...arguments);
   }
 
-  runTransaction(updateFunction) {
+  async runTransaction(updateFunction) {
     mockRunTransaction(...arguments);
-    return updateFunction(new FakeFirestore.Transaction());
+    return await updateFunction(new FakeFirestore.Transaction());
   }
 }
 
