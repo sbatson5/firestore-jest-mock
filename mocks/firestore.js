@@ -23,6 +23,7 @@ const mockTimestampToDate = jest.fn();
 const mockTimestampToMillis = jest.fn();
 const mockTimestampFromDate = jest.fn();
 const mockTimestampFromMillis = jest.fn();
+const mockTimestampNow = jest.fn();
 
 const { Query, mocks } = require('./query');
 const transaction = require('./transaction');
@@ -309,7 +310,7 @@ FakeFirestore.Timestamp = class {
 
   static now() {
     const now = new Date();
-    return FakeFirestore.Timestamp.fromDate(now);
+    return mockTimestampNow(...arguments) || FakeFirestore.Timestamp.fromDate(now);
   }
 };
 
@@ -337,6 +338,7 @@ module.exports = {
   mockTimestampToMillis,
   mockTimestampFromDate,
   mockTimestampFromMillis,
+  mockTimestampNow,
   mockGet: mocks.mockGet,
   mockOrderBy: mocks.mockOrderBy,
   mockLimit: mocks.mockLimit,

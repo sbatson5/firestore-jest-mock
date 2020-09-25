@@ -225,6 +225,7 @@ Your application doesn't double-check firestore's response -- it trusts that it'
 | `mockTimestampToMillis`   | Assert the call and mock the result, or use the default implementation | [toMillis](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#toMillis)      |
 | `mockTimestampFromDate`   | Assert the call and mock the result, or use the default implementation | [fromDate](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#.fromDate)     |
 | `mockTimestampFromMillis` | Assert the call and mock the result, or use the default implementation | [fromMillis](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#.fromMillis) |
+| `mockTimestampNow`        | Assert the call and mock the result, or use the default implementation | [now](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#.now)               |
 
 #### [Firestore.Transaction](https://googleapis.dev/nodejs/firestore/latest/Transaction.html)
 
