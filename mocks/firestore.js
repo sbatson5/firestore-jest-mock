@@ -56,7 +56,7 @@ class FakeFirestore {
   }
 
   get() {
-    mocks.mockGet(...arguments);
+    query.mocks.mockGet(...arguments);
 
     if (this.recordToFetch && this.recordToFetch.exists !== false) {
       return Promise.resolve(buildDocFromHash(this.recordToFetch));
