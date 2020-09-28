@@ -37,9 +37,9 @@ describe('Transactions', () => {
     expect(mockRunTransaction).toHaveBeenCalled();
   });
 
-  test('it returns quickly', async () => {
-    await db.runTransaction(async () => {});
-    expect(true).toBe(true);
+  test('it returns the same value returned by the transaction callback', async () => {
+    const result = await db.runTransaction(() => 'Success!');
+    expect(result).toBe('Success!');
   });
 
   test('it provides a Transaction object', () => {
@@ -76,7 +76,7 @@ describe('Transactions', () => {
     expect(mockSetTransaction).not.toHaveBeenCalled();
     const ref = db.collection('some').doc('body');
 
-    await db.runTransaction(async transaction => {
+    await db.runTransaction(transaction => {
       const newData = { foo: 'bar' };
       const options = { merge: true };
       const result = transaction.set(ref, newData, options);
@@ -92,7 +92,7 @@ describe('Transactions', () => {
     expect(mockUpdateTransaction).not.toHaveBeenCalled();
     const ref = db.collection('some').doc('body');
 
-    await db.runTransaction(async transaction => {
+    await db.runTransaction(transaction => {
       const newData = { foo: 'bar' };
       const result = transaction.update(ref, newData);
 

@@ -2,11 +2,12 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123') {
   const exists = !!hash || false;
   return {
     exists,
-    id: (hash && hash.id) || id || 'abc123',
+    id: (hash && hash.id) || id,
     ref: hash && hash._ref,
     data() {
       if (!exists) {
         // From Firestore docs: "Returns 'undefined' if the document doesn't exist."
+        // See https://firebase.google.com/docs/reference/js/firebase.firestore.DocumentSnapshot#data
         return undefined;
       }
       const copy = { ...hash };

@@ -19,6 +19,12 @@ const mockBatchCommit = jest.fn();
 const mockBatchUpdate = jest.fn();
 const mockBatchSet = jest.fn();
 
+const mockTimestampToDate = jest.fn();
+const mockTimestampToMillis = jest.fn();
+const mockTimestampFromDate = jest.fn();
+const mockTimestampFromMillis = jest.fn();
+const mockTimestampNow = jest.fn();
+
 const { Query, mocks } = require('./query');
 const transaction = require('./transaction');
 
@@ -172,9 +178,9 @@ class FakeFirestore {
     return this.query.startAt(...arguments);
   }
 
-  runTransaction(updateFunction) {
+  async runTransaction(updateFunction) {
     mockRunTransaction(...arguments);
-    return updateFunction(new FakeFirestore.Transaction());
+    return await updateFunction(new FakeFirestore.Transaction());
   }
 }
 
@@ -263,17 +269,48 @@ FakeFirestore.Timestamp = class {
     this.nanoseconds = nanoseconds;
   }
 
-  static now() {
-    const now = Date.now();
-    return new FakeFirestore.Timestamp(now / 1000, 0);
-  }
-
   isEqual(other) {
     return (
-      other instanceof FakeFirestore.FieldValue.Timestamp &&
+      other instanceof FakeFirestore.Timestamp &&
       other.seconds === this.seconds &&
       other.nanoseconds === this.nanoseconds
     );
+  }
+
+  toDate() {
+    const d = new Date(0);
+    d.setTime(this.seconds * 1000);
+    d.setMilliseconds(this.nanoseconds / 1000000);
+    return mockTimestampToDate(...arguments) || d;
+  }
+
+  toMillis() {
+    const d = new Date(0);
+    d.setSeconds(this.seconds);
+    d.setMilliseconds(this.nanoseconds / 1000000);
+    return mockTimestampToMillis(...arguments) || d.getMilliseconds();
+  }
+
+  valueOf() {
+    return JSON.stringify(this.toMillis());
+  }
+
+  static fromDate(date) {
+    return (
+      mockTimestampFromDate(...arguments) ||
+      new FakeFirestore.Timestamp(date.getTime() * 0.001, date.getMilliseconds() * 1000000)
+    );
+  }
+
+  static fromMillis(millis) {
+    const d = new Date(0);
+    d.setMilliseconds(millis);
+    return mockTimestampFromMillis(...arguments) || FakeFirestore.Timestamp.fromDate(d);
+  }
+
+  static now() {
+    const now = new Date();
+    return mockTimestampNow(...arguments) || FakeFirestore.Timestamp.fromDate(now);
   }
 };
 
@@ -297,6 +334,11 @@ module.exports = {
   mockBatchCommit,
   mockBatchUpdate,
   mockBatchSet,
+  mockTimestampToDate,
+  mockTimestampToMillis,
+  mockTimestampFromDate,
+  mockTimestampFromMillis,
+  mockTimestampNow,
   mockGet: mocks.mockGet,
   mockOrderBy: mocks.mockOrderBy,
   mockLimit: mocks.mockLimit,

@@ -217,6 +217,16 @@ Your application doesn't double-check firestore's response -- it trusts that it'
 | `mockIncrementFieldValue`       | Assert a number field is incremented by the correct amount | [increment](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html#.increment)             |
 | `mockServerTimestampFieldValue` | Assert a server Firebase.Timestamp value will be stored    | [serverTimestamp](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html#.serverTimestamp) |
 
+#### [Firestore.Timestamp](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html)
+
+| Method                    | Use                                                                    | Method in Firestore                                                                     |
+| ------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `mockTimestampToDate`     | Assert the call and mock the result, or use the default implementation | [toDate](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#toDate)          |
+| `mockTimestampToMillis`   | Assert the call and mock the result, or use the default implementation | [toMillis](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#toMillis)      |
+| `mockTimestampFromDate`   | Assert the call and mock the result, or use the default implementation | [fromDate](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#.fromDate)     |
+| `mockTimestampFromMillis` | Assert the call and mock the result, or use the default implementation | [fromMillis](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#.fromMillis) |
+| `mockTimestampNow`        | Assert the call and mock the result, or use the default implementation | [now](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#.now)               |
+
 #### [Firestore.Transaction](https://googleapis.dev/nodejs/firestore/latest/Transaction.html)
 
 | Method                  | Use                                                                                     | Method in Firestore                                                              |
