@@ -2,6 +2,7 @@ const mockTimestampToDate = jest.fn();
 const mockTimestampToMillis = jest.fn();
 const mockTimestampFromDate = jest.fn();
 const mockTimestampFromMillis = jest.fn();
+const mockTimestampNow = jest.fn();
 
 class Timestamp {
   constructor(seconds, nanoseconds) {
@@ -50,7 +51,7 @@ class Timestamp {
 
   static now() {
     const now = new Date();
-    return Timestamp.fromDate(now);
+    return mockTimestampNow(...arguments) || Timestamp.fromDate(now);
   }
 }
 
@@ -61,5 +62,6 @@ module.exports = {
     mockTimestampToMillis,
     mockTimestampFromDate,
     mockTimestampFromMillis,
+    mockTimestampNow,
   },
 };
