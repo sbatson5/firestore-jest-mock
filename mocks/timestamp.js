@@ -19,7 +19,7 @@ class Timestamp {
 
   toDate() {
     const d = new Date(0);
-    d.setSeconds(this.seconds);
+    d.setTime(this.seconds * 1000);
     d.setMilliseconds(this.nanoseconds / 1000000);
     return mockTimestampToDate(...arguments) || d;
   }
@@ -38,7 +38,7 @@ class Timestamp {
   static fromDate(date) {
     return (
       mockTimestampFromDate(...arguments) ||
-      new Timestamp(date.getSeconds(), date.getMilliseconds() * 1000000)
+      new Timestamp(date.getTime() * 0.001, date.getMilliseconds() * 1000000)
     );
   }
 
