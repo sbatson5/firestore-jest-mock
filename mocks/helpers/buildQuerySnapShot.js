@@ -6,24 +6,25 @@ module.exports = function buildQuerySnapShot(requestedRecords, filters) {
     // Apply filters
     filters.forEach(({ key, comp, value }) => {
       // comp is '<' | '<=' | '==' | '>=' | '>' | 'array-contains'
+      // TODO: Add tests and docs for each of these
       switch (comp) {
         case '<':
-          results = results.filter(record => record[key] < value);
+          results = results.filter(record => record && record[key] < value);
           break;
         case '<=':
-          results = results.filter(record => record[key] <= value);
+          results = results.filter(record => record && record[key] <= value);
           break;
         case '==':
-          results = results.filter(record => record[key] === value);
+          results = results.filter(record => record && record[key] === value);
           break;
         case '>=':
-          results = results.filter(record => record[key] >= value);
+          results = results.filter(record => record && record[key] >= value);
           break;
         case '>':
-          results = results.filter(record => record[key] > value);
+          results = results.filter(record => record && record[key] > value);
           break;
         case 'array-contains':
-          results = results.filter(record => record[key].includes(value));
+          results = results.filter(record => record && record[key] && record[key].includes(value));
           break;
       }
     });
