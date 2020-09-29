@@ -91,7 +91,7 @@ describe('we can start a firebase application', () => {
         });
     });
 
-    test('collectionGroup at root', () => {
+    test('collectionGroup with collections only at root', () => {
       const db = this.firebase.firestore();
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/query-data/queries#collection-group-query
@@ -116,16 +116,16 @@ describe('we can start a firebase application', () => {
         });
     });
 
-    test('collectionGroup with subcollections', () =>
-      this.firebase
-        .firestore()
+    test('collectionGroup with subcollections', () => {
+      const db = this.firebase.firestore();
+      return db
         .collectionGroup('cities')
-        .where('type', '==', 'museum')
+        .where('country', '==', 'USA')
         .get()
         .then(querySnapshot => {
           expect(mockCollectionGroup).toHaveBeenCalledWith('cities');
           expect(mockGet).toHaveBeenCalled();
-          expect(mockWhere).toHaveBeenCalledWith('type', '==', 'museum');
+          expect(mockWhere).toHaveBeenCalledWith('country', '==', 'USA');
 
           expect(querySnapshot.forEach).toBeTruthy();
           expect(querySnapshot.docs.length).toBe(3);
@@ -135,7 +135,8 @@ describe('we can start a firebase application', () => {
             expect(doc.exists).toBe(true);
             expect(doc.data()).toBeTruthy();
           });
-        }));
+        });
+    });
 
     test('set a city', () => {
       const db = this.firebase.firestore();

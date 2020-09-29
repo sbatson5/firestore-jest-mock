@@ -13,6 +13,7 @@ describe('test', () => {
     },
     currentUser: { uid: 'homer-user' },
   });
+
   const firebase = require('firebase');
   firebase.initializeApp({
     apiKey: '### FIREBASE API KEY ###',
@@ -22,16 +23,21 @@ describe('test', () => {
 
   const db = firebase.firestore();
 
-  test('It can query firestore', async () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  test('it can filter firestore queries', async () => {
     const animals = await db
       .collection('animals')
       .where('type', '==', 'mammal')
       .get();
 
     expect(animals).toHaveProperty('docs', expect.any(Array));
-    expect(mockWhere).toHaveBeenCalledWith('type', '==', 'mammal');
     expect(mockCollection).toHaveBeenCalledWith('animals');
+    expect(mockWhere).toHaveBeenCalledWith('type', '==', 'mammal');
     expect(mockGet).toHaveBeenCalled();
+    expect(animals).toHaveProperty('size', 2); // Returns 2/4 documents
   });
 
   test('it returns the same instance from query methods', () => {
@@ -54,7 +60,7 @@ describe('test', () => {
     const ref = db.collection('animals');
 
     let result = await ref.where('type', '==', 'mammal').get();
-    expect(result.docs.length).toBe(4);
+    expect(result.docs.length).toBe(2);
 
     // There's got to be a better way to mock like this, but at least it works.
     mockWhere.mockReturnValueOnce({
@@ -71,7 +77,7 @@ describe('test', () => {
     expect(result.docs.length).toBe(2);
   });
 
-  test('It can offset query', async () => {
+  test('it can offset query', async () => {
     const firstTwoMammals = await db
       .collection('animals')
       .where('type', '==', 'mammal')

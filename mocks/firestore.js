@@ -68,6 +68,7 @@ class FakeFirestore {
 
   doc(path) {
     mockDoc(path);
+    this.filters = [];
 
     const pathArray = path.split('/');
     // Must be document-level, so even-numbered elements
@@ -264,7 +265,7 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
     records.forEach(rec => {
       rec._ref = this.doc(rec.id);
     });
-    return Promise.resolve(buildQuerySnapShot(records));
+    return Promise.resolve(buildQuerySnapShot(records, this.filters));
   }
 
   isEqual(other) {

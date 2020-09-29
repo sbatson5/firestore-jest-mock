@@ -1,12 +1,38 @@
 const buildDocFromHash = require('./buildDocFromHash');
 
-module.exports = function buildQuerySnapShot(requestedRecords) {
-  const multipleRecords = requestedRecords.filter(rec => !!rec);
-  const docs = multipleRecords.map(buildDocFromHash);
+module.exports = function buildQuerySnapShot(requestedRecords, filters) {
+  let results = requestedRecords.filter(rec => !!rec);
+  if (filters && Array.isArray(filters) && filters.length > 0) {
+    // Apply filters
+    filters.forEach(({ key, comp, value }) => {
+      // comp is '<' | '<=' | '==' | '>=' | '>' | 'array-contains'
+      switch (comp) {
+        case '<':
+          results = results.filter(record => record[key] < value);
+          break;
+        case '<=':
+          results = results.filter(record => record[key] <= value);
+          break;
+        case '==':
+          results = results.filter(record => record[key] === value);
+          break;
+        case '>=':
+          results = results.filter(record => record[key] >= value);
+          break;
+        case '>':
+          results = results.filter(record => record[key] > value);
+          break;
+        case 'array-contains':
+          results = results.filter(record => record[key].includes(value));
+          break;
+      }
+    });
+  }
+  const docs = results.map(buildDocFromHash);
 
   return {
-    empty: multipleRecords.length < 1,
-    size: multipleRecords.length,
+    empty: results.length < 1,
+    size: results.length,
     docs,
     forEach(callback) {
       return docs.forEach(callback);

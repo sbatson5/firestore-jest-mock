@@ -17,6 +17,7 @@ class Query {
   constructor(collectionName, firestore) {
     this.collectionName = collectionName;
     this.firestore = firestore;
+    this.filters = [];
   }
 
   get() {
@@ -46,10 +47,11 @@ class Query {
     requestedRecords.forEach(rec => {
       rec._ref = this.firestore.doc('database/'.concat(rec.id));
     });
-    return Promise.resolve(buildQuerySnapShot(requestedRecords));
+    return Promise.resolve(buildQuerySnapShot(requestedRecords, this.filters));
   }
 
-  where() {
+  where(key, comp, value) {
+    this.filters.push({ key, comp, value });
     return mockWhere(...arguments) || this;
   }
 

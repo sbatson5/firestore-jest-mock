@@ -121,8 +121,9 @@ describe('Queries', () => {
         .where('name', '==', 'Homer')
         .get();
 
-      expect(records.empty).toBe(false);
+      expect(records).toHaveProperty('empty', false);
       expect(records).toHaveProperty('docs', expect.any(Array));
+      expect(records).toHaveProperty('size', 1);
       expect(records.docs[0]).toHaveProperty('id', 'homer');
       expect(records.docs[0].data()).toHaveProperty('name', 'Homer');
     });
@@ -133,7 +134,7 @@ describe('Queries', () => {
         .collection('animals')
         .where('type', '==', 'mammal')
         .get();
-      expect(records.empty).toBe(true);
+      expect(records).toHaveProperty('empty', true);
     });
 
     test('it can fetch multiple records as a promise', () =>
@@ -142,8 +143,9 @@ describe('Queries', () => {
         .where('name', '==', 'Homer')
         .get()
         .then(records => {
-          expect(records.empty).toBe(false);
+          expect(records).toHaveProperty('empty', false);
           expect(records).toHaveProperty('docs', expect.any(Array));
+          expect(records).toHaveProperty('size', 1);
           expect(records.docs[0]).toHaveProperty('id', 'homer');
           expect(records.docs[0]).toHaveProperty('exists', true);
           expect(records.docs[0].data()).toHaveProperty('name', 'Homer');
@@ -199,8 +201,8 @@ describe('Queries', () => {
     test('it fetches all records from a root collection', async () => {
       expect.assertions(4);
       const characters = await db.collection('characters').get();
-      expect(characters.empty).toBe(false);
-      expect(characters.size).toBe(3);
+      expect(characters).toHaveProperty('empty', false);
+      expect(characters).toHaveProperty('size', 3);
       expect(Array.isArray(characters.docs)).toBe(true);
       expect(characters.forEach).toBeTruthy();
     });
@@ -208,8 +210,8 @@ describe('Queries', () => {
     test('it fetches no records from nonexistent collection', async () => {
       expect.assertions(4);
       const nope = await db.collection('foo').get();
-      expect(nope.empty).toBe(true);
-      expect(nope.size).toBe(0);
+      expect(nope).toHaveProperty('empty', true);
+      expect(nope).toHaveProperty('size', 0);
       expect(Array.isArray(nope.docs)).toBe(true);
       expect(nope.forEach).toBeTruthy();
     });
@@ -221,8 +223,8 @@ describe('Queries', () => {
         .doc('bob')
         .collection('family');
       const family = await familyRef.get();
-      expect(family.empty).toBe(false);
-      expect(family.size).toBe(4);
+      expect(family).toHaveProperty('empty', false);
+      expect(family).toHaveProperty('size', 4);
       expect(Array.isArray(family.docs)).toBe(true);
       expect(family.forEach).toBeTruthy();
     });
@@ -234,8 +236,8 @@ describe('Queries', () => {
         .doc('bob')
         .collection('not-here')
         .get();
-      expect(nope.empty).toBe(true);
-      expect(nope.size).toBe(0);
+      expect(nope).toHaveProperty('empty', true);
+      expect(nope).toHaveProperty('size', 0);
       expect(Array.isArray(nope.docs)).toBe(true);
       expect(nope.forEach).toBeTruthy();
     });
@@ -247,8 +249,8 @@ describe('Queries', () => {
         .doc('bar')
         .collection('baz')
         .get();
-      expect(nope.empty).toBe(true);
-      expect(nope.size).toBe(0);
+      expect(nope).toHaveProperty('empty', true);
+      expect(nope).toHaveProperty('size', 0);
       expect(Array.isArray(nope.docs)).toBe(true);
       expect(nope.forEach).toBeTruthy();
     });
