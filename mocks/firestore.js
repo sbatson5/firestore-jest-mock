@@ -97,15 +97,6 @@ class FakeFirestore {
     return doc;
   }
 
-  where() {
-    return this.query.where(...arguments);
-  }
-
-  update(object) {
-    mockUpdate(...arguments);
-    return Promise.resolve(buildDocFromHash(object));
-  }
-
   runTransaction(updateFunction) {
     mockRunTransaction(...arguments);
     return updateFunction(new FakeFirestore.Transaction());
@@ -114,7 +105,7 @@ class FakeFirestore {
 
 FakeFirestore.Query = query.Query;
 FakeFirestore.FieldValue = fieldValue.FieldValue;
-FakeFirestore.Timestamp = fieldValue.Timestamp;
+FakeFirestore.Timestamp = timestamp.Timestamp;
 FakeFirestore.Transaction = transaction.Transaction;
 
 /*
@@ -309,11 +300,6 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
   }
 };
 
-FakeFirestore.Query = query.Query;
-FakeFirestore.Transaction = transaction.Transaction;
-FakeFirestore.FieldValue = fieldValue.FieldValue;
-FakeFirestore.Timestamp = timestamp.Timestamp;
-
 module.exports = {
   FakeFirestore,
   mockBatch,
@@ -330,7 +316,6 @@ module.exports = {
   mockBatchUpdate,
   mockBatchSet,
   ...query.mocks,
-  ...transaction.mocks,
   ...transaction.mocks,
   ...fieldValue.mocks,
   ...timestamp.mocks,
