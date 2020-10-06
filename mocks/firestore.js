@@ -1,37 +1,46 @@
 const mockCollectionGroup = jest.fn();
 const mockBatch = jest.fn();
-const mockGetAll = jest.fn();
 const mockRunTransaction = jest.fn();
 
 const mockCollection = jest.fn();
 const mockDoc = jest.fn();
-const mockGet = jest.fn();
-const mockAdd = jest.fn();
-const mockDelete = jest.fn();
 const mockUpdate = jest.fn();
 const mockSet = jest.fn();
+const mockAdd = jest.fn();
+const mockDelete = jest.fn();
 
 const mockBatchDelete = jest.fn();
 const mockBatchCommit = jest.fn();
 const mockBatchUpdate = jest.fn();
 const mockBatchSet = jest.fn();
 
-const query = require('./query');
+const timestamp = require('./timestamp');
 const fieldValue = require('./fieldValue');
+const query = require('./query');
 const transaction = require('./transaction');
 
 const buildDocFromHash = require('./helpers/buildDocFromHash');
 const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
 
-/*
- * ============
- *  Firestore
- * ============
- */
-
 class FakeFirestore {
   constructor(stubbedDatabase = {}) {
     this.database = stubbedDatabase;
+    this.query = new query.Query('', this);
+  }
+
+  set collectionName(collectionName) {
+    this.query.collectionName = collectionName;
+    this.recordToFetch = null;
+  }
+
+  get collectionName() {
+    return this.query.collectionName;
+  }
+
+  getAll() {
+    return Promise.all(
+      transaction.mocks.mockGetAll(...arguments) || [...arguments].map(r => r.get()),
+    );
   }
 
   batch() {
@@ -88,9 +97,13 @@ class FakeFirestore {
     return doc;
   }
 
-  getAll() {
-    mockGetAll(...arguments);
-    return Promise.all([...arguments].map(r => r.get()));
+  where() {
+    return this.query.where(...arguments);
+  }
+
+  update(object) {
+    mockUpdate(...arguments);
+    return Promise.resolve(buildDocFromHash(object));
   }
 
   runTransaction(updateFunction) {
@@ -129,7 +142,7 @@ FakeFirestore.DocumentReference = class {
   }
 
   get() {
-    mockGet(...arguments);
+    query.mocks.mockGet(...arguments);
     const pathArray = this.path.split('/');
 
     pathArray.shift(); // drop 'database'; it's always first
@@ -185,6 +198,26 @@ FakeFirestore.DocumentReference = class {
       other.firestore === this.firestore &&
       other.path === this.path
     );
+  }
+
+  orderBy() {
+    return this.query.orderBy(...arguments);
+  }
+
+  limit() {
+    return this.query.limit(...arguments);
+  }
+
+  offset() {
+    return this.query.offset(...arguments);
+  }
+
+  startAfter() {
+    return this.query.startAfter(...arguments);
+  }
+
+  startAt() {
+    return this.query.startAt(...arguments);
   }
 };
 
@@ -258,7 +291,7 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
   }
 
   get() {
-    mockGet(...arguments);
+    query.mocks.mockGet(...arguments);
     // Make sure we have a 'good enough' document reference
     const records = this.records();
     records.forEach(rec => {
@@ -276,15 +309,18 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
   }
 };
 
+FakeFirestore.Query = query.Query;
+FakeFirestore.Transaction = transaction.Transaction;
+FakeFirestore.FieldValue = fieldValue.FieldValue;
+FakeFirestore.Timestamp = timestamp.Timestamp;
+
 module.exports = {
   FakeFirestore,
   mockBatch,
-  mockCollectionGroup,
-  mockGetAll,
   mockRunTransaction,
   mockCollection,
+  mockCollectionGroup,
   mockDoc,
-  mockGet,
   mockAdd,
   mockDelete,
   mockUpdate,
@@ -295,5 +331,7 @@ module.exports = {
   mockBatchSet,
   ...query.mocks,
   ...transaction.mocks,
+  ...transaction.mocks,
   ...fieldValue.mocks,
+  ...timestamp.mocks,
 };

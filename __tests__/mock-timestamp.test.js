@@ -2,6 +2,7 @@ const { FakeFirestore } = require('firestore-jest-mock');
 const {
   mockTimestampToDate,
   mockTimestampToMillis,
+  mockTimestampNow,
 } = require('firestore-jest-mock/mocks/firestore');
 
 describe('Timestamp mock', () => {
@@ -57,7 +58,7 @@ describe('Timestamp mock', () => {
     const timestamp = FakeFirestore.Timestamp.fromDate(now);
     expect(timestamp).toBeDefined();
     expect(timestamp).toBeInstanceOf(FakeFirestore.Timestamp);
-    expect(timestamp.toDate().getSeconds()).toBe(now.getSeconds());
+    expect(timestamp.toDate().getTime()).toBe(now.getTime());
   });
 
   test('it creates an instance roughly from a millisecond representation', () => {
@@ -67,5 +68,18 @@ describe('Timestamp mock', () => {
     expect(timestamp).toBeDefined();
     expect(timestamp).toBeInstanceOf(FakeFirestore.Timestamp);
     expect(timestamp.seconds).toBe(date.getSeconds());
+  });
+
+  test('Timestamp.now reports calls to mockTimestampNow', () => {
+    expect(mockTimestampNow).not.toHaveBeenCalled();
+    const timestamp = FakeFirestore.Timestamp.now();
+    expect(timestamp).toBeInstanceOf(FakeFirestore.Timestamp);
+    expect(mockTimestampNow).toHaveBeenCalled();
+  });
+
+  test('Timestamp.now can be mocked', () => {
+    mockTimestampNow.mockReturnValueOnce('Success!');
+    const timestamp = FakeFirestore.Timestamp.now();
+    expect(timestamp).toBe('Success!');
   });
 });

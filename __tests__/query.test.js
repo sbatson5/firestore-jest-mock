@@ -1,4 +1,10 @@
-const { mockCollection, mockGet, mockWhere, mockOffset } = require('../mocks/firestore');
+const {
+  mockCollection,
+  mockGet,
+  mockWhere,
+  mockOffset,
+  FakeFirestore,
+} = require('../mocks/firestore');
 const { mockFirebase } = require('firestore-jest-mock');
 
 describe('test', () => {
@@ -47,6 +53,15 @@ describe('test', () => {
     expect(ref.startAfter(null)).not.toBe(notThisRef);
     expect(ref.startAt(null)).toBe(ref);
     expect(ref.startAt(null)).not.toBe(notThisRef);
+  });
+
+  test('it returns a Query from query methods', () => {
+    const ref = db.collection('animals');
+    expect(ref.where('type', '==', 'mammal')).toBeInstanceOf(FakeFirestore.Query);
+    expect(ref.limit(1)).toBeInstanceOf(FakeFirestore.Query);
+    expect(ref.orderBy('type')).toBeInstanceOf(FakeFirestore.Query);
+    expect(ref.startAfter(null)).toBeInstanceOf(FakeFirestore.Query);
+    expect(ref.startAt(null)).toBeInstanceOf(FakeFirestore.Query);
   });
 
   test('it permits mocking the results of a where clause', async () => {

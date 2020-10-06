@@ -67,7 +67,7 @@ describe('we can start a firebase application', () => {
         })
         .then(function(docRef) {
           expect(mockAdd).toHaveBeenCalled();
-          expect(docRef).toHaveProperty('id');
+          expect(docRef).toHaveProperty('id', 'abc123');
         });
     });
 

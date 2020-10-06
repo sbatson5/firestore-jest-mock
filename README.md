@@ -268,19 +268,26 @@ Your application doesn't double-check Firestore's response -- it trusts that it'
 | `mockCollection`      | Assert the correct collection is being queried                                                    | [collection](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#collection)           |
 | `mockCollectionGroup` | Assert the correct collectionGroup is being queried                                               | [collectionGroup](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#collectionGroup) |
 | `mockDoc`             | Assert the correct record is being fetched by id. Tells the mock you are fetching a single record | [doc](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#doc)                         |
-| `mockWhere`           | Assert the correct query is written. Tells the mock you are fetching multiple records             | [where](https://googleapis.dev/nodejs/firestore/latest/Query.html#where)                         |
 | `mockBatch`           | Assert batch was called                                                                           | [batch](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#batch)                     |
 | `mockBatchDelete`     | Assert correct refs are passed                                                                    | [batch delete](https://googleapis.dev/nodejs/firestore/latest/WriteBatch.html#delete)            |
 | `mockBatchCommit`     | Assert commit is called. Returns a promise                                                        | [batch commit](https://googleapis.dev/nodejs/firestore/latest/WriteBatch.html#commit)            |
-| `mockGet`             | Assert get is called. Returns a promise resolving either to a single doc or querySnapshot         | [get](https://googleapis.dev/nodejs/firestore/latest/Query.html#get)                             |
 | `mockGetAll`          | Assert correct refs are passed. Returns a promise resolving to array of docs.                     | [getAll](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#getAll)                   |
 | `mockUpdate`          | Assert correct params are passed to update. Returns a promise                                     | [update](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#update)           |
 | `mockAdd`             | Assert correct params are passed to add. Returns a promise resolving to the doc with new id       | [add](https://googleapis.dev/nodejs/firestore/latest/CollectionReference.html#add)               |
 | `mockSet`             | Assert correct params are passed to set. Returns a promise                                        | [set](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#set)                 |
 | `mockDelete`          | Assert delete is called on ref. Returns a promise                                                 | [delete](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#delete)           |
-| `mockOrderBy`         | Assert correct field is passed to orderBy                                                         | [orderBy](https://googleapis.dev/nodejs/firestore/latest/Query.html#orderBy)                     |
-| `mockLimit`           | Assert limit is set properly                                                                      | [limit](https://googleapis.dev/nodejs/firestore/latest/Query.html#limit)                         |
-| `mockOffset`          | Assert offset is set properly                                                                     | [offset](https://googleapis.dev/nodejs/firestore/latest/Query.html#offset)                       |
+
+#### [Firestore.Query](https://googleapis.dev/nodejs/firestore/latest/Query.html)
+
+| Method           | Use                                                                                       | Method in Firestore                                                                |
+| ---------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `mockGet`        | Assert get is called. Returns a promise resolving either to a single doc or querySnapshot | [get](https://googleapis.dev/nodejs/firestore/latest/Query.html#get)               |
+| `mockWhere`      | Assert the correct query is written. Tells the mock you are fetching multiple records     | [where](https://googleapis.dev/nodejs/firestore/latest/Query.html#where)           |
+| `mockLimit`      | Assert limit is set properly                                                              | [limit](https://googleapis.dev/nodejs/firestore/latest/Query.html#limit)           |
+| `mockOrderBy`    | Assert correct field is passed to orderBy                                                 | [orderBy](https://googleapis.dev/nodejs/firestore/latest/Query.html#orderBy)       |
+| `mockOffset`     | Assert offset is set properly                                                             | [offset](https://googleapis.dev/nodejs/firestore/latest/Query.html#offset)         |
+| `mockStartAfter` | Assert startAfter is called                                                               | [startAfter](https://googleapis.dev/nodejs/firestore/latest/Query.html#startAfter) |
+| `mockStartAt`    | Assert startAt is called                                                                  | [startAt](https://googleapis.dev/nodejs/firestore/latest/Query.html#startAt)       |
 
 #### [Firestore.FieldValue](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html)
 
@@ -292,11 +299,22 @@ Your application doesn't double-check Firestore's response -- it trusts that it'
 | `mockIncrementFieldValue`       | Assert a number field is incremented by the correct amount | [increment](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html#.increment)             |
 | `mockServerTimestampFieldValue` | Assert a server Firebase.Timestamp value will be stored    | [serverTimestamp](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html#.serverTimestamp) |
 
+#### [Firestore.Timestamp](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html)
+
+| Method                    | Use                                                                    | Method in Firestore                                                                     |
+| ------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `mockTimestampToDate`     | Assert the call and mock the result, or use the default implementation | [toDate](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#toDate)          |
+| `mockTimestampToMillis`   | Assert the call and mock the result, or use the default implementation | [toMillis](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#toMillis)      |
+| `mockTimestampFromDate`   | Assert the call and mock the result, or use the default implementation | [fromDate](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#.fromDate)     |
+| `mockTimestampFromMillis` | Assert the call and mock the result, or use the default implementation | [fromMillis](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#.fromMillis) |
+| `mockTimestampNow`        | Assert the call and mock the result, or use the default implementation | [now](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#.now)               |
+
 #### [Firestore.Transaction](https://googleapis.dev/nodejs/firestore/latest/Transaction.html)
 
 | Method                  | Use                                                                                     | Method in Firestore                                                              |
 | ----------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
 | `mockGetTransaction`    | Assert transaction.get is called with correct params. Returns a promise                 | [get](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#get)       |
+| `mockGetAllTransaction` | Assert transaction.getAll is called with correct params. Returns a promise              | [get](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#getAll)    |
 | `mockSetTransaction`    | Assert transaction.set is called with correct params. Returns the transaction object    | [set](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#set)       |
 | `mockUpdateTransaction` | Assert transaction.update is called with correct params. Returns the transaction object | [update](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#update) |
 | `mockDeleteTransaction` | Assert transaction.delete is called with correct params. Returns the transaction object | [delete](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#delete) |
@@ -306,8 +324,10 @@ Your application doesn't double-check Firestore's response -- it trusts that it'
 | Method                               | Use                                                                        | Method in Firebase                                                                                                                     |
 | ------------------------------------ | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `mockCreateUserWithEmailAndPassword` | Assert correct email and password are passed. Returns a promise            | [createUserWithEmailAndPassword](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#createuserwithemailandpassword) |
-| `mockDeleteUser`                     | Assert correct id is passed to delete method. Returns a promise            | [deleteUser](https://firebase.google.com/docs/auth/admin/manage-users)                                                                 |
+| `mockGetUser`                        | Assert correct user IDs are passed. Returns a promise                      | [getUser](https://firebase.google.com/docs/auth/admin/manage-users#retrieve_user_data)                                                 |
+| `mockDeleteUser`                     | Assert correct ID is passed to delete method. Returns a promise            | [deleteUser](https://firebase.google.com/docs/auth/admin/manage-users)                                                                 |
 | `mockSendVerificationEmail`          | Assert request for verification email was sent. Lives on the `currentUser` | [sendVerificationEmail](https://firebase.google.com/docs/reference/js/firebase.User#send-email-verification)                           |
+| `mockSetCustomUserClaims`            | Assert correct user ID and claims are set.                                 | [setCustomUserClaims](https://firebase.google.com/docs/reference/admin/node/admin.auth.Auth?hl=en#setcustomuserclaims)                 |
 | `mockSignInWithEmailAndPassword`     | Assert correct email and password were passed. Returns a promise           | [signInWithEmailAndPassword](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#signinwithemailandpassword)         |
 | `mockSendPasswordResetEmail`         | Assert correct email was passed.                                           | [sendPasswordResetEmail](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#send-password-reset-email)              |
 | `mockVerifyIdToken`                  | Assert correct token is passed. Returns a promise                          | [verifyIdToken](https://firebase.google.com/docs/reference/admin/node/admin.auth.Auth.html#verifyidtoken)                              |

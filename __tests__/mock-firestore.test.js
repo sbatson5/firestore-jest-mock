@@ -63,25 +63,43 @@ describe('Queries', () => {
         .then(record => {
           expect(record.exists).toBe(true);
           expect(record.id).toBe('homer');
-          const data = record.data();
           expect(mockCollection).toHaveBeenCalledWith('characters');
+          const data = record.data();
+          expect(record).toHaveProperty('exists', true);
+          expect(data).toBeDefined();
           expect(data).toHaveProperty('name', 'Homer');
           expect(data).toHaveProperty('occupation', 'technician');
         }));
 
-    test('it can fetch a single record with a promise without a specified collection', () => {
-      expect.assertions(6);
-      const homerRef = db.doc('characters/homer');
-      expect(homerRef).toHaveProperty('firestore', db);
+    test('it can fetch a single record with a promise without a specified collection', () =>
+      db
+        .doc('characters/homer')
+        .get()
+        .then(record => {
+          expect(record.exists).toBe(true);
+          expect(record.id).toBe('homer');
+          expect(mockCollection).not.toHaveBeenCalled();
+          const data = record.data();
+          expect(record).toHaveProperty('exists', true);
+          expect(data).toBeDefined();
+          expect(data).toHaveProperty('name', 'Homer');
+          expect(data).toHaveProperty('occupation', 'technician');
+        }));
 
-      return homerRef.get().then(record => {
-        expect(record.exists).toBe(true);
-        expect(record.id).toBe('homer');
-        const data = record.data();
-        expect(mockCollection).not.toHaveBeenCalled();
-        expect(data).toHaveProperty('name', 'Homer');
-        expect(data).toHaveProperty('occupation', 'technician');
-      });
+    test('it can fetch multiple records and returns documents', async () => {
+      const records = await db
+        .collection('characters')
+        .where('name', '==', 'Homer')
+        .get();
+
+      expect(records.empty).toBe(false);
+      expect(records).toHaveProperty('docs', expect.any(Array));
+      const doc = records.docs[0];
+      expect(doc).toHaveProperty('id', 'homer');
+      expect(doc).toHaveProperty('exists', true);
+      const data = doc.data();
+      expect(data).toBeDefined();
+      expect(data).toHaveProperty('name', 'Homer');
     });
 
     test('it throws an error if the document path ends at a collection', () => {
@@ -113,18 +131,6 @@ describe('Queries', () => {
       const nope = await db.doc('foo/bar/baz/bin').get();
       expect(nope.exists).toBe(false);
       expect(nope.id).toBe('bin');
-    });
-
-    test('it can fetch multiple records and returns documents', async () => {
-      const records = await db
-        .collection('characters')
-        .where('name', '==', 'Homer')
-        .get();
-
-      expect(records.empty).toBe(false);
-      expect(records).toHaveProperty('docs', expect.any(Array));
-      expect(records.docs[0]).toHaveProperty('id', 'homer');
-      expect(records.docs[0].data()).toHaveProperty('name', 'Homer');
     });
 
     test('it flags when a collection is empty', async () => {

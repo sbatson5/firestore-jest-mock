@@ -1,11 +1,6 @@
-/*
- * ============
- *  Queries
- * ============
- */
-
 const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
 
+const mockGet = jest.fn();
 const mockWhere = jest.fn();
 const mockLimit = jest.fn();
 const mockOrderBy = jest.fn();
@@ -20,9 +15,9 @@ class Query {
   }
 
   get() {
-    // Return all records in collections matching collectionName (use DFS)
+    mockGet(...arguments);
+    // Use DFS to find all records in collections that match collectionName
     const requestedRecords = [];
-    // requestedRecords.push(...this.firestore.database[this.collectionName]);
 
     const st = [this.firestore.database];
     // At each collection list node, get collection in collection list whose id
@@ -77,6 +72,7 @@ class Query {
 module.exports = {
   Query,
   mocks: {
+    mockGet,
     mockWhere,
     mockLimit,
     mockOrderBy,
