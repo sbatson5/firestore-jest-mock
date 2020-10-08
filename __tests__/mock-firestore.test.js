@@ -195,9 +195,21 @@ describe('Queries', () => {
       expect(ref.path).toBe('database/characters/bob/family/violet');
 
       const record = await ref.get();
-      expect(record.exists).toBe(true);
-      expect(record.id).toBe('violet');
+      expect(record).toHaveProperty('exists', true);
+      expect(record).toHaveProperty('id', 'violet');
       expect(record.data()).toHaveProperty('name', 'Violet');
+    });
+
+    test('it can fetch records from subcollections with query parameters', async () => {
+      const family = db
+        .collection('characters')
+        .doc('bob')
+        .collection('family')
+        .where('relation', '==', 'son'); // should still return all
+      expect(family.path).toBe('database/characters/bob/family');
+
+      const docs = await family.get();
+      expect(docs).toHaveProperty('size', 4);
     });
   });
 

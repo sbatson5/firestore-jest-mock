@@ -1,5 +1,6 @@
 const {
   mockCollection,
+  mockDoc,
   mockGet,
   mockWhere,
   mockOffset,
@@ -28,13 +29,34 @@ describe('test', () => {
 
   const db = firebase.firestore();
 
-  test('It can query firestore', async () => {
+  test('it can query a single document', async () => {
+    const monkey = await db
+      .collection('animals')
+      .doc('monkey')
+      .get();
+
+    expect(monkey).toHaveProperty('exists', true);
+    expect(mockCollection).toHaveBeenCalledWith('animals');
+    expect(mockDoc).toHaveBeenCalledWith('monkey');
+    expect(mockGet).toHaveBeenCalled();
+  });
+
+  test('it can query multiple documents', async () => {
+    expect.assertions(10);
     const animals = await db
       .collection('animals')
       .where('type', '==', 'mammal')
       .get();
 
     expect(animals).toHaveProperty('docs', expect.any(Array));
+    expect(animals.docs.length).toBe(4);
+    // Make sure that forEach works properly
+    expect(animals).toHaveProperty('forEach', expect.any(Function));
+    animals.forEach(doc => {
+      // this should run 4 times, as asserted by `expect.assertions` above
+      expect(doc).toHaveProperty('exists', true);
+    });
+
     expect(mockWhere).toHaveBeenCalledWith('type', '==', 'mammal');
     expect(mockCollection).toHaveBeenCalledWith('animals');
     expect(mockGet).toHaveBeenCalled();
