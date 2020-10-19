@@ -213,7 +213,7 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
     return Promise.resolve(new FakeFirestore.DocumentReference('abc123', this));
   }
 
-  doc(id) {
+  doc(id = 'abc123') {
     mockDoc(id);
     return new FakeFirestore.DocumentReference(id, this, this.firestore);
   }
