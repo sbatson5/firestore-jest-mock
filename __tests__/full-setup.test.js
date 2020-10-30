@@ -20,7 +20,15 @@ describe('we can start a firebase application', () => {
     database: {
       users: [
         { id: 'abc123', first: 'Bob', last: 'builder', born: 1998 },
-        { id: '123abc', first: 'Blues', last: 'builder', born: 1996 },
+        {
+          id: '123abc',
+          first: 'Blues',
+          last: 'builder',
+          born: 1996,
+          _collections: {
+            cities: [{ id: 'LA', name: 'Los Angeles', state: 'CA', country: 'USA', visited: true }],
+          },
+        },
       ],
       cities: [
         { id: 'LA', name: 'Los Angeles', state: 'CA', country: 'USA' },
@@ -60,7 +68,6 @@ describe('we can start a firebase application', () => {
         .then(function(docRef) {
           expect(mockAdd).toHaveBeenCalled();
           expect(docRef).toHaveProperty('id', 'abc123');
-          expect(docRef.data()).toHaveProperty('first', 'Ada');
         });
     });
 
@@ -75,6 +82,7 @@ describe('we can start a firebase application', () => {
         .then(querySnapshot => {
           expect(querySnapshot.forEach).toBeTruthy();
           expect(querySnapshot.docs.length).toBe(2);
+          expect(querySnapshot.size).toBe(querySnapshot.docs.length);
 
           querySnapshot.forEach(doc => {
             expect(doc.exists).toBe(true);
@@ -83,12 +91,34 @@ describe('we can start a firebase application', () => {
         });
     });
 
-    test('collectionGroup', () => {
+    test('collectionGroup at root', () => {
       const db = this.firebase.firestore();
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/query-data/queries#collection-group-query
 
       return db
+        .collectionGroup('users')
+        .where('last', '==', 'builder')
+        .get()
+        .then(querySnapshot => {
+          expect(mockCollectionGroup).toHaveBeenCalledWith('users');
+          expect(mockGet).toHaveBeenCalled();
+          expect(mockWhere).toHaveBeenCalledWith('last', '==', 'builder');
+
+          expect(querySnapshot.forEach).toBeTruthy();
+          expect(querySnapshot.docs.length).toBe(2);
+          expect(querySnapshot.size).toBe(querySnapshot.docs.length);
+
+          querySnapshot.forEach(doc => {
+            expect(doc.exists).toBe(true);
+            expect(doc.data()).toBeTruthy();
+          });
+        });
+    });
+
+    test('collectionGroup with subcollections', () =>
+      this.firebase
+        .firestore()
         .collectionGroup('cities')
         .where('type', '==', 'museum')
         .get()
@@ -98,14 +128,14 @@ describe('we can start a firebase application', () => {
           expect(mockWhere).toHaveBeenCalledWith('type', '==', 'museum');
 
           expect(querySnapshot.forEach).toBeTruthy();
-          expect(querySnapshot.docs.length).toBe(2);
+          expect(querySnapshot.docs.length).toBe(3);
+          expect(querySnapshot.size).toBe(querySnapshot.docs.length);
 
           querySnapshot.forEach(doc => {
             expect(doc.exists).toBe(true);
             expect(doc.data()).toBeTruthy();
           });
-        });
-    });
+        }));
 
     test('set a city', () => {
       const db = this.firebase.firestore();

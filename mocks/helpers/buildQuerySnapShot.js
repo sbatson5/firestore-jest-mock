@@ -13,6 +13,8 @@ module.exports = function buildQuerySnapShot(requestedRecords) {
     empty: multipleRecords.length < 1,
     size: multipleRecords.length,
     docs,
-    forEach: docs.forEach,
+    forEach(callback) {
+      docs.forEach(callback);
+    },
   };
 };

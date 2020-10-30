@@ -3,6 +3,20 @@ const mockCert = jest.fn();
 
 const firebaseStub = overrides => {
   const { FakeFirestore, FakeAuth } = require('firestore-jest-mock');
+
+  // Prepare namespaced classes
+  function firestoreConstructor() {
+    return new FakeFirestore(overrides.database);
+  }
+
+  firestoreConstructor.Query = FakeFirestore.Query;
+  firestoreConstructor.CollectionReference = FakeFirestore.CollectionReference;
+  firestoreConstructor.DocumentReference = FakeFirestore.DocumentReference;
+  firestoreConstructor.FieldValue = FakeFirestore.FieldValue;
+  firestoreConstructor.Timestamp = FakeFirestore.Timestamp;
+  firestoreConstructor.Transaction = FakeFirestore.Transaction;
+
+  // The Firebase mock
   return {
     initializeApp: mockInitializeApp,
 
@@ -14,13 +28,7 @@ const firebaseStub = overrides => {
       return new FakeAuth(overrides.currentUser);
     },
 
-    firestore: function firestoreConstructor() {
-      firestoreConstructor.Query = FakeFirestore.Query;
-      firestoreConstructor.Transaction = FakeFirestore.Transaction;
-      firestoreConstructor.FieldValue = FakeFirestore.FieldValue;
-      firestoreConstructor.Timestamp = FakeFirestore.Timestamp;
-      return new FakeFirestore(overrides.database);
-    },
+    firestore: firestoreConstructor,
   };
 };
 

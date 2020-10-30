@@ -63,7 +63,8 @@ Example usage:
 
 ```js
 const { mockFirebase } = require('firestore-jest-mock');
-// Create a fake firestore with a `users` and `posts` collection
+
+// Create a fake Firestore with a `users` and `posts` collection
 mockFirebase({
   database: {
     users: [
@@ -77,24 +78,89 @@ mockFirebase({
 
 This will populate a fake database with a `users` and `posts` collection.
 
-Now you can write queries or requests for data just as you would with firestore:
+Now you can write queries or requests for data just as you would with Firestore:
 
 ```js
+const { mockCollection } = require('firestore-jest-mock/mocks/firestore');
+
 test('testing stuff', () => {
   const firebase = require('firebase'); // or import firebase from 'firebase';
   const db = firebase.firestore();
 
-  db.collection('users')
+  return db
+    .collection('users')
     .get()
     .then(userDocs => {
-      // write assertions here
+      // Assert that a collection ID was referenced
+      expect(mockCollection).toHaveBeenCalledWith('users');
+
+      // Write other assertions here
+    });
+});
+```
+
+### Subcollections
+
+A common case in Firestore is to store data in document [subcollections](https://firebase.google.com/docs/firestore/manage-data/structure-data#subcollections). You can model these in firestore-jest-mock like so:
+
+```js
+const { mockFirebase } = require('firestore-jest-mock');
+// Using our fake Firestore from above:
+mockFirebase({
+  database: {
+    users: [
+      {
+        id: 'abc123',
+        name: 'Homer Simpson',
+      },
+      {
+        id: 'abc456',
+        name: 'Lisa Simpson',
+        _collections: {
+          notes: [
+            {
+              id: 'note123',
+              text: 'This is a document in a subcollection!',
+            },
+          ],
+        },
+      },
+    ],
+    posts: [{ id: '123abc', title: 'Really cool title' }],
+  },
+});
+```
+
+Similar to how the `id` key models a document object, the `_collections` key models a subcollection. You model each subcollection key in the same way that `database` is modeled above: an object keyed by collection IDs and populated with document arrays.
+
+This lets you model and validate more complex document access:
+
+```js
+const { mockCollection, mockDoc } = require('firestore-jest-mock/mocks/firestore');
+
+test('testing stuff', () => {
+  const firebase = require('firebase');
+  const db = firebase.firestore();
+
+  return db
+    .collection('users')
+    .doc('abc456')
+    .collection('notes')
+    .get()
+    .then(noteDocs => {
+      // Assert that a collection or document ID was referenced
+      expect(mockCollection).toHaveBeenNthCalledWith(1, 'users');
+      expect(mockDoc).toHaveBeenCalledWith('abc456');
+      expect(mockCollection).toHaveBeenNthCalledWith(2, 'notes');
+
+      // Write other assertions here
     });
 });
 ```
 
 ### What would you want to test?
 
-The job of the this library is not to test firestore, but to allow you to test your code without hitting firebase.
+The job of the this library is not to test Firestore, but to allow you to test your code without hitting firebase.
 Take this example:
 
 ```js
@@ -120,8 +186,24 @@ describe('we can query', () => {
   mockFirebase({
     database: {
       users: [
-        { id: 'abc123', name: 'Homer Simpson' },
-        { id: 'abc456', name: 'Lisa Simpson' },
+        {
+          id: 'abc123',
+          name: 'Homer Simpson',
+        },
+        {
+          id: 'abc456',
+          name: 'Lisa Simpson',
+        },
+        {
+          id: 'abc789',
+          name: 'Dwight Schrute',
+          _collections: {
+            employment: [
+              { id: '123abc', employer: 'Dunder Mifflin' },
+              { id: '123def', employer: 'Schrute Farms' },
+            ],
+          },
+        },
       ],
     },
   });
@@ -129,7 +211,7 @@ describe('we can query', () => {
   test('query with state', async () => {
     await maybeGetUsersInState('alabama');
 
-    // Assert that we call the correct firestore methods
+    // Assert that we call the correct Firestore methods
     expect(mockCollection).toHaveBeenCalledWith('users');
     expect(mockWhere).toHaveBeenCalledWith('state', '==', 'alabama');
   });
@@ -137,14 +219,14 @@ describe('we can query', () => {
   test('no state', async () => {
     await maybeGetUsersInState();
 
-    // Assert that we call the correct firestore methods
+    // Assert that we call the correct Firestore methods
     expect(mockCollection).toHaveBeenCalledWith('users');
     expect(mockWhere).not.toHaveBeenCalled();
   });
 });
 ```
 
-In this test, we don't necessarily care what gets returned from firestore (it's not our job to test firestore), but instead we try to assert that we built our query correctly.
+In this test, we don't necessarily care what gets returned from Firestore (it's not our job to test Firestore), but instead we try to assert that we built our query correctly.
 
 > If I pass a state to this function, does it properly query the `users` collection?
 
@@ -172,10 +254,10 @@ mockCollection.mockClear();
 
 #### I wrote a where clause, but all the records were returned!
 
-The `where` clause in the mocked firestore will not actually filter the data at all.
-We are not recreating firestore in this mock, just exposing an API that allows us to write assertions.
-It is also not the job of the developer (you) to test that firestore filtered the data appropriately.
-Your application doesn't double-check firestore's response -- it trusts that it's always correct!
+The `where` clause in the mocked Firestore will not actually filter the data at all.
+We are not recreating Firestore in this mock, just exposing an API that allows us to write assertions.
+It is also not the job of the developer (you) to test that Firestore filtered the data appropriately.
+Your application doesn't double-check Firestore's response -- it trusts that it's always correct!
 
 ### Functions you can test
 

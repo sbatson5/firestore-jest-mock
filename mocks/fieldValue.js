@@ -1,5 +1,3 @@
-const { Timestamp } = require('./timestamp');
-
 const mockArrayUnionFieldValue = jest.fn();
 const mockArrayRemoveFieldValue = jest.fn();
 const mockDeleteFieldValue = jest.fn();
@@ -14,36 +12,6 @@ class FieldValue {
 
   isEqual(other) {
     return other instanceof FieldValue && other.type === this.type && other.value === this.value;
-  }
-
-  transform(value) {
-    switch (this.type) {
-      case 'arrayUnion':
-        if (Array.isArray(value)) {
-          return value.concat(this.value.filter(v => !value.includes(v)));
-        } else {
-          return this.value;
-        }
-      case 'arrayRemove':
-        if (Array.isArray(value)) {
-          return value.filter(v => !this.value.includes(v));
-        } else {
-          return value;
-        }
-      case 'increment': {
-        const amount = Number(this.value);
-        if (typeof value === 'number') {
-          return value + amount;
-        } else {
-          return amount;
-        }
-      }
-      case 'serverTimestamp': {
-        return Timestamp.now();
-      }
-      case 'delete':
-        return undefined;
-    }
   }
 
   static arrayUnion(elements = []) {
