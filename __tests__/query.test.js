@@ -40,6 +40,18 @@ describe('test', () => {
           food: ['leaf', 'bread'],
           foodCount: 2,
           foodEaten: [80, 12],
+          _collections: {
+            foodSchedule: [
+              {
+                id: 'leaf',
+                interval: 'daily',
+              },
+              {
+                id: 'peanut',
+                interval: 'weekly',
+              },
+            ],
+          },
         },
       ],
     },
@@ -70,6 +82,22 @@ describe('test', () => {
     expect(mockWhere).toHaveBeenCalledWith('type', '==', 'mammal');
     expect(mockGet).toHaveBeenCalled();
     expect(animals).toHaveProperty('size', 2); // Returns 2/4 documents
+  });
+
+  test('it can filter firestore queries in subcollections', async () => {
+    const antSchedule = await db
+      .collection('animals')
+      .doc('ant')
+      .collection('foodSchedule')
+      .where('interval', '==', 'daily')
+      .get();
+
+    expect(antSchedule).toHaveProperty('docs', expect.any(Array));
+    expect(mockCollection).toHaveBeenCalledWith('animals');
+    expect(mockCollection).toHaveBeenCalledWith('foodSchedule');
+    expect(mockWhere).toHaveBeenCalledWith('interval', '==', 'daily');
+    expect(mockGet).toHaveBeenCalled();
+    expect(antSchedule).toHaveProperty('size', 1); // Returns 1/2 documents
   });
 
   test('it returns the same instance from query methods', () => {
