@@ -82,7 +82,8 @@ class FakeFirestore {
   doc(path) {
     mockDoc(path);
 
-    const pathArray = path.split('/');
+    // Ignore leading slash
+    const pathArray = path.replace(/^\/+/, '').split('/')
     // Must be document-level, so even-numbered elements
     if (pathArray.length % 2) {
       throw new Error('The path array must be document-level');
@@ -138,7 +139,8 @@ FakeFirestore.DocumentReference = class {
 
   get() {
     query.mocks.mockGet(...arguments);
-    const pathArray = this.path.split('/');
+    // Ignore leading slash
+    const pathArray = this.path.replace(/^\/+/, '').split('/');
 
     pathArray.shift(); // drop 'database'; it's always first
     let requestedRecords = this.firestore.database[pathArray.shift()];
@@ -252,7 +254,8 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
    * @returns {Object[]} An array of mocked document records.
    */
   records() {
-    const pathArray = this.path.split('/');
+    // Ignore leading slash
+    const pathArray = this.path.replace(/^\/+/, '').split('/')
 
     pathArray.shift(); // drop 'database'; it's always first
     let requestedRecords = this.firestore.database[pathArray.shift()];
