@@ -65,6 +65,10 @@ class FakeFirestore {
     };
   }
 
+  settings(settings) {
+    return;
+  }
+
   collection(collectionName) {
     mockCollection(...arguments);
     return new FakeFirestore.CollectionReference(collectionName, null, this);
