@@ -2,6 +2,7 @@ const mockCollectionGroup = jest.fn();
 const mockBatch = jest.fn();
 const mockRunTransaction = jest.fn();
 
+const mockSettings = jest.fn();
 const mockCollection = jest.fn();
 const mockDoc = jest.fn();
 const mockUpdate = jest.fn();
@@ -65,7 +66,8 @@ class FakeFirestore {
     };
   }
 
-  settings(settings) {
+  settings() {
+    mockSettings(...arguments);
     return;
   }
 
