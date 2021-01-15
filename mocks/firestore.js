@@ -85,7 +85,7 @@ class FakeFirestore {
     mockDoc(path);
 
     // Ignore leading slash
-    const pathArray = path.replace(/^\/+/, '').split('/')
+    const pathArray = path.replace(/^\/+/, '').split('/');
     // Must be document-level, so even-numbered elements
     if (pathArray.length % 2) {
       throw new Error('The path array must be document-level');
@@ -257,7 +257,7 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
    */
   records() {
     // Ignore leading slash
-    const pathArray = this.path.replace(/^\/+/, '').split('/')
+    const pathArray = this.path.replace(/^\/+/, '').split('/');
 
     pathArray.shift(); // drop 'database'; it's always first
     let requestedRecords = this.firestore.database[pathArray.shift()];
@@ -320,6 +320,7 @@ module.exports = {
   mockDelete,
   mockUpdate,
   mockSet,
+  mockSettings,
   mockBatchDelete,
   mockBatchCommit,
   mockBatchUpdate,

@@ -13,6 +13,7 @@ const {
   mockBatchDelete,
   mockBatchUpdate,
   mockBatchSet,
+  mockSettings,
 } = require('../mocks/firestore');
 
 describe('we can start a firebase application', () => {
@@ -47,8 +48,10 @@ describe('we can start a firebase application', () => {
   });
 
   test('We can start an application', async () => {
-    this.firebase.firestore();
+    const db = this.firebase.firestore();
+    db.settings({ ignoreUndefinedProperties: true });
     expect(mockInitializeApp).toHaveBeenCalled();
+    expect(mockSettings).toHaveBeenCalledWith({ ignoreUndefinedProperties: true });
   });
 
   describe('Examples from documentation', () => {
