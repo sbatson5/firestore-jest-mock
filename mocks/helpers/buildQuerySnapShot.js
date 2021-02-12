@@ -20,7 +20,7 @@ module.exports = function buildQuerySnapShot(requestedRecords) {
       return {
         forEach(callback) {
           // eslint-disable-next-line no-console
-          console.info('Firestore jest mock does not current support tracking changes');
+          console.info('Firestore jest mock does not currently support tracking changes');
           callback();
         },
       };
