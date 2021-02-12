@@ -15,6 +15,8 @@ const mockBatchCommit = jest.fn();
 const mockBatchUpdate = jest.fn();
 const mockBatchSet = jest.fn();
 
+const mockOnSnapShot = jest.fn();
+
 const timestamp = require('./timestamp');
 const fieldValue = require('./fieldValue');
 const query = require('./query');
@@ -137,6 +139,31 @@ FakeFirestore.DocumentReference = class {
   delete() {
     mockDelete(...arguments);
     return Promise.resolve();
+  }
+
+  onSnapshot() {
+    mockOnSnapShot(...arguments);
+    let callback;
+    let errorCallback;
+    // eslint-disable-next-line
+    let options;
+
+    try {
+      if (typeof arguments[0] === 'function') {
+        [callback, errorCallback] = arguments;
+      } else {
+        [options, callback, errorCallback] = arguments;
+      }
+
+      this.get().then(result => {
+        callback(result);
+      });
+    } catch (e) {
+      errorCallback(e);
+    }
+
+    // Returns an unsubscribe function
+    return () => {};
   }
 
   get() {
@@ -325,6 +352,7 @@ module.exports = {
   mockBatchCommit,
   mockBatchUpdate,
   mockBatchSet,
+  mockOnSnapShot,
   ...query.mocks,
   ...transaction.mocks,
   ...fieldValue.mocks,
