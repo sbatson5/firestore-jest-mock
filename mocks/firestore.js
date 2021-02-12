@@ -155,9 +155,13 @@ FakeFirestore.DocumentReference = class {
         [options, callback, errorCallback] = arguments;
       }
 
-      this.get().then(result => {
-        callback(result);
-      });
+      this.get()
+        .then(result => {
+          callback(result);
+        })
+        .catch(e => {
+          throw e;
+        });
     } catch (e) {
       errorCallback(e);
     }
