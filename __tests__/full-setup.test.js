@@ -1,6 +1,8 @@
 const { mockFirebase } = require('firestore-jest-mock');
 const { mockInitializeApp } = require('../mocks/firebase');
 
+const flushPromises = () => new Promise(setImmediate);
+
 const {
   mockGet,
   mockAdd,
@@ -14,6 +16,7 @@ const {
   mockBatchUpdate,
   mockBatchSet,
   mockSettings,
+  mockOnSnapShot,
 } = require('../mocks/firestore');
 
 describe('we can start a firebase application', () => {
@@ -206,6 +209,78 @@ describe('we can start a firebase application', () => {
         expect(mockBatchSet).toHaveBeenCalledWith(nycRef, { name: 'New York City' });
         expect(mockBatchCommit).toHaveBeenCalled();
       });
+    });
+
+    test('onSnapshot single doc', async () => {
+      const db = this.firebase.firestore();
+
+      // Example from documentation:
+      // https://firebase.google.com/docs/firestore/query-data/listen
+
+      db.collection('cities')
+        .doc('LA')
+        .onSnapshot(doc => {
+          expect(doc).toHaveProperty('data');
+          expect(doc.data).toBeInstanceOf(Function);
+          expect(doc).toHaveProperty('metadata');
+        });
+
+      await flushPromises();
+
+      expect(mockOnSnapShot).toHaveBeenCalled();
+    });
+
+    test('onSnapshot can work with options', async () => {
+      const db = this.firebase.firestore();
+
+      // Example from documentation:
+      // https://firebase.google.com/docs/firestore/query-data/listen
+
+      db.collection('cities')
+        .doc('LA')
+        .onSnapshot(
+          {
+            // Listen for document metadata changes
+            includeMetadataChanges: true,
+          },
+          doc => {
+            expect(doc).toHaveProperty('data');
+            expect(doc.data).toBeInstanceOf(Function);
+            expect(doc).toHaveProperty('metadata');
+          },
+        );
+
+      await flushPromises();
+
+      expect(mockOnSnapShot).toHaveBeenCalled();
+    });
+
+    test('onSnapshot with query', async () => {
+      const db = this.firebase.firestore();
+
+      // Example from documentation:
+      // https://firebase.google.com/docs/firestore/query-data/listen
+
+      const unsubscribe = db
+        .collection('cities')
+        .where('state', '==', 'CA')
+        .onSnapshot(querySnapshot => {
+          expect(querySnapshot).toHaveProperty('forEach');
+          expect(querySnapshot).toHaveProperty('docChanges');
+          expect(querySnapshot).toHaveProperty('docs');
+
+          expect(querySnapshot.forEach).toBeInstanceOf(Function);
+          expect(querySnapshot.docChanges).toBeInstanceOf(Function);
+          expect(querySnapshot.docs).toBeInstanceOf(Array);
+
+          expect(querySnapshot.docChanges().forEach).toBeInstanceOf(Function);
+        });
+
+      await flushPromises();
+
+      expect(unsubscribe).toBeInstanceOf(Function);
+      expect(mockWhere).toHaveBeenCalled();
+      expect(mockOnSnapShot).toHaveBeenCalled();
     });
   });
 });
