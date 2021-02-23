@@ -76,7 +76,7 @@ mockFirebase({
 });
 ```
 
-This will populate a fake database with a `users` and `posts` collection.
+This will populate a fake read-only database with a `users` and `posts` collection.
 
 Now you can write queries or requests for data just as you would with Firestore:
 
@@ -101,7 +101,7 @@ test('testing stuff', () => {
 
 ### Subcollections
 
-A common case in Firestore is to store data in document [subcollections](https://firebase.google.com/docs/firestore/manage-data/structure-data#subcollections). You can model these in firestore-jest-mock like so:
+A common Firestore use case is to store data in document [subcollections](https://firebase.google.com/docs/firestore/manage-data/structure-data#subcollections). You can model these with firestore-jest-mock like so:
 
 ```js
 const { mockFirebase } = require('firestore-jest-mock');
@@ -131,7 +131,7 @@ mockFirebase({
 });
 ```
 
-Similar to how the `id` key models a document object, the `_collections` key models a subcollection. You model each subcollection key in the same way that `database` is modeled above: an object keyed by collection IDs and populated with document arrays.
+Similar to how the `id` key defines a document object to firestore-jest-mock, the `_collections` key defines a subcollection. You model each subcollection structure in the same way that `database` is modeled above: an object keyed by collection IDs and populated with document arrays.
 
 This lets you model and validate more complex document access:
 
@@ -160,7 +160,8 @@ test('testing stuff', () => {
 
 ### What would you want to test?
 
-The job of the this library is not to test Firestore, but to allow you to test your code without hitting firebase.
+The job of the this library is not to test Firestore, but to allow you to test your code without hitting Firebase servers or booting a local emulator. Since this allows the full test stack to run on plain JavaScript calls, unit tests are quick and easy to write and to execute.
+
 Take this example:
 
 ```js
