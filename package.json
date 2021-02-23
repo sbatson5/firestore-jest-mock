@@ -13,8 +13,8 @@
     "build": "rm -rf dist && ./node_modules/typescript/bin/tsc",
     "lint": "eslint . --ext .js,.ts",
     "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:watch": "npm run test -- --watch",
+    "test:coverage": "npm run test -- --coverage"
   },
   "lint-staged": {
     "*.{js,css,json,md}": [
