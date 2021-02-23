@@ -8,7 +8,7 @@ const {
   mockDeleteFieldValue,
   mockIncrementFieldValue,
   mockServerTimestampFieldValue,
-} = require('../mocks/firestore');
+} = require('firestore-jest-mock/dist/mocks/firestore');
 
 describe('Single values transformed by field sentinels', () => {
   beforeEach(() => {

@@ -8,7 +8,7 @@ const {
   mockOrderBy,
   mockStartAfter,
   mockStartAt,
-} = require('firestore-jest-mock/mocks/firestore');
+} = require('firestore-jest-mock/dist/mocks/firestore');
 
 describe('Reference Sentinels', () => {
   beforeEach(() => {

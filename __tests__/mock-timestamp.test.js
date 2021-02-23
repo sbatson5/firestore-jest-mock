@@ -3,7 +3,7 @@ const {
   mockTimestampToDate,
   mockTimestampToMillis,
   mockTimestampNow,
-} = require('firestore-jest-mock/mocks/firestore');
+} = require('firestore-jest-mock/dist/mocks/firestore');
 
 describe('Timestamp mock', () => {
   test('it is equal to itself', () => {

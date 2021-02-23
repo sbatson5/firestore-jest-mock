@@ -1,5 +1,5 @@
 const { FakeFirestore } = require('firestore-jest-mock');
-const { mockCollection, mockDoc } = require('firestore-jest-mock/mocks/firestore');
+const { mockCollection, mockDoc } = require('firestore-jest-mock/dist/mocks/firestore');
 
 describe('Queries', () => {
   beforeEach(() => {

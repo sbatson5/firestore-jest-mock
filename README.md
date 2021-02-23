@@ -85,7 +85,7 @@ This will populate a fake database with a `users` and `posts` collection.
 Now you can write queries or requests for data just as you would with Firestore:
 
 ```js
-const { mockCollection } = require('firestore-jest-mock/mocks/firestore');
+const { mockCollection } = require('firestore-jest-mock/dist/mocks/firestore');
 
 test('testing stuff', () => {
   const firebase = require('firebase'); // or import firebase from 'firebase';
@@ -140,7 +140,7 @@ Similar to how the `id` key models a document object, the `_collections` key mod
 This lets you model and validate more complex document access:
 
 ```js
-const { mockCollection, mockDoc } = require('firestore-jest-mock/mocks/firestore');
+const { mockCollection, mockDoc } = require('firestore-jest-mock/dist/mocks/firestore');
 
 test('testing stuff', () => {
   const firebase = require('firebase');
@@ -185,7 +185,7 @@ We have a conditional query here. If you pass `state` to this function, we will 
 const { mockFirebase } = require('firestore-jest-mock');
 
 // Import the mock versions of the functions you expect to be called
-const { mockCollection, mockWhere } = require('firestore-jest-mock/mocks/firestore');
+const { mockCollection, mockWhere } = require('firestore-jest-mock/dist/mocks/firestore');
 describe('we can query', () => {
   mockFirebase({
     database: {

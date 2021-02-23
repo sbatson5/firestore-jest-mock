@@ -1,5 +1,5 @@
 const { mockFirebase } = require('firestore-jest-mock');
-const { mockInitializeApp } = require('../mocks/firebase');
+const { mockInitializeApp } = require('firestore-jest-mock/dist/mocks/firebase');
 
 const flushPromises = () => new Promise(setImmediate);
 
@@ -17,7 +17,7 @@ const {
   mockBatchSet,
   mockSettings,
   mockOnSnapShot,
-} = require('../mocks/firestore');
+} = require('firestore-jest-mock/dist/mocks/firestore');
 
 describe('we can start a firebase application', () => {
   mockFirebase({

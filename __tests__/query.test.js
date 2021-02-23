@@ -5,10 +5,10 @@ const {
   mockWhere,
   mockOffset,
   FakeFirestore,
-} = require('../mocks/firestore');
+} = require('firestore-jest-mock/dist/mocks/firestore');
 const { mockFirebase } = require('firestore-jest-mock');
 
-describe('test', () => {
+describe('Query', () => {
   mockFirebase({
     database: {
       animals: [

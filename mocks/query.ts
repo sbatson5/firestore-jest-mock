@@ -1,4 +1,5 @@
-const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
+import type { FakeFirestore } from './firestore';
+import buildQuerySnapShot from './helpers/buildQuerySnapShot';
 
 const mockGet = jest.fn();
 const mockWhere = jest.fn();
@@ -9,13 +10,27 @@ const mockStartAfter = jest.fn();
 const mockStartAt = jest.fn();
 const mockQueryOnSnapshot = jest.fn();
 
-class Query {
-  constructor(collectionName, firestore) {
+export const mocks = {
+  mockGet,
+  mockWhere,
+  mockLimit,
+  mockOrderBy,
+  mockOffset,
+  mockStartAfter,
+  mockStartAt,
+  mockQueryOnSnapshot,
+};
+
+export class Query {
+  collectionName: string;
+  firestore: FakeFirestore;
+
+  constructor(collectionName: string, firestore: FakeFirestore) {
     this.collectionName = collectionName;
     this.firestore = firestore;
   }
 
-  get() {
+  get(): Promise<ReturnType<typeof buildQuerySnapShot>> {
     mockGet(...arguments);
     // Use DFS to find all records in collections that match collectionName
     const requestedRecords = [];
@@ -24,7 +39,7 @@ class Query {
     // At each collection list node, get collection in collection list whose id
     // matches this.collectionName
     while (st.length > 0) {
-      const subcollections = st.pop();
+      const subcollections = st.pop() ?? {};
       const documents = subcollections[this.collectionName];
       if (documents && Array.isArray(documents)) {
         requestedRecords.push(...documents);
@@ -34,7 +49,8 @@ class Query {
       // and push onto st.
       Object.values(subcollections).forEach(collection => {
         const documents = collection.filter(d => !!d._collections);
-        st.push(...documents.map(d => d._collections));
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        st.push(...documents.map(d => d._collections!)); // This is definitely non-null b/c we filter for it
       });
     }
 
@@ -45,35 +61,37 @@ class Query {
     return Promise.resolve(buildQuerySnapShot(requestedRecords));
   }
 
-  where() {
-    return mockWhere(...arguments) || this;
+  where(): Query {
+    return (mockWhere(...arguments) as Query | undefined) ?? this;
   }
 
-  offset() {
-    return mockOffset(...arguments) || this;
+  offset(): Query {
+    return (mockOffset(...arguments) as Query | undefined) ?? this;
   }
 
-  limit() {
-    return mockLimit(...arguments) || this;
+  limit(): Query {
+    return (mockLimit(...arguments) as Query | undefined) ?? this;
   }
 
-  orderBy() {
-    return mockOrderBy(...arguments) || this;
+  orderBy(): Query {
+    return (mockOrderBy(...arguments) as Query | undefined) ?? this;
   }
 
-  startAfter() {
-    return mockStartAfter(...arguments) || this;
+  startAfter(): Query {
+    return (mockStartAfter(...arguments) as Query | undefined) ?? this;
   }
 
-  startAt() {
-    return mockStartAt(...arguments) || this;
+  startAt(): Query {
+    return (mockStartAt(...arguments) as Query | undefined) ?? this;
   }
 
-  onSnapshot() {
+  onSnapshot(
+    callback: (arg0: ReturnType<typeof buildQuerySnapShot>) => void,
+    errorCallback: (error: unknown) => void,
+  ): () => void {
     mockQueryOnSnapshot(...arguments);
-    const [callback, errorCallback] = arguments;
     try {
-      this.get().then(result => {
+      void this.get().then(result => {
         callback(result);
       });
     } catch (e) {
@@ -81,20 +99,6 @@ class Query {
     }
 
     // Returns an unsubscribe function
-    return () => {};
+    return () => undefined;
   }
 }
-
-module.exports = {
-  Query,
-  mocks: {
-    mockGet,
-    mockWhere,
-    mockLimit,
-    mockOrderBy,
-    mockOffset,
-    mockStartAfter,
-    mockStartAt,
-    mockQueryOnSnapshot,
-  },
-};
