@@ -2,6 +2,7 @@ const mockCollectionGroup = jest.fn();
 const mockBatch = jest.fn();
 const mockRunTransaction = jest.fn();
 
+const mockSettings = jest.fn();
 const mockCollection = jest.fn();
 const mockDoc = jest.fn();
 const mockUpdate = jest.fn();
@@ -13,6 +14,8 @@ const mockBatchDelete = jest.fn();
 const mockBatchCommit = jest.fn();
 const mockBatchUpdate = jest.fn();
 const mockBatchSet = jest.fn();
+
+const mockOnSnapShot = jest.fn();
 
 const timestamp = require('./timestamp');
 const fieldValue = require('./fieldValue');
@@ -65,6 +68,11 @@ class FakeFirestore {
     };
   }
 
+  settings() {
+    mockSettings(...arguments);
+    return;
+  }
+
   collection(collectionName) {
     mockCollection(...arguments);
     return new FakeFirestore.CollectionReference(collectionName, null, this);
@@ -78,7 +86,8 @@ class FakeFirestore {
   doc(path) {
     mockDoc(path);
 
-    const pathArray = path.split('/');
+    // Ignore leading slash
+    const pathArray = path.replace(/^\/+/, '').split('/');
     // Must be document-level, so even-numbered elements
     if (pathArray.length % 2) {
       throw new Error('The path array must be document-level');
@@ -132,9 +141,39 @@ FakeFirestore.DocumentReference = class {
     return Promise.resolve();
   }
 
+  onSnapshot() {
+    mockOnSnapShot(...arguments);
+    let callback;
+    let errorCallback;
+    // eslint-disable-next-line
+    let options;
+
+    try {
+      if (typeof arguments[0] === 'function') {
+        [callback, errorCallback] = arguments;
+      } else {
+        [options, callback, errorCallback] = arguments;
+      }
+
+      this.get()
+        .then(result => {
+          callback(result);
+        })
+        .catch(e => {
+          throw e;
+        });
+    } catch (e) {
+      errorCallback(e);
+    }
+
+    // Returns an unsubscribe function
+    return () => {};
+  }
+
   get() {
     query.mocks.mockGet(...arguments);
-    const pathArray = this.path.split('/');
+    // Ignore leading slash
+    const pathArray = this.path.replace(/^\/+/, '').split('/');
 
     pathArray.shift(); // drop 'database'; it's always first
     let requestedRecords = this.firestore.database[pathArray.shift()];
@@ -248,7 +287,8 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
    * @returns {Object[]} An array of mocked document records.
    */
   records() {
-    const pathArray = this.path.split('/');
+    // Ignore leading slash
+    const pathArray = this.path.replace(/^\/+/, '').split('/');
 
     pathArray.shift(); // drop 'database'; it's always first
     let requestedRecords = this.firestore.database[pathArray.shift()];
@@ -311,10 +351,12 @@ module.exports = {
   mockDelete,
   mockUpdate,
   mockSet,
+  mockSettings,
   mockBatchDelete,
   mockBatchCommit,
   mockBatchUpdate,
   mockBatchSet,
+  mockOnSnapShot,
   ...query.mocks,
   ...transaction.mocks,
   ...fieldValue.mocks,

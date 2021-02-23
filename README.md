@@ -21,12 +21,16 @@ Small, easy to grok pull requests are welcome, but please note that there is no 
   - [Installation](#installation)
   - [Usage](#usage)
     - [`mockFirebase`](#mockfirebase)
+    - [Subcollections](#subcollections)
     - [What would you want to test?](#what-would-you-want-to-test)
     - [Don't forget to reset your mocks](#dont-forget-to-reset-your-mocks)
       - [I wrote a where clause, but all the records were returned!](#i-wrote-a-where-clause-but-all-the-records-were-returned)
     - [Functions you can test](#functions-you-can-test)
       - [Firestore](#firestore)
+      - [Firestore.Query](#firestorequery)
       - [Firestore.FieldValue](#firestorefieldvalue)
+      - [Firestore.Timestamp](#firestoretimestamp)
+      - [Firestore.Transaction](#firestoretransaction)
       - [Auth](#auth)
   - [Contributing](#contributing)
   - [Code of Conduct](#code-of-conduct)
@@ -189,20 +193,12 @@ describe('we can query', () => {
         {
           id: 'abc123',
           name: 'Homer Simpson',
+          state: 'connecticut',
         },
         {
           id: 'abc456',
           name: 'Lisa Simpson',
-        },
-        {
-          id: 'abc789',
-          name: 'Dwight Schrute',
-          _collections: {
-            employment: [
-              { id: '123abc', employer: 'Dunder Mifflin' },
-              { id: '123def', employer: 'Schrute Farms' },
-            ],
-          },
+          state: 'alabama',
         },
       ],
     },
