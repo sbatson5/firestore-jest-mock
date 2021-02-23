@@ -77,6 +77,7 @@ describe('Queries', () => {
 
           expect(record.get('name')).toEqual('Homer');
           expect(record.get('address.street')).toEqual('742 Evergreen Terrace');
+          expect(record.get('address.street.doesntExist')).toBeNull();
         }));
 
     test('it can fetch a single record with a promise without a specified collection', () =>
