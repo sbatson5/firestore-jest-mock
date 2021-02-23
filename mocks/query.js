@@ -7,6 +7,7 @@ const mockOrderBy = jest.fn();
 const mockOffset = jest.fn();
 const mockStartAfter = jest.fn();
 const mockStartAt = jest.fn();
+const mockQueryOnSnapshot = jest.fn();
 
 class Query {
   constructor(collectionName, firestore) {
@@ -67,6 +68,21 @@ class Query {
   startAt() {
     return mockStartAt(...arguments) || this;
   }
+
+  onSnapshot() {
+    mockQueryOnSnapshot(...arguments);
+    const [callback, errorCallback] = arguments;
+    try {
+      this.get().then(result => {
+        callback(result);
+      });
+    } catch (e) {
+      errorCallback(e);
+    }
+
+    // Returns an unsubscribe function
+    return () => {};
+  }
 }
 
 module.exports = {
@@ -79,5 +95,6 @@ module.exports = {
     mockOffset,
     mockStartAfter,
     mockStartAt,
+    mockQueryOnSnapshot,
   },
 };

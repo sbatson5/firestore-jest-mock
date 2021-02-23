@@ -21,12 +21,16 @@ Small, easy to grok pull requests are welcome, but please note that there is no 
   - [Installation](#installation)
   - [Usage](#usage)
     - [`mockFirebase`](#mockfirebase)
+    - [Subcollections](#subcollections)
     - [What would you want to test?](#what-would-you-want-to-test)
     - [Don't forget to reset your mocks](#dont-forget-to-reset-your-mocks)
       - [I wrote a where clause, but all the records were returned!](#i-wrote-a-where-clause-but-all-the-records-were-returned)
     - [Functions you can test](#functions-you-can-test)
       - [Firestore](#firestore)
+      - [Firestore.Query](#firestorequery)
       - [Firestore.FieldValue](#firestorefieldvalue)
+      - [Firestore.Timestamp](#firestoretimestamp)
+      - [Firestore.Transaction](#firestoretransaction)
       - [Auth](#auth)
   - [Contributing](#contributing)
   - [Code of Conduct](#code-of-conduct)
@@ -63,7 +67,8 @@ Example usage:
 
 ```js
 const { mockFirebase } = require('firestore-jest-mock');
-// Create a fake firestore with a `users` and `posts` collection
+
+// Create a fake Firestore with a `users` and `posts` collection
 mockFirebase({
   database: {
     users: [
@@ -77,24 +82,89 @@ mockFirebase({
 
 This will populate a fake database with a `users` and `posts` collection.
 
-Now you can write queries or requests for data just as you would with firestore:
+Now you can write queries or requests for data just as you would with Firestore:
 
 ```js
+const { mockCollection } = require('firestore-jest-mock/mocks/firestore');
+
 test('testing stuff', () => {
   const firebase = require('firebase'); // or import firebase from 'firebase';
   const db = firebase.firestore();
 
-  db.collection('users')
+  return db
+    .collection('users')
     .get()
     .then(userDocs => {
-      // write assertions here
+      // Assert that a collection ID was referenced
+      expect(mockCollection).toHaveBeenCalledWith('users');
+
+      // Write other assertions here
+    });
+});
+```
+
+### Subcollections
+
+A common case in Firestore is to store data in document [subcollections](https://firebase.google.com/docs/firestore/manage-data/structure-data#subcollections). You can model these in firestore-jest-mock like so:
+
+```js
+const { mockFirebase } = require('firestore-jest-mock');
+// Using our fake Firestore from above:
+mockFirebase({
+  database: {
+    users: [
+      {
+        id: 'abc123',
+        name: 'Homer Simpson',
+      },
+      {
+        id: 'abc456',
+        name: 'Lisa Simpson',
+        _collections: {
+          notes: [
+            {
+              id: 'note123',
+              text: 'This is a document in a subcollection!',
+            },
+          ],
+        },
+      },
+    ],
+    posts: [{ id: '123abc', title: 'Really cool title' }],
+  },
+});
+```
+
+Similar to how the `id` key models a document object, the `_collections` key models a subcollection. You model each subcollection key in the same way that `database` is modeled above: an object keyed by collection IDs and populated with document arrays.
+
+This lets you model and validate more complex document access:
+
+```js
+const { mockCollection, mockDoc } = require('firestore-jest-mock/mocks/firestore');
+
+test('testing stuff', () => {
+  const firebase = require('firebase');
+  const db = firebase.firestore();
+
+  return db
+    .collection('users')
+    .doc('abc456')
+    .collection('notes')
+    .get()
+    .then(noteDocs => {
+      // Assert that a collection or document ID was referenced
+      expect(mockCollection).toHaveBeenNthCalledWith(1, 'users');
+      expect(mockDoc).toHaveBeenCalledWith('abc456');
+      expect(mockCollection).toHaveBeenNthCalledWith(2, 'notes');
+
+      // Write other assertions here
     });
 });
 ```
 
 ### What would you want to test?
 
-The job of the this library is not to test firestore, but to allow you to test your code without hitting firebase.
+The job of the this library is not to test Firestore, but to allow you to test your code without hitting firebase.
 Take this example:
 
 ```js
@@ -120,8 +190,16 @@ describe('we can query', () => {
   mockFirebase({
     database: {
       users: [
-        { id: 'abc123', name: 'Homer Simpson' },
-        { id: 'abc456', name: 'Lisa Simpson' },
+        {
+          id: 'abc123',
+          name: 'Homer Simpson',
+          state: 'connecticut',
+        },
+        {
+          id: 'abc456',
+          name: 'Lisa Simpson',
+          state: 'alabama',
+        },
       ],
     },
   });
@@ -129,7 +207,7 @@ describe('we can query', () => {
   test('query with state', async () => {
     await maybeGetUsersInState('alabama');
 
-    // Assert that we call the correct firestore methods
+    // Assert that we call the correct Firestore methods
     expect(mockCollection).toHaveBeenCalledWith('users');
     expect(mockWhere).toHaveBeenCalledWith('state', '==', 'alabama');
   });
@@ -137,14 +215,14 @@ describe('we can query', () => {
   test('no state', async () => {
     await maybeGetUsersInState();
 
-    // Assert that we call the correct firestore methods
+    // Assert that we call the correct Firestore methods
     expect(mockCollection).toHaveBeenCalledWith('users');
     expect(mockWhere).not.toHaveBeenCalled();
   });
 });
 ```
 
-In this test, we don't necessarily care what gets returned from firestore (it's not our job to test firestore), but instead we try to assert that we built our query correctly.
+In this test, we don't necessarily care what gets returned from Firestore (it's not our job to test Firestore), but instead we try to assert that we built our query correctly.
 
 > If I pass a state to this function, does it properly query the `users` collection?
 
@@ -172,10 +250,10 @@ mockCollection.mockClear();
 
 #### I wrote a where clause, but all the records were returned!
 
-The `where` clause in the mocked firestore will not actually filter the data at all.
-We are not recreating firestore in this mock, just exposing an API that allows us to write assertions.
-It is also not the job of the developer (you) to test that firestore filtered the data appropriately.
-Your application doesn't double-check firestore's response -- it trusts that it's always correct!
+The `where` clause in the mocked Firestore will not actually filter the data at all.
+We are not recreating Firestore in this mock, just exposing an API that allows us to write assertions.
+It is also not the job of the developer (you) to test that Firestore filtered the data appropriately.
+Your application doesn't double-check Firestore's response -- it trusts that it's always correct!
 
 ### Functions you can test
 
@@ -216,6 +294,26 @@ Your application doesn't double-check firestore's response -- it trusts that it'
 | `mockDeleteFieldValue`          | Assert the correct fields are removed from a document      | [delete](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html#.delete)                   |
 | `mockIncrementFieldValue`       | Assert a number field is incremented by the correct amount | [increment](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html#.increment)             |
 | `mockServerTimestampFieldValue` | Assert a server Firebase.Timestamp value will be stored    | [serverTimestamp](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html#.serverTimestamp) |
+
+#### [Firestore.Timestamp](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html)
+
+| Method                    | Use                                                                    | Method in Firestore                                                                     |
+| ------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `mockTimestampToDate`     | Assert the call and mock the result, or use the default implementation | [toDate](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#toDate)          |
+| `mockTimestampToMillis`   | Assert the call and mock the result, or use the default implementation | [toMillis](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#toMillis)      |
+| `mockTimestampFromDate`   | Assert the call and mock the result, or use the default implementation | [fromDate](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#.fromDate)     |
+| `mockTimestampFromMillis` | Assert the call and mock the result, or use the default implementation | [fromMillis](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#.fromMillis) |
+| `mockTimestampNow`        | Assert the call and mock the result, or use the default implementation | [now](https://googleapis.dev/nodejs/firestore/latest/Timestamp.html#.now)               |
+
+#### [Firestore.Transaction](https://googleapis.dev/nodejs/firestore/latest/Transaction.html)
+
+| Method                  | Use                                                                                     | Method in Firestore                                                              |
+| ----------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `mockGetTransaction`    | Assert transaction.get is called with correct params. Returns a promise                 | [get](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#get)       |
+| `mockGetAllTransaction` | Assert transaction.getAll is called with correct params. Returns a promise              | [get](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#getAll)    |
+| `mockSetTransaction`    | Assert transaction.set is called with correct params. Returns the transaction object    | [set](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#set)       |
+| `mockUpdateTransaction` | Assert transaction.update is called with correct params. Returns the transaction object | [update](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#update) |
+| `mockDeleteTransaction` | Assert transaction.delete is called with correct params. Returns the transaction object | [delete](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#delete) |
 
 #### [Auth](https://firebase.google.com/docs/reference/js/firebase.auth.Auth)
 
