@@ -14,10 +14,11 @@ const mockStartAfter = jest.fn();
 const mockStartAt = jest.fn();
 
 class Query {
-  constructor(collectionName, firestore) {
+  constructor(collectionName, firestore, isGroupQuery = false) {
     this.collectionName = collectionName;
     this.firestore = firestore;
     this.filters = [];
+    this.isGroupQuery = isGroupQuery;
   }
 
   get() {

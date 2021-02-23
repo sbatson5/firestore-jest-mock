@@ -63,7 +63,7 @@ class FakeFirestore {
 
   collectionGroup(collectionName) {
     mockCollectionGroup(...arguments);
-    return new FakeFirestore.Query(collectionName, this);
+    return new FakeFirestore.Query(collectionName, this, true);
   }
 
   doc(path) {
