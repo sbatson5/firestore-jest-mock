@@ -48,17 +48,18 @@ export class Query {
       // For each collection in subcollections, get each document's _collections array
       // and push onto st.
       Object.values(subcollections).forEach(collection => {
-        const documents = collection.filter(d => !!d._collections);
+        const documents = collection?.filter(d => !!d._collections) ?? [];
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        st.push(...documents.map(d => d._collections!)); // This is definitely non-null b/c we filter for it
+        st.push(...documents.map(d => d._collections!)); // This is definitely non-null b/c we filtered for it
       });
     }
 
     // Make sure we have a 'good enough' document reference
-    requestedRecords.forEach(rec => {
-      rec._ref = this.firestore.doc('database/'.concat(rec.id));
-    });
-    return Promise.resolve(buildQuerySnapShot(requestedRecords));
+    const hashes = requestedRecords.map(rec => ({
+      ...rec,
+      _ref: this.firestore.doc('database/'.concat(rec.id)),
+    }));
+    return Promise.resolve(buildQuerySnapShot(hashes, this));
   }
 
   where(): Query {

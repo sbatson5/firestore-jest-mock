@@ -1,11 +1,11 @@
 interface DatabaseDocument {
   id: string;
-  _collections?: DatabaseCollection;
+  _collections?: DatabaseCollections;
   [key: string]: unknown;
 }
 
-interface DatabaseCollection {
-  [collectionName: string]: Array<DatabaseDocument>;
+interface DatabaseCollections {
+  [collectionName: string]: Array<DatabaseDocument> | undefined;
 }
 
 type FakeFirestoreDocumentData = Record<string, unknown>;

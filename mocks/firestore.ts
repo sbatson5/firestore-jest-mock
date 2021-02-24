@@ -71,10 +71,10 @@ export class FakeFirestore {
   public static DocumentReference: typeof _DocumentReference;
   public static CollectionReference: typeof _CollectionReference;
 
-  database: DatabaseCollection;
+  database: DatabaseCollections;
   query: query.Query;
 
-  constructor(stubbedDatabase: DatabaseCollection = {}) {
+  constructor(stubbedDatabase: DatabaseCollections = {}) {
     this.database = stubbedDatabase;
     this.query = new query.Query('', this);
   }
@@ -275,7 +275,7 @@ export class _DocumentReference {
       if (!document || !document._collections) {
         return Promise.resolve({ exists: false, data: () => undefined, id: this.id, ref: this });
       }
-      requestedRecords = document._collections[collectionId] || [];
+      requestedRecords = document._collections[collectionId] ?? [];
       if (requestedRecords.length === 0) {
         return Promise.resolve({ exists: false, data: () => undefined, id: this.id, ref: this });
       }
@@ -289,8 +289,7 @@ export class _DocumentReference {
     }
 
     if (document) {
-      document._ref = this;
-      return Promise.resolve(buildDocFromHash(document));
+      return Promise.resolve(buildDocFromHash({ ...document, _ref: this }));
     }
     return Promise.resolve({ exists: false, data: () => undefined, id: this.id, ref: this });
   }
@@ -382,12 +381,12 @@ class _CollectionReference extends FakeFirestore.Query {
   }
 
   /**
-   * @function records
-   * A private method, meant mainly to be used by `get` and other internal objects to retrieve
-   * the list of database records referenced by this CollectionReference.
-   * @returns {Object[]} An array of mocked document records.
+   * A helper method intended to be used by our `get` mock and other internal implementations
+   * to retrieve the list of database records referenced by this CollectionReference.
+   *
+   * @returns An array of mocked document records.
    */
-  records() {
+  private records(): Array<DatabaseDocument> {
     // Ignore leading slash
     const pathArray = this.path.replace(/^\/+/, '').split('/');
 
@@ -396,9 +395,9 @@ class _CollectionReference extends FakeFirestore.Query {
     if (!firstSegment) {
       throw new Error(`Path '${this.path}' is too short.`);
     }
-    let requestedRecords = this.firestore.database[firstSegment];
+    let requestedRecords = this.firestore.database[firstSegment] ?? [];
     if (pathArray.length === 0) {
-      return requestedRecords || [];
+      return requestedRecords;
     }
 
     // Since we're a collection, we can assume that pathArray.length % 2 is always 0
@@ -407,15 +406,12 @@ class _CollectionReference extends FakeFirestore.Query {
       const documentId = pathArray[index];
       const collectionId = pathArray[index + 1];
 
-      if (!requestedRecords) {
-        return [];
-      }
       const document = requestedRecords.find(record => record.id === documentId);
       if (!document || !document._collections) {
         return [];
       }
 
-      requestedRecords = document._collections[collectionId] || [];
+      requestedRecords = document._collections[collectionId] ?? [];
       if (requestedRecords.length === 0) {
         return [];
       }
@@ -429,11 +425,11 @@ class _CollectionReference extends FakeFirestore.Query {
   get(): Promise<ReturnType<typeof buildQuerySnapShot>> {
     query.mocks.mockGet(...arguments);
     // Make sure we have a 'good enough' document reference
-    const records = this.records();
-    records.forEach(rec => {
-      rec._ref = this.doc(rec.id);
-    });
-    return Promise.resolve(buildQuerySnapShot(records));
+    const records = this.records().map(rec => ({
+      ...rec,
+      _ref: this.doc(rec.id),
+    }));
+    return Promise.resolve(buildQuerySnapShot(records, this));
   }
 
   isEqual(other: unknown): boolean {
