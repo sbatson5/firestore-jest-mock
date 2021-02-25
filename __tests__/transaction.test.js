@@ -9,6 +9,8 @@ const {
   mockSetTransaction,
   mockGet,
   mockGetTransaction,
+  mockGetAll,
+  mockGetAllTransaction,
 } = require('firestore-jest-mock/mocks/firestore');
 
 describe('Transactions', () => {
@@ -35,9 +37,9 @@ describe('Transactions', () => {
     expect(mockRunTransaction).toHaveBeenCalled();
   });
 
-  test('it returns quickly', async () => {
-    await db.runTransaction(async () => {});
-    expect(true).toBe(true);
+  test('it returns the same value returned by the transaction callback', async () => {
+    const result = await db.runTransaction(() => 'Success!');
+    expect(result).toBe('Success!');
   });
 
   test('it provides a Transaction object', () => {
@@ -49,29 +51,32 @@ describe('Transactions', () => {
     expect(runner.mock.calls[0][0]).toBeInstanceOf(FakeFirestore.Transaction);
   });
 
-  test('getMock is accessible', async () => {
-    expect.assertions(6);
+  test('mockGet is accessible', async () => {
+    expect.assertions(7);
     expect(mockGetTransaction).not.toHaveBeenCalled();
     const ref = db.collection('some').doc('body');
 
     await db.runTransaction(async transaction => {
+      // `get` should return a promise
       const result = transaction.get(ref);
       expect(result).toBeInstanceOf(Promise);
       const doc = await result;
 
+      // Calling `get` on transaction also calls `get` on `ref`
       expect(mockGet).toHaveBeenCalled();
       expect(doc).toHaveProperty('id', 'body');
       expect(doc).toHaveProperty('exists', false);
+      expect(doc.data()).toBeUndefined();
     });
     expect(mockGetTransaction).toHaveBeenCalled();
   });
 
-  test('setMock is accessible', async () => {
+  test('mockSet is accessible', async () => {
     expect.assertions(4);
     expect(mockSetTransaction).not.toHaveBeenCalled();
     const ref = db.collection('some').doc('body');
 
-    await db.runTransaction(async transaction => {
+    await db.runTransaction(transaction => {
       const newData = { foo: 'bar' };
       const options = { merge: true };
       const result = transaction.set(ref, newData, options);
@@ -82,12 +87,12 @@ describe('Transactions', () => {
     expect(mockSetTransaction).toHaveBeenCalled();
   });
 
-  test('updateMock is accessible', async () => {
+  test('mockUpdate is accessible', async () => {
     expect.assertions(4);
     expect(mockUpdateTransaction).not.toHaveBeenCalled();
     const ref = db.collection('some').doc('body');
 
-    await db.runTransaction(async transaction => {
+    await db.runTransaction(transaction => {
       const newData = { foo: 'bar' };
       const result = transaction.update(ref, newData);
 
@@ -97,7 +102,7 @@ describe('Transactions', () => {
     expect(mockUpdateTransaction).toHaveBeenCalled();
   });
 
-  test('deleteMock is accessible', async () => {
+  test('mockDelete is accessible', async () => {
     expect.assertions(4);
     expect(mockDeleteTransaction).not.toHaveBeenCalled();
     const ref = db.collection('some').doc('body');
@@ -109,5 +114,21 @@ describe('Transactions', () => {
       expect(mockDelete).toHaveBeenCalled();
     });
     expect(mockDeleteTransaction).toHaveBeenCalled();
+  });
+
+  test('mockGetAll is accessible', async () => {
+    expect.assertions(4);
+    expect(mockGetAllTransaction).not.toHaveBeenCalled();
+    const ref1 = db.collection('some').doc('body');
+    const ref2 = ref1.collection('once').doc('told');
+
+    await db.runTransaction(async transaction => {
+      // FIXME: getAll is not defined on the client library, so this is a shot in the dark
+      const result = await transaction.getAll(ref1, ref2);
+
+      expect(result).toBeInstanceOf(Array);
+      expect(mockGetAll).toHaveBeenCalled();
+    });
+    expect(mockGetAllTransaction).toHaveBeenCalled();
   });
 });

@@ -1,5 +1,19 @@
 const buildDocFromHash = require('./buildDocFromHash');
 
+/**
+ * @typedef Filter
+ *
+ * @property {String} key
+ * @property {'<'|'<='|'=='|'>='|'>'|'array-contains'|'in'|'array-contains-any'} comp
+ * @property {String} value
+ */
+
+/**
+ * Builds a query result from the given array of record objects.
+ *
+ * @param {*[]} requestedRecords
+ * @param {Filter[]} filters
+ */
 module.exports = function buildQuerySnapShot(requestedRecords, filters) {
   let results = requestedRecords.filter(rec => !!rec);
   if (filters && Array.isArray(filters) && filters.length > 0) {
@@ -93,7 +107,16 @@ module.exports = function buildQuerySnapShot(requestedRecords, filters) {
     size: results.length,
     docs,
     forEach(callback) {
-      return docs.forEach(callback);
+      docs.forEach(callback);
+    },
+    docChanges() {
+      return {
+        forEach(callback) {
+          // eslint-disable-next-line no-console
+          console.info('Firestore jest mock does not currently support tracking changes');
+          callback();
+        },
+      };
     },
   };
 };

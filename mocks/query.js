@@ -1,17 +1,13 @@
-/*
- * ============
- *  Queries
- * ============
- */
-
 const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
 
+const mockGet = jest.fn();
 const mockWhere = jest.fn();
 const mockLimit = jest.fn();
 const mockOrderBy = jest.fn();
 const mockOffset = jest.fn();
 const mockStartAfter = jest.fn();
 const mockStartAt = jest.fn();
+const mockQueryOnSnapshot = jest.fn();
 
 class Query {
   constructor(collectionName, firestore, isGroupQuery = false) {
@@ -22,9 +18,9 @@ class Query {
   }
 
   get() {
-    // Return all records in collections matching collectionName (use DFS)
+    mockGet(...arguments);
+    // Use DFS to find all records in collections that match collectionName
     const requestedRecords = [];
-    // requestedRecords.push(...this.firestore.database[this.collectionName]);
 
     const st = [this.firestore.database];
     // At each collection list node, get collection in collection list whose id
@@ -75,16 +71,33 @@ class Query {
   startAt() {
     return mockStartAt(...arguments) || this;
   }
+
+  onSnapshot() {
+    mockQueryOnSnapshot(...arguments);
+    const [callback, errorCallback] = arguments;
+    try {
+      this.get().then(result => {
+        callback(result);
+      });
+    } catch (e) {
+      errorCallback(e);
+    }
+
+    // Returns an unsubscribe function
+    return () => {};
+  }
 }
 
 module.exports = {
   Query,
   mocks: {
+    mockGet,
     mockWhere,
     mockLimit,
     mockOrderBy,
     mockOffset,
     mockStartAfter,
     mockStartAt,
+    mockQueryOnSnapshot,
   },
 };

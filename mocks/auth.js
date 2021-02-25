@@ -8,8 +8,7 @@ const mockGetUser = jest.fn();
 const mockSetCustomUserClaims = jest.fn();
 
 class FakeAuth {
-  constructor(currentUser) {
-    currentUser = currentUser || {};
+  constructor(currentUser = {}) {
     currentUser.sendEmailVerification = mockSendVerificationEmail;
     this.currentUserRecord = currentUser;
   }
@@ -39,12 +38,11 @@ class FakeAuth {
   }
 
   getUser() {
-    return Promise.resolve(mockGetUser(...arguments));
+    return Promise.resolve(mockGetUser(...arguments) || {});
   }
 
   setCustomUserClaims() {
-    mockSetCustomUserClaims(...arguments);
-    return Promise.resolve({});
+    return Promise.resolve(mockSetCustomUserClaims(...arguments) || {});
   }
 
   get currentUser() {

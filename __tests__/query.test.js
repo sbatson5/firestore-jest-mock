@@ -1,4 +1,11 @@
-const { mockCollection, mockGet, mockWhere, mockOffset } = require('../mocks/firestore');
+const {
+  mockCollection,
+  mockDoc,
+  mockGet,
+  mockWhere,
+  mockOffset,
+  FakeFirestore,
+} = require('../mocks/firestore');
 const { mockFirebase } = require('firestore-jest-mock');
 
 describe('test', () => {
@@ -71,7 +78,20 @@ describe('test', () => {
     jest.resetAllMocks();
   });
 
-  test('it can filter firestore queries', async () => {
+  test('it can query a single document', async () => {
+    const monkey = await db
+      .collection('animals')
+      .doc('monkey')
+      .get();
+
+    expect(monkey).toHaveProperty('exists', true);
+    expect(mockCollection).toHaveBeenCalledWith('animals');
+    expect(mockDoc).toHaveBeenCalledWith('monkey');
+    expect(mockGet).toHaveBeenCalled();
+  });
+
+  test('it can query multiple documents', async () => {
+    expect.assertions(9);
     const animals = await db
       .collection('animals')
       .where('type', '==', 'mammal')
@@ -79,6 +99,17 @@ describe('test', () => {
 
     expect(animals).toHaveProperty('docs', expect.any(Array));
     expect(mockCollection).toHaveBeenCalledWith('animals');
+
+    // Make sure that the filter behaves appropriately
+    expect(animals.docs.length).toBe(2);
+
+    // Make sure that forEach works properly
+    expect(animals).toHaveProperty('forEach', expect.any(Function));
+    animals.forEach(doc => {
+      // this should run 4 times, as asserted by `expect.assertions` above
+      expect(doc).toHaveProperty('exists', true);
+    });
+
     expect(mockWhere).toHaveBeenCalledWith('type', '==', 'mammal');
     expect(mockGet).toHaveBeenCalled();
     expect(animals).toHaveProperty('size', 2); // Returns 2/4 documents
@@ -113,6 +144,15 @@ describe('test', () => {
     expect(ref.startAfter(null)).not.toBe(notThisRef);
     expect(ref.startAt(null)).toBe(ref);
     expect(ref.startAt(null)).not.toBe(notThisRef);
+  });
+
+  test('it returns a Query from query methods', () => {
+    const ref = db.collection('animals');
+    expect(ref.where('type', '==', 'mammal')).toBeInstanceOf(FakeFirestore.Query);
+    expect(ref.limit(1)).toBeInstanceOf(FakeFirestore.Query);
+    expect(ref.orderBy('type')).toBeInstanceOf(FakeFirestore.Query);
+    expect(ref.startAfter(null)).toBeInstanceOf(FakeFirestore.Query);
+    expect(ref.startAt(null)).toBeInstanceOf(FakeFirestore.Query);
   });
 
   test('it permits mocking the results of a where clause', async () => {
