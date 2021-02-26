@@ -30,7 +30,10 @@ describe('we can start a firebase application', () => {
           last: 'builder',
           born: 1996,
           _collections: {
-            cities: [{ id: 'LA', name: 'Los Angeles', state: 'CA', country: 'USA', visited: true }],
+            cities: [
+              { id: 'LA', name: 'Los Angeles', state: 'CA', country: 'USA', visited: true },
+              { id: 'Mex', name: 'Mexico City', country: 'Mexico', visited: true },
+            ],
           },
         },
       ],

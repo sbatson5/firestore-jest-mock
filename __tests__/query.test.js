@@ -8,7 +8,7 @@ const {
 } = require('../mocks/firestore');
 const { mockFirebase } = require('firestore-jest-mock');
 
-describe('test', () => {
+describe('Queries', () => {
   mockFirebase({
     database: {
       animals: [
@@ -61,6 +61,10 @@ describe('test', () => {
           },
         },
       ],
+      foodSchedule: [
+        { id: 'ants', interval: 'daily' },
+        { id: 'cows', interval: 'twice daily' },
+      ],
     },
     currentUser: { uid: 'homer-user' },
   });
@@ -112,7 +116,7 @@ describe('test', () => {
 
     expect(mockWhere).toHaveBeenCalledWith('type', '==', 'mammal');
     expect(mockGet).toHaveBeenCalled();
-    expect(animals).toHaveProperty('size', 2); // Returns 2/4 documents
+    expect(animals).toHaveProperty('size', 2); // Returns 2 of 4 documents
   });
 
   test('it can filter firestore queries in subcollections', async () => {
@@ -128,7 +132,21 @@ describe('test', () => {
     expect(mockCollection).toHaveBeenCalledWith('foodSchedule');
     expect(mockWhere).toHaveBeenCalledWith('interval', '==', 'daily');
     expect(mockGet).toHaveBeenCalled();
-    expect(antSchedule).toHaveProperty('size', 1); // Returns 1/2 documents
+    expect(antSchedule).toHaveProperty('size', 1); // Returns 1 of 2 documents
+  });
+
+  test('it can query collection groups', async () => {
+    const allSchedules = await db.collectionGroup('foodSchedule').get();
+
+    expect(allSchedules).toHaveProperty('size', 4); // Returns all 4
+    const paths = allSchedules.docs.map(doc => doc.ref.path).sort();
+    const expectedPaths = [
+      'database/animals/ant/foodSchedule/leaf',
+      'database/animals/ant/foodSchedule/peanut',
+      'database/foodSchedule/ants',
+      'database/foodSchedule/cows',
+    ].sort();
+    expect(paths).toStrictEqual(expectedPaths);
   });
 
   test('it returns the same instance from query methods', () => {
@@ -191,133 +209,133 @@ describe('test', () => {
     expect(mockOffset).toHaveBeenCalledWith(2);
   });
 
-  /* eslint-disable indent */
-  test.each`
-    comp    | value     | count
-    ${'=='} | ${2}      | ${2}
-    ${'=='} | ${4}      | ${1}
-    ${'=='} | ${6}      | ${1}
-    ${'=='} | ${7}      | ${0}
-    ${'>'}  | ${1}      | ${4}
-    ${'>'}  | ${6}      | ${0}
-    ${'>='} | ${6}      | ${1}
-    ${'>='} | ${0}      | ${4}
-    ${'<'}  | ${2}      | ${0}
-    ${'<'}  | ${6}      | ${3}
-    ${'<='} | ${2}      | ${2}
-    ${'<='} | ${6}      | ${4}
-    ${'in'} | ${[6, 2]} | ${3}
-  `(
-    // eslint-disable-next-line quotes
-    "it performs '$comp' queries on number values ($count doc(s) where legCount $comp $value)",
-    async ({ comp, value, count }) => {
-      const results = await db
-        .collection('animals')
-        .where('legCount', comp, value)
-        .get();
-      expect(results.size).toBe(count);
-    },
-  );
+  describe('Query Operations', () => {
+    test.each`
+      comp    | value     | count
+      ${'=='} | ${2}      | ${2}
+      ${'=='} | ${4}      | ${1}
+      ${'=='} | ${6}      | ${1}
+      ${'=='} | ${7}      | ${0}
+      ${'>'}  | ${1}      | ${4}
+      ${'>'}  | ${6}      | ${0}
+      ${'>='} | ${6}      | ${1}
+      ${'>='} | ${0}      | ${4}
+      ${'<'}  | ${2}      | ${0}
+      ${'<'}  | ${6}      | ${3}
+      ${'<='} | ${2}      | ${2}
+      ${'<='} | ${6}      | ${4}
+      ${'in'} | ${[6, 2]} | ${3}
+    `(
+      // eslint-disable-next-line quotes
+      "it performs '$comp' queries on number values ($count doc(s) where legCount $comp $value)",
+      async ({ comp, value, count }) => {
+        const results = await db
+          .collection('animals')
+          .where('legCount', comp, value)
+          .get();
+        expect(results.size).toBe(count);
+      },
+    );
 
-  test.each`
-    comp    | value     | count
-    ${'=='} | ${0}      | ${1}
-    ${'=='} | ${1}      | ${1}
-    ${'=='} | ${2}      | ${1}
-    ${'=='} | ${4}      | ${1}
-    ${'=='} | ${6}      | ${0}
-    ${'>'}  | ${-1}     | ${4}
-    ${'>'}  | ${0}      | ${3}
-    ${'>'}  | ${1}      | ${2}
-    ${'>'}  | ${4}      | ${0}
-    ${'>='} | ${6}      | ${0}
-    ${'>='} | ${4}      | ${1}
-    ${'>='} | ${0}      | ${4}
-    ${'<'}  | ${2}      | ${2}
-    ${'<'}  | ${6}      | ${4}
-    ${'<='} | ${2}      | ${3}
-    ${'<='} | ${6}      | ${4}
-    ${'in'} | ${[2, 0]} | ${2}
-  `(
-    // eslint-disable-next-line quotes
-    "it performs '$comp' queries on possibly-zero number values ($count doc(s) where foodCount $comp $value)",
-    async ({ comp, value, count }) => {
-      const results = await db
-        .collection('animals')
-        .where('foodCount', comp, value)
-        .get();
-      expect(results.size).toBe(count);
-    },
-  );
+    test.each`
+      comp    | value     | count
+      ${'=='} | ${0}      | ${1}
+      ${'=='} | ${1}      | ${1}
+      ${'=='} | ${2}      | ${1}
+      ${'=='} | ${4}      | ${1}
+      ${'=='} | ${6}      | ${0}
+      ${'>'}  | ${-1}     | ${4}
+      ${'>'}  | ${0}      | ${3}
+      ${'>'}  | ${1}      | ${2}
+      ${'>'}  | ${4}      | ${0}
+      ${'>='} | ${6}      | ${0}
+      ${'>='} | ${4}      | ${1}
+      ${'>='} | ${0}      | ${4}
+      ${'<'}  | ${2}      | ${2}
+      ${'<'}  | ${6}      | ${4}
+      ${'<='} | ${2}      | ${3}
+      ${'<='} | ${6}      | ${4}
+      ${'in'} | ${[2, 0]} | ${2}
+    `(
+      // eslint-disable-next-line quotes
+      "it performs '$comp' queries on possibly-zero number values ($count doc(s) where foodCount $comp $value)",
+      async ({ comp, value, count }) => {
+        const results = await db
+          .collection('animals')
+          .where('foodCount', comp, value)
+          .get();
+        expect(results.size).toBe(count);
+      },
+    );
 
-  test.each`
-    comp    | value                      | count
-    ${'=='} | ${'mammal'}                | ${2}
-    ${'=='} | ${'bird'}                  | ${1}
-    ${'=='} | ${'fish'}                  | ${0}
-    ${'>'}  | ${'insect'}                | ${2}
-    ${'>'}  | ${'z'}                     | ${0}
-    ${'>='} | ${'mammal'}                | ${2}
-    ${'>='} | ${'insect'}                | ${3}
-    ${'<'}  | ${'bird'}                  | ${0}
-    ${'<'}  | ${'mammal'}                | ${2}
-    ${'<='} | ${'mammal'}                | ${4}
-    ${'<='} | ${'bird'}                  | ${1}
-    ${'<='} | ${'a'}                     | ${0}
-    ${'in'} | ${['a', 'bird', 'mammal']} | ${3}
-  `(
-    // eslint-disable-next-line quotes
-    "it performs '$comp' queries on string values ($count doc(s) where type $comp '$value')",
-    async ({ comp, value, count }) => {
-      const results = await db
-        .collection('animals')
-        .where('type', comp, value)
-        .get();
-      expect(results.size).toBe(count);
-    },
-  );
+    test.each`
+      comp    | value                      | count
+      ${'=='} | ${'mammal'}                | ${2}
+      ${'=='} | ${'bird'}                  | ${1}
+      ${'=='} | ${'fish'}                  | ${0}
+      ${'>'}  | ${'insect'}                | ${2}
+      ${'>'}  | ${'z'}                     | ${0}
+      ${'>='} | ${'mammal'}                | ${2}
+      ${'>='} | ${'insect'}                | ${3}
+      ${'<'}  | ${'bird'}                  | ${0}
+      ${'<'}  | ${'mammal'}                | ${2}
+      ${'<='} | ${'mammal'}                | ${4}
+      ${'<='} | ${'bird'}                  | ${1}
+      ${'<='} | ${'a'}                     | ${0}
+      ${'in'} | ${['a', 'bird', 'mammal']} | ${3}
+    `(
+      // eslint-disable-next-line quotes
+      "it performs '$comp' queries on string values ($count doc(s) where type $comp '$value')",
+      async ({ comp, value, count }) => {
+        const results = await db
+          .collection('animals')
+          .where('type', comp, value)
+          .get();
+        expect(results.size).toBe(count);
+      },
+    );
 
-  test.each`
-    comp                    | value                            | count
-    ${'=='}                 | ${['banana', 'mango']}           | ${1}
-    ${'=='}                 | ${['mango', 'banana']}           | ${0}
-    ${'=='}                 | ${['banana', 'peanut']}          | ${1}
-    ${'array-contains'}     | ${'banana'}                      | ${2}
-    ${'array-contains'}     | ${'leaf'}                        | ${2}
-    ${'array-contains'}     | ${'bread'}                       | ${1}
-    ${'array-contains-any'} | ${['banana', 'mango', 'peanut']} | ${2}
-  `(
-    // eslint-disable-next-line quotes
-    "it performs '$comp' queries on array values ($count doc(s) where food $comp '$value')",
-    async ({ comp, value, count }) => {
-      const results = await db
-        .collection('animals')
-        .where('food', comp, value)
-        .get();
-      expect(results.size).toBe(count);
-    },
-  );
+    test.each`
+      comp                    | value                            | count
+      ${'=='}                 | ${['banana', 'mango']}           | ${1}
+      ${'=='}                 | ${['mango', 'banana']}           | ${0}
+      ${'=='}                 | ${['banana', 'peanut']}          | ${1}
+      ${'array-contains'}     | ${'banana'}                      | ${2}
+      ${'array-contains'}     | ${'leaf'}                        | ${2}
+      ${'array-contains'}     | ${'bread'}                       | ${1}
+      ${'array-contains-any'} | ${['banana', 'mango', 'peanut']} | ${2}
+    `(
+      // eslint-disable-next-line quotes
+      "it performs '$comp' queries on array values ($count doc(s) where food $comp '$value')",
+      async ({ comp, value, count }) => {
+        const results = await db
+          .collection('animals')
+          .where('food', comp, value)
+          .get();
+        expect(results.size).toBe(count);
+      },
+    );
 
-  test.each`
-    comp                    | value           | count
-    ${'=='}                 | ${[500, 20]}    | ${1}
-    ${'=='}                 | ${[20, 500]}    | ${0}
-    ${'=='}                 | ${[0, 500]}     | ${1}
-    ${'array-contains'}     | ${500}          | ${2}
-    ${'array-contains'}     | ${80}           | ${2}
-    ${'array-contains'}     | ${12}           | ${1}
-    ${'array-contains'}     | ${0}            | ${1}
-    ${'array-contains-any'} | ${[0, 11, 500]} | ${2}
-  `(
-    // eslint-disable-next-line quotes
-    "it performs '$comp' queries on possibly-zero array values ($count doc(s) where foodEaten $comp '$value')",
-    async ({ comp, value, count }) => {
-      const results = await db
-        .collection('animals')
-        .where('foodEaten', comp, value)
-        .get();
-      expect(results.size).toBe(count);
-    },
-  );
-  /* eslint-enable indent */
+    test.each`
+      comp                    | value           | count
+      ${'=='}                 | ${[500, 20]}    | ${1}
+      ${'=='}                 | ${[20, 500]}    | ${0}
+      ${'=='}                 | ${[0, 500]}     | ${1}
+      ${'array-contains'}     | ${500}          | ${2}
+      ${'array-contains'}     | ${80}           | ${2}
+      ${'array-contains'}     | ${12}           | ${1}
+      ${'array-contains'}     | ${0}            | ${1}
+      ${'array-contains-any'} | ${[0, 11, 500]} | ${2}
+    `(
+      // eslint-disable-next-line quotes
+      "it performs '$comp' queries on possibly-zero array values ($count doc(s) where foodEaten $comp '$value')",
+      async ({ comp, value, count }) => {
+        const results = await db
+          .collection('animals')
+          .where('foodEaten', comp, value)
+          .get();
+        expect(results.size).toBe(count);
+      },
+    );
+  });
 });
