@@ -19,5 +19,23 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123') {
       delete copy._ref;
       return copy;
     },
+    get(fieldPath) {
+      // The field path can be compound: from the firestore docs
+      //  fieldPath The path (e.g. 'foo' or 'foo.bar') to a specific field.
+      const parts = fieldPath.split('.');
+      const data = this.data();
+      return parts.reduce((acc, part, index) => {
+        const value = acc[part];
+        // if no key is found
+        if (value === undefined) {
+          // return null if we are on the last item in parts
+          // otherwise, return an empty object, so we can continue to iterate
+          return parts.length - 1 === index ? null : {};
+        }
+
+        // if there is a value, return it
+        return value;
+      }, data);
+    },
   };
 };
