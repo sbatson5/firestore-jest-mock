@@ -219,7 +219,57 @@ FakeFirestore.DocumentReference = class {
 
   set(object) {
     mockSet(...arguments);
+    this._updateData(object);
     return Promise.resolve(buildDocFromHash({ ...object, _ref: this }));
+  }
+
+  _updateData(object, merge) {
+    // note: this logic could be deduplicated
+    const pathArray = this.path
+      .replace(/^\/+/, '')
+      .split('/')
+      .slice(1);
+    // Must be document-level, so even-numbered elements
+    if (pathArray.length % 2) {
+      throw new Error('The path array must be document-level');
+    }
+    // The parent entry is the id of the document
+    const docId = pathArray.pop();
+
+    // Find the parent of docId
+    let parent = this.firestore.database;
+    // Is the parent a collection (if yes, it's an array of documents)
+    let parentIsCollection = false;
+    // Run through the path, creating missing entries
+    for (const entry of pathArray) {
+      if (parentIsCollection) {
+        // find doc in our parent collection (array), or add a new entry
+        // Because we know this isn't the final entry, we immediately
+        // look into _collections for the next entry
+        parent = (
+          parent.find(doc => doc.id === entry) ||
+          // if not found, push a new entry to the collection and return it
+          parent[
+            parent.push({
+              id: entry,
+              _collections: {},
+            }) - 1
+          ]
+        )._collections;
+      } else {
+        // If parent exists, use it else create a new entry and use that
+        parent = parent[entry] || (parent[entry] = []);
+      }
+      parentIsCollection = !parentIsCollection;
+    }
+    // parent should now be an array of documents
+    // Replace existing data, if it's there, or add to the end of the array
+    const oldIndex = parent.findIndex(doc => doc.id === docId);
+    parent[oldIndex >= 0 ? oldIndex : parent.length] = {
+      ...(merge ? parent[oldIndex] : undefined),
+      ...object,
+      id: docId,
+    };
   }
 
   isEqual(other) {

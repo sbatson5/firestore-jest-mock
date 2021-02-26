@@ -60,6 +60,25 @@ describe('Queries', () => {
       expect(record.exists).toBe(false);
     });
 
+    test('it can set simple record data', async () => {
+      await db
+        .collection('animals')
+        .doc('fantasy')
+        .collection('dragons')
+        .doc('whisperingDeath')
+        .set({
+          age: 15,
+          food: 'omnivore',
+          special: 'tunneling',
+        });
+      expect(mockCollection).toHaveBeenCalledWith('dragons');
+      expect(mockDoc).toHaveBeenCalledWith('whisperingDeath');
+
+      const doc = await db.doc('animals/fantasy/dragons/whisperingDeath').get();
+      expect(doc.exists).toBe(true);
+      expect(doc.id).toBe('whisperingDeath');
+    });
+
     test('it can fetch a single record with a promise', () =>
       db
         .collection('characters')
