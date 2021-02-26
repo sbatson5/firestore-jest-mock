@@ -7,35 +7,37 @@ describe('Queries', () => {
     jest.clearAllMocks();
   });
 
-  const db = new FakeFirestore({
-    characters: [
-      {
-        id: 'homer',
-        name: 'Homer',
-        occupation: 'technician',
-        address: { street: '742 Evergreen Terrace' },
-      },
-      { id: 'krusty', name: 'Krusty', occupation: 'clown' },
-      {
-        id: 'bob',
-        name: 'Bob',
-        occupation: 'insurance agent',
-        _collections: {
-          family: [
-            { id: 'violet', name: 'Violet', relation: 'daughter' },
-            { id: 'dash', name: 'Dash', relation: 'son' },
-            { id: 'jackjack', name: 'Jackjack', relation: 'son' },
-            { id: 'helen', name: 'Helen', relation: 'wife' },
-          ],
+  // db is a fn, instead a shared variable to enforce sandboxing data on each test.
+  const db = () =>
+    new FakeFirestore({
+      characters: [
+        {
+          id: 'homer',
+          name: 'Homer',
+          occupation: 'technician',
+          address: { street: '742 Evergreen Terrace' },
         },
-      },
-    ],
-  });
+        { id: 'krusty', name: 'Krusty', occupation: 'clown' },
+        {
+          id: 'bob',
+          name: 'Bob',
+          occupation: 'insurance agent',
+          _collections: {
+            family: [
+              { id: 'violet', name: 'Violet', relation: 'daughter' },
+              { id: 'dash', name: 'Dash', relation: 'son' },
+              { id: 'jackjack', name: 'Jackjack', relation: 'son' },
+              { id: 'helen', name: 'Helen', relation: 'wife' },
+            ],
+          },
+        },
+      ],
+    });
 
   describe('Single records versus queries', () => {
     test('it can fetch a single record', async () => {
       expect.assertions(6);
-      const record = await db
+      const record = await db()
         .collection('characters')
         .doc('krusty')
         .get();
@@ -50,7 +52,7 @@ describe('Queries', () => {
 
     test('it flags records do not exist', async () => {
       expect.assertions(4);
-      const record = await db
+      const record = await db()
         .collection('animals')
         .doc('monkey')
         .get();
@@ -61,7 +63,8 @@ describe('Queries', () => {
     });
 
     test('it can set simple record data', async () => {
-      await db
+      const ldb = db();
+      await ldb
         .collection('animals')
         .doc('fantasy')
         .collection('dragons')
@@ -74,13 +77,13 @@ describe('Queries', () => {
       expect(mockCollection).toHaveBeenCalledWith('dragons');
       expect(mockDoc).toHaveBeenCalledWith('whisperingDeath');
 
-      const doc = await db.doc('animals/fantasy/dragons/whisperingDeath').get();
+      const doc = await ldb.doc('animals/fantasy/dragons/whisperingDeath').get();
       expect(doc.exists).toBe(true);
       expect(doc.id).toBe('whisperingDeath');
     });
 
     test('it can fetch a single record with a promise', () =>
-      db
+      db()
         .collection('characters')
         .doc('homer')
         .get()
@@ -100,7 +103,7 @@ describe('Queries', () => {
         }));
 
     test('it can fetch a single record with a promise without a specified collection', () =>
-      db
+      db()
         .doc('characters/homer')
         .get()
         .then(record => {
@@ -115,7 +118,7 @@ describe('Queries', () => {
         }));
 
     test('it can fetch multiple records and returns documents', async () => {
-      const records = await db
+      const records = await db()
         .collection('characters')
         .where('name', '==', 'Homer')
         .get();
@@ -131,39 +134,48 @@ describe('Queries', () => {
     });
 
     test('it throws an error if the document path ends at a collection', () => {
-      expect(() => db.doc('characters')).toThrow(Error);
-      expect(() => db.doc('characters/bob')).not.toThrow();
-      expect(() => db.doc('characters/bob/family')).toThrow(Error);
+      const ldb = db();
+      expect(() => ldb.doc('characters')).toThrow(Error);
+      expect(() => ldb.doc('characters/bob')).not.toThrow();
+      expect(() => ldb.doc('characters/bob/family')).toThrow(Error);
     });
 
     test('it can fetch nonexistent documents from a root collection', async () => {
       expect.assertions(2);
-      const nope = await db.doc('characters/joe').get();
+      const nope = await db()
+        .doc('characters/joe')
+        .get();
       expect(nope.exists).toBe(false);
       expect(nope.id).toBe('joe');
     });
 
     test('it can fetch nonexistent documents from extant subcollections', async () => {
-      const nope = await db.doc('characters/bob/family/thing3').get();
+      const nope = await db()
+        .doc('characters/bob/family/thing3')
+        .get();
       expect(nope.exists).toBe(false);
       expect(nope.id).toBe('thing3');
     });
 
     test('it can fetch nonexistent documents from nonexistent subcollections', async () => {
-      const nope = await db.doc('characters/sam/family/phil').get();
+      const nope = await db()
+        .doc('characters/sam/family/phil')
+        .get();
       expect(nope.exists).toBe(false);
       expect(nope.id).toBe('phil');
     });
 
     test('it can fetch nonexistent documents from nonexistent root collections', async () => {
-      const nope = await db.doc('foo/bar/baz/bin').get();
+      const nope = await db()
+        .doc('foo/bar/baz/bin')
+        .get();
       expect(nope.exists).toBe(false);
       expect(nope.id).toBe('bin');
     });
 
     test('it flags when a collection is empty', async () => {
       expect.assertions(1);
-      const records = await db
+      const records = await db()
         .collection('animals')
         .where('type', '==', 'mammal')
         .get();
@@ -171,7 +183,7 @@ describe('Queries', () => {
     });
 
     test('it can fetch multiple records as a promise', () =>
-      db
+      db()
         .collection('characters')
         .where('name', '==', 'Homer')
         .get()
@@ -185,10 +197,11 @@ describe('Queries', () => {
 
     test('it can return all root records', async () => {
       expect.assertions(4);
-      const firstRecord = db.collection('characters').doc('homer');
-      const secondRecord = db.collection('characters').doc('krusty');
+      const ldb = db();
+      const firstRecord = ldb.collection('characters').doc('homer');
+      const secondRecord = ldb.collection('characters').doc('krusty');
 
-      const records = await db.getAll(firstRecord, secondRecord);
+      const records = await ldb.getAll(firstRecord, secondRecord);
       expect(records.length).toBe(2);
       expect(records[0]).toHaveProperty('id', 'homer');
       expect(records[0]).toHaveProperty('exists', true);
@@ -197,7 +210,7 @@ describe('Queries', () => {
 
     test('it does not fetch subcollections unless we tell it to', async () => {
       expect.assertions(4);
-      const record = await db
+      const record = await db()
         .collection('characters')
         .doc('bob')
         .get();
@@ -209,7 +222,7 @@ describe('Queries', () => {
 
     test('it can fetch records from subcollections', async () => {
       expect.assertions(7);
-      const family = db
+      const family = db()
         .collection('characters')
         .doc('bob')
         .collection('family');
@@ -229,7 +242,7 @@ describe('Queries', () => {
     });
 
     test('it can fetch records from subcollections with query parameters', async () => {
-      const family = db
+      const family = db()
         .collection('characters')
         .doc('bob')
         .collection('family')
@@ -244,7 +257,9 @@ describe('Queries', () => {
   describe('Multiple records versus queries', () => {
     test('it fetches all records from a root collection', async () => {
       expect.assertions(4);
-      const characters = await db.collection('characters').get();
+      const characters = await db()
+        .collection('characters')
+        .get();
       expect(characters.empty).toBe(false);
       expect(characters.size).toBe(3);
       expect(Array.isArray(characters.docs)).toBe(true);
@@ -253,7 +268,9 @@ describe('Queries', () => {
 
     test('it fetches no records from nonexistent collection', async () => {
       expect.assertions(4);
-      const nope = await db.collection('foo').get();
+      const nope = await db()
+        .collection('foo')
+        .get();
       expect(nope.empty).toBe(true);
       expect(nope.size).toBe(0);
       expect(Array.isArray(nope.docs)).toBe(true);
@@ -262,7 +279,7 @@ describe('Queries', () => {
 
     test('it fetches all records from subcollection', async () => {
       expect.assertions(4);
-      const familyRef = db
+      const familyRef = db()
         .collection('characters')
         .doc('bob')
         .collection('family');
@@ -275,7 +292,7 @@ describe('Queries', () => {
 
     test('it fetches no records from nonexistent subcollection', async () => {
       expect.assertions(4);
-      const nope = await db
+      const nope = await db()
         .collection('characters')
         .doc('bob')
         .collection('not-here')
@@ -288,7 +305,7 @@ describe('Queries', () => {
 
     test('it fetches no records from nonexistent root collection', async () => {
       expect.assertions(4);
-      const nope = await db
+      const nope = await db()
         .collection('foo')
         .doc('bar')
         .collection('baz')
@@ -305,7 +322,9 @@ describe('Queries', () => {
     // As per docs, should have 'random' ID, but we'll use our usual 'abc123' for now.
     // See https://firebase.google.com/docs/reference/js/firebase.firestore.CollectionReference#doc
     // "If no path is specified, an automatically-generated unique ID will be used for the returned DocumentReference."
-    const newDoc = db.collection('foo').doc();
+    const newDoc = db()
+      .collection('foo')
+      .doc();
     expect(newDoc.path).toBe('database/foo/abc123');
   });
 });
