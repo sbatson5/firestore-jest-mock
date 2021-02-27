@@ -13,7 +13,12 @@ describe('Queries', () => {
         id: 'homer',
         name: 'Homer',
         occupation: 'technician',
-        address: { street: '742 Evergreen Terrace' },
+        address: {
+          street: '742 Evergreen Terrace',
+          nested: {
+            attribute: 'some-data',
+          },
+        },
       },
       { id: 'krusty', name: 'Krusty', occupation: 'clown' },
       {
@@ -78,6 +83,8 @@ describe('Queries', () => {
           expect(record.get('name')).toEqual('Homer');
           expect(record.get('address.street')).toEqual('742 Evergreen Terrace');
           expect(record.get('address.street.doesntExist')).toBeNull();
+          expect(record.get('address.nested')).toStrictEqual({ attribute: 'some-data' });
+          expect(record.get('address.nested.attribute')).toBe('some-data');
         }));
 
     test('it can fetch a single record with a promise without a specified collection', () =>
