@@ -9,7 +9,12 @@ describe('Queries', () => {
 
   const db = new FakeFirestore({
     characters: [
-      { id: 'homer', name: 'Homer', occupation: 'technician' },
+      {
+        id: 'homer',
+        name: 'Homer',
+        occupation: 'technician',
+        address: { street: '742 Evergreen Terrace' },
+      },
       { id: 'krusty', name: 'Krusty', occupation: 'clown' },
       {
         id: 'bob',
@@ -69,6 +74,10 @@ describe('Queries', () => {
           expect(data).toBeDefined();
           expect(data).toHaveProperty('name', 'Homer');
           expect(data).toHaveProperty('occupation', 'technician');
+
+          expect(record.get('name')).toEqual('Homer');
+          expect(record.get('address.street')).toEqual('742 Evergreen Terrace');
+          expect(record.get('address.street.doesntExist')).toBeNull();
         }));
 
     test('it can fetch a single record with a promise without a specified collection', () =>
