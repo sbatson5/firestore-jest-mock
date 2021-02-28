@@ -46,20 +46,21 @@ export default function buildDocFromHash(hash: DocHash, id = 'abc123'): Document
       //  fieldPath The path (e.g. 'foo' or 'foo.bar') to a specific field.
       const parts = fieldPath.split('.');
       const data = this.data();
-      if (!data) {
-        return undefined;
-      }
-      return parts.reduce((acc, part, index) => {
-        const value = acc[part];
-        // if no key is found
-        if (value === undefined) {
-          // return null if we are on the last item in parts
-          // otherwise, return an empty object, so we can continue to iterate
-          return parts.length - 1 === index ? null : {};
+
+      return parts.reduce((acc, part) => {
+        if (acc === undefined) {
+          /**
+           * See https://firebase.google.com/docs/reference/js/firebase.firestore.DocumentSnapshot#get
+           *  "Returns `undefined` if the document or field doesn't exist."
+           * 
+           * We only get `undefined` here if the previous iteration (or the initial `data()`
+           * call) returned `undefined`.
+           */
+          return undefined;
         }
 
-        // if there is a value, return it
-        return value;
+        // return a value, another object, or `undefined`
+        return acc[part] as Record<string, unknown> | undefined;
       }, data);
     },
   };

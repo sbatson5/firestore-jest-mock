@@ -82,7 +82,7 @@ describe('Queries', () => {
 
           expect(record.get('name')).toEqual('Homer');
           expect(record.get('address.street')).toEqual('742 Evergreen Terrace');
-          expect(record.get('address.street.doesntExist')).toBeNull();
+          expect(record.get('address.street.doesntExist')).toBeUndefined();
           expect(record.get('address.nested')).toStrictEqual({ attribute: 'some-data' });
           expect(record.get('address.nested.attribute')).toBe('some-data');
         }));
