@@ -399,7 +399,7 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
     );
   }
 
-  _randomId = () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+  _randomId = () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
 };
 
 module.exports = {
