@@ -110,6 +110,55 @@ class FakeFirestore {
     mockRunTransaction(...arguments);
     return updateFunction(new FakeFirestore.Transaction());
   }
+
+  _updateData(path, object, merge) {
+    // note: this logic could be deduplicated
+    const pathArray = path
+      .replace(/^\/+/, '')
+      .split('/')
+      .slice(1);
+    // Must be document-level, so even-numbered elements
+    if (pathArray.length % 2) {
+      throw new Error('The path array must be document-level');
+    }
+    // The parent entry is the id of the document
+    const docId = pathArray.pop();
+
+    // Find the parent of docId
+    let parent = this.database;
+    // Is the parent a collection (if yes, it's an array of documents)
+    let parentIsCollection = false;
+    // Run through the path, creating missing entries
+    for (const entry of pathArray) {
+      if (parentIsCollection) {
+        // find doc in our parent collection (array), or add a new entry
+        // Because we know this isn't the final entry, we immediately
+        // look into _collections for the next entry
+        parent = (
+          parent.find(doc => doc.id === entry) ||
+          // if not found, push a new entry to the collection and return it
+          parent[
+            parent.push({
+              id: entry,
+              _collections: {},
+            }) - 1
+          ]
+        )._collections;
+      } else {
+        // If parent exists, use it else create a new entry and use that
+        parent = parent[entry] || (parent[entry] = []);
+      }
+      parentIsCollection = !parentIsCollection;
+    }
+    // parent should now be an array of documents
+    // Replace existing data, if it's there, or add to the end of the array
+    const oldIndex = parent.findIndex(doc => doc.id === docId);
+    parent[oldIndex >= 0 ? oldIndex : parent.length] = {
+      ...(merge ? parent[oldIndex] : undefined),
+      ...object,
+      id: docId,
+    };
+  }
 }
 
 FakeFirestore.Query = query.Query;
@@ -172,104 +221,22 @@ FakeFirestore.DocumentReference = class {
 
   get() {
     query.mocks.mockGet(...arguments);
-    // Ignore leading slash
-    const pathArray = this.path.replace(/^\/+/, '').split('/');
-
-    pathArray.shift(); // drop 'database'; it's always first
-    let requestedRecords = this.firestore.database[pathArray.shift()];
-    let document = null;
-    if (requestedRecords) {
-      const documentId = pathArray.shift();
-      document = requestedRecords.find(record => record.id === documentId);
-    } else {
-      return Promise.resolve({ exists: false, data: () => undefined, id: this.id });
-    }
-
-    for (let index = 0; index < pathArray.length; index += 2) {
-      const collectionId = pathArray[index];
-      const documentId = pathArray[index + 1];
-
-      if (!document || !document._collections) {
-        return Promise.resolve({ exists: false, data: () => undefined, id: this.id });
-      }
-      requestedRecords = document._collections[collectionId] || [];
-      if (requestedRecords.length === 0) {
-        return Promise.resolve({ exists: false, data: () => undefined, id: this.id });
-      }
-
-      document = requestedRecords.find(record => record.id === documentId);
-      if (!document) {
-        return Promise.resolve({ exists: false, data: () => undefined, id: this.id });
-      }
-
-      // +2 skips to next document
-    }
-
-    if (!!document || false) {
-      document._ref = this;
-      return Promise.resolve(buildDocFromHash(document));
-    }
-    return Promise.resolve({ exists: false, data: () => undefined, id: this.id, ref: this });
+    const data = this._get();
+    return Promise.resolve(data);
   }
 
   update(object) {
     mockUpdate(...arguments);
+    if (this._get().exists) {
+      this.firestore._updateData(this.path, object);
+    }
     return Promise.resolve(buildDocFromHash({ ...object, _ref: this }));
   }
 
   set(object) {
     mockSet(...arguments);
-    this._updateData(object);
+    this.firestore._updateData(this.path, object);
     return Promise.resolve(buildDocFromHash({ ...object, _ref: this }));
-  }
-
-  _updateData(object, merge) {
-    // note: this logic could be deduplicated
-    const pathArray = this.path
-      .replace(/^\/+/, '')
-      .split('/')
-      .slice(1);
-    // Must be document-level, so even-numbered elements
-    if (pathArray.length % 2) {
-      throw new Error('The path array must be document-level');
-    }
-    // The parent entry is the id of the document
-    const docId = pathArray.pop();
-
-    // Find the parent of docId
-    let parent = this.firestore.database;
-    // Is the parent a collection (if yes, it's an array of documents)
-    let parentIsCollection = false;
-    // Run through the path, creating missing entries
-    for (const entry of pathArray) {
-      if (parentIsCollection) {
-        // find doc in our parent collection (array), or add a new entry
-        // Because we know this isn't the final entry, we immediately
-        // look into _collections for the next entry
-        parent = (
-          parent.find(doc => doc.id === entry) ||
-          // if not found, push a new entry to the collection and return it
-          parent[
-            parent.push({
-              id: entry,
-              _collections: {},
-            }) - 1
-          ]
-        )._collections;
-      } else {
-        // If parent exists, use it else create a new entry and use that
-        parent = parent[entry] || (parent[entry] = []);
-      }
-      parentIsCollection = !parentIsCollection;
-    }
-    // parent should now be an array of documents
-    // Replace existing data, if it's there, or add to the end of the array
-    const oldIndex = parent.findIndex(doc => doc.id === docId);
-    parent[oldIndex >= 0 ? oldIndex : parent.length] = {
-      ...(merge ? parent[oldIndex] : undefined),
-      ...object,
-      id: docId,
-    };
   }
 
   isEqual(other) {
@@ -299,6 +266,47 @@ FakeFirestore.DocumentReference = class {
   startAt() {
     return this.query.startAt(...arguments);
   }
+
+  _get() {
+    // Ignore leading slash
+    const pathArray = this.path.replace(/^\/+/, '').split('/');
+
+    pathArray.shift(); // drop 'database'; it's always first
+    let requestedRecords = this.firestore.database[pathArray.shift()];
+    let document = null;
+    if (requestedRecords) {
+      const documentId = pathArray.shift();
+      document = requestedRecords.find(record => record.id === documentId);
+    } else {
+      return { exists: false, data: () => undefined, id: this.id };
+    }
+
+    for (let index = 0; index < pathArray.length; index += 2) {
+      const collectionId = pathArray[index];
+      const documentId = pathArray[index + 1];
+
+      if (!document || !document._collections) {
+        return { exists: false, data: () => undefined, id: this.id };
+      }
+      requestedRecords = document._collections[collectionId] || [];
+      if (requestedRecords.length === 0) {
+        return { exists: false, data: () => undefined, id: this.id };
+      }
+
+      document = requestedRecords.find(record => record.id === documentId);
+      if (!document) {
+        return { exists: false, data: () => undefined, id: this.id };
+      }
+
+      // +2 skips to next document
+    }
+
+    if (!!document || false) {
+      document._ref = this;
+      return buildDocFromHash(document);
+    }
+    return { exists: false, data: () => undefined, id: this.id, ref: this };
+  }
 };
 
 /*
@@ -320,12 +328,14 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
     }
   }
 
-  add() {
+  add(object) {
     mockAdd(...arguments);
-    return Promise.resolve(new FakeFirestore.DocumentReference('abc123', this));
+    const newDoc = new FakeFirestore.DocumentReference(this._randomId(), this);
+    this.firestore._updateData(newDoc.path, object);
+    return Promise.resolve(newDoc);
   }
 
-  doc(id = 'abc123') {
+  doc(id = this._randomId()) {
     mockDoc(id);
     return new FakeFirestore.DocumentReference(id, this, this.firestore);
   }
@@ -388,6 +398,8 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
       other.path === this.path
     );
   }
+
+  _randomId = () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
 };
 
 module.exports = {

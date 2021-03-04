@@ -82,6 +82,25 @@ describe('Queries', () => {
       expect(doc.id).toBe('whisperingDeath');
     });
 
+    test('it can add to collection', async () => {
+      const col = db().collection('characters');
+      const newDoc1 = await col.add({
+        name: 'Lisa',
+        occupation: 'President-in-waiting',
+        address: { street: '742 Evergreen Terrace' },
+      });
+
+      const test = await newDoc1.get();
+      expect(test.exists).toBe(true);
+
+      const newDoc2 = await col.add({
+        name: 'Lisa',
+        occupation: 'President-in-waiting',
+        address: { street: '742 Evergreen Terrace' },
+      });
+      expect(newDoc2.id).not.toEqual(newDoc1.id);
+    });
+
     test('it can fetch a single record with a promise', () =>
       db()
         .collection('characters')
@@ -319,12 +338,11 @@ describe('Queries', () => {
 
   test('New documents with random ID', async () => {
     expect.assertions(1);
-    // As per docs, should have 'random' ID, but we'll use our usual 'abc123' for now.
     // See https://firebase.google.com/docs/reference/js/firebase.firestore.CollectionReference#doc
     // "If no path is specified, an automatically-generated unique ID will be used for the returned DocumentReference."
-    const newDoc = db()
-      .collection('foo')
-      .doc();
-    expect(newDoc.path).toBe('database/foo/abc123');
+    const col = db().collection('characters');
+    const newDoc = col.doc();
+    const otherIds = col.records().map(doc => doc.id);
+    expect(otherIds).not.toContainEqual(newDoc.id);
   });
 });
