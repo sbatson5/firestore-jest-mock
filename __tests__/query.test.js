@@ -65,6 +65,37 @@ describe('Queries', () => {
         { id: 'ants', interval: 'daily' },
         { id: 'cows', interval: 'twice daily' },
       ],
+      nested: [
+        {
+          id: 'collections',
+          _collections: {
+            have: [
+              {
+                id: 'lots',
+                _collections: {
+                  of: [
+                    {
+                      id: 'applications',
+                      _collections: {
+                        foodSchedule: [
+                          {
+                            id: 'layer4_a',
+                            interval: 'daily',
+                          },
+                          {
+                            id: 'layer4_b',
+                            interval: 'weekly',
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
     },
     currentUser: { uid: 'homer-user' },
   });
@@ -138,13 +169,15 @@ describe('Queries', () => {
   test('it can query collection groups', async () => {
     const allSchedules = await db.collectionGroup('foodSchedule').get();
 
-    expect(allSchedules).toHaveProperty('size', 4); // Returns all 4
+    expect(allSchedules).toHaveProperty('size', 6); // Returns all 6
     const paths = allSchedules.docs.map(doc => doc.ref.path).sort();
     const expectedPaths = [
-      'database/animals/ant/foodSchedule/leaf',
-      'database/animals/ant/foodSchedule/peanut',
-      'database/foodSchedule/ants',
-      'database/foodSchedule/cows',
+      'nested/collections/have/lots/of/applications/foodSchedule/layer4_a',
+      'nested/collections/have/lots/of/applications/foodSchedule/layer4_b',
+      'animals/ant/foodSchedule/leaf',
+      'animals/ant/foodSchedule/peanut',
+      'foodSchedule/ants',
+      'foodSchedule/cows',
     ].sort();
     expect(paths).toStrictEqual(expectedPaths);
   });

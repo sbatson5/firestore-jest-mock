@@ -102,35 +102,50 @@ describe('Queries', () => {
       expect(data).toHaveProperty('name', 'Homer');
     });
 
+    test('it throws an error if the collection path ends at a document', () => {
+      expect(() => db.collection('')).toThrow(Error);
+      expect(db.collection('foo')).toBeInstanceOf(FakeFirestore.CollectionReference);
+      expect(() => db.collection('foo/bar')).toThrow(Error);
+      expect(db.collection('foo/bar/baz')).toBeInstanceOf(FakeFirestore.CollectionReference);
+    });
+
     test('it throws an error if the document path ends at a collection', () => {
+      expect(() => db.doc('')).toThrow(Error);
       expect(() => db.doc('characters')).toThrow(Error);
-      expect(() => db.doc('characters/bob')).not.toThrow();
+      expect(db.doc('characters/bob')).toBeInstanceOf(FakeFirestore.DocumentReference);
       expect(() => db.doc('characters/bob/family')).toThrow(Error);
     });
 
     test('it can fetch nonexistent documents from a root collection', async () => {
-      expect.assertions(2);
       const nope = await db.doc('characters/joe').get();
-      expect(nope.exists).toBe(false);
-      expect(nope.id).toBe('joe');
+      expect(nope).toHaveProperty('exists', false);
+      expect(nope).toHaveProperty('id', 'joe');
+      expect(nope).toHaveProperty('ref');
+      expect(nope.ref).toHaveProperty('path', 'characters/joe');
     });
 
     test('it can fetch nonexistent documents from extant subcollections', async () => {
       const nope = await db.doc('characters/bob/family/thing3').get();
-      expect(nope.exists).toBe(false);
-      expect(nope.id).toBe('thing3');
+      expect(nope).toHaveProperty('exists', false);
+      expect(nope).toHaveProperty('id', 'thing3');
+      expect(nope).toHaveProperty('ref');
+      expect(nope.ref).toHaveProperty('path', 'characters/bob/family/thing3');
     });
 
     test('it can fetch nonexistent documents from nonexistent subcollections', async () => {
       const nope = await db.doc('characters/sam/family/phil').get();
-      expect(nope.exists).toBe(false);
-      expect(nope.id).toBe('phil');
+      expect(nope).toHaveProperty('exists', false);
+      expect(nope).toHaveProperty('id', 'phil');
+      expect(nope).toHaveProperty('ref');
+      expect(nope.ref).toHaveProperty('path', 'characters/sam/family/phil');
     });
 
     test('it can fetch nonexistent documents from nonexistent root collections', async () => {
       const nope = await db.doc('foo/bar/baz/bin').get();
-      expect(nope.exists).toBe(false);
-      expect(nope.id).toBe('bin');
+      expect(nope).toHaveProperty('exists', false);
+      expect(nope).toHaveProperty('id', 'bin');
+      expect(nope).toHaveProperty('ref');
+      expect(nope.ref).toHaveProperty('path', 'foo/bar/baz/bin');
     });
 
     test('it flags when a collection is empty', async () => {
@@ -181,23 +196,24 @@ describe('Queries', () => {
     });
 
     test('it can fetch records from subcollections', async () => {
-      expect.assertions(7);
+      expect.assertions(8);
       const family = db
         .collection('characters')
         .doc('bob')
         .collection('family');
-      expect(family.path).toBe('database/characters/bob/family');
+      expect(family.path).toBe('characters/bob/family');
 
       const allFamilyMembers = await family.get();
       expect(allFamilyMembers.docs.length).toBe(4);
       expect(allFamilyMembers.forEach).toBeTruthy();
 
       const ref = family.doc('violet');
-      expect(ref.path).toBe('database/characters/bob/family/violet');
+      expect(ref).toHaveProperty('path', 'characters/bob/family/violet');
 
       const record = await ref.get();
       expect(record).toHaveProperty('exists', true);
       expect(record).toHaveProperty('id', 'violet');
+      expect(record).toHaveProperty('data');
       expect(record.data()).toHaveProperty('name', 'Violet');
     });
 
@@ -207,7 +223,7 @@ describe('Queries', () => {
         .doc('bob')
         .collection('family')
         .where('relation', '==', 'son'); // should return only sons
-      expect(family.path).toBe('database/characters/bob/family');
+      expect(family).toHaveProperty('path', 'characters/bob/family');
 
       const docs = await family.get();
       expect(docs).toHaveProperty('size', 2);
@@ -279,6 +295,6 @@ describe('Queries', () => {
     // See https://firebase.google.com/docs/reference/js/firebase.firestore.CollectionReference#doc
     // "If no path is specified, an automatically-generated unique ID will be used for the returned DocumentReference."
     const newDoc = db.collection('foo').doc();
-    expect(newDoc.path).toBe('database/foo/abc123');
+    expect(newDoc).toHaveProperty('path', 'foo/abc123');
   });
 });

@@ -19,31 +19,40 @@ class Query {
 
   get() {
     mockGet(...arguments);
-    // Use DFS to find all records in collections that match collectionName
+
+    // Use BFS to find all records in collections that match collectionName
     const requestedRecords = [];
 
-    const st = [this.firestore.database];
-    // At each collection list node, get collection in collection list whose id
-    // matches this.collectionName
-    while (st.length > 0) {
-      const subcollections = st.pop();
-      const documents = subcollections[this.collectionName];
-      if (documents && Array.isArray(documents)) {
-        requestedRecords.push(...documents);
-      }
+    const queue = [['', this.firestore.database]];
 
-      // For each collection in subcollections, get each document's _collections array
-      // and push onto st.
-      Object.values(subcollections).forEach(collection => {
-        const documents = collection.filter(d => !!d._collections);
-        st.push(...documents.map(d => d._collections));
+    while (queue.length > 0) {
+      const node = queue.shift();
+
+      let lastParent = node[0];
+      Object.entries(node[1]).forEach(([collectionPath, docs]) => {
+        const prefix = node[0] ? `${node[0]}/` : '';
+        lastParent = `${prefix}${collectionPath}`;
+        const lastPathComponent = collectionPath.split('/').pop();
+        if (lastPathComponent === this.collectionName) {
+          const docHashes = docs.map(doc => {
+            // Construct the document's path
+            const path = `${lastParent}/${doc.id}`;
+            return {
+              ...doc,
+              _ref: this.firestore.doc(path),
+            };
+          });
+          requestedRecords.push(...docHashes);
+        }
+        // Enqueue adjacent nodes
+        docs.forEach(doc => {
+          if (doc._collections) {
+            queue.push([`${prefix}${collectionPath}/${doc.id}`, doc._collections]);
+          }
+        });
       });
     }
 
-    // Make sure we have a 'good enough' document reference
-    requestedRecords.forEach(rec => {
-      rec._ref = this.firestore.doc('database/'.concat(rec.id));
-    });
     return Promise.resolve(buildQuerySnapShot(requestedRecords, this.filters));
   }
 

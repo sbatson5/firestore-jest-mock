@@ -74,9 +74,10 @@ describe('we can start a firebase application', () => {
           last: 'Lovelace',
           born: 1815,
         })
-        .then(function(docRef) {
+        .then(docRef => {
           expect(mockAdd).toHaveBeenCalled();
           expect(docRef).toHaveProperty('id', 'abc123');
+          expect(docRef).toHaveProperty('path', 'users/abc123');
         });
     });
 
@@ -93,6 +94,9 @@ describe('we can start a firebase application', () => {
           expect(querySnapshot.docs.length).toBe(2);
           expect(querySnapshot.size).toBe(querySnapshot.docs.length);
 
+          const paths = querySnapshot.docs.map(d => d.ref.path).sort();
+          const expectedPaths = ['users/abc123', 'users/123abc'].sort();
+          expect(paths).toStrictEqual(expectedPaths);
           querySnapshot.forEach(doc => {
             expect(doc.exists).toBe(true);
             expect(doc.data()).toBeTruthy();

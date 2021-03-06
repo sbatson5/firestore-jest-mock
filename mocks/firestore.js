@@ -73,37 +73,73 @@ class FakeFirestore {
     return;
   }
 
-  collection(collectionName) {
+  collection(path) {
+    // Accept any collection path
+    // See https://firebase.google.com/docs/reference/js/firebase.firestore.Firestore#collection
     mockCollection(...arguments);
-    return new FakeFirestore.CollectionReference(collectionName, null, this);
+
+    if (!path) {
+      throw new Error(`A collection-path must be collection-level. Received ''`);
+    }
+
+    // Ignore leading slash
+    const pathArray = path.replace(/^\/+/, '').split('/');
+    // Must be collection-level, so odd-numbered elements
+    if (pathArray.length % 2 !== 1) {
+      throw new Error(
+        `A collection-path must be collection-level. Received '${pathArray.join('/')}'`,
+      );
+    }
+
+    let coll = null;
+    let doc = null;
+    for (let index = 0; index < pathArray.length; index += 2) {
+      const collectionId = pathArray[index] || '';
+      const documentId = pathArray[index + 1] || '';
+
+      coll = new FakeFirestore.CollectionReference(collectionId, doc, this);
+      if (!documentId) {
+        break;
+      }
+      doc = new FakeFirestore.DocumentReference(documentId, coll);
+    }
+
+    return coll;
   }
 
-  collectionGroup(collectionName) {
+  collectionGroup(collectionId) {
     mockCollectionGroup(...arguments);
-    return new FakeFirestore.Query(collectionName, this, true);
+    return new FakeFirestore.Query(collectionId, this, true);
   }
 
   doc(path) {
+    // Accept any document path
+    // See https://firebase.google.com/docs/reference/js/firebase.firestore.Firestore#doc
     mockDoc(path);
+
+    if (!path) {
+      throw new Error(`A document-path must be document-level. Received ''`);
+    }
+
     this.filters = [];
 
     // Ignore leading slash
     const pathArray = path.replace(/^\/+/, '').split('/');
     // Must be document-level, so even-numbered elements
-    if (pathArray.length % 2) {
-      throw new Error('The path array must be document-level');
+    if (pathArray.length % 2 !== 0) {
+      throw new Error(`A document-path must be document-level. Received '${pathArray.join('/')}'`);
     }
 
     let doc = null;
-    for (let index = 0; index < pathArray.length; index++) {
-      const collectionId = pathArray[index];
-      const documentId = pathArray[index + 1];
+    let coll = null;
+    for (let index = 0; index < pathArray.length; index += 2) {
+      const collectionId = pathArray[index] || '';
+      const documentId = pathArray[index + 1] || '';
 
-      const collection = new FakeFirestore.CollectionReference(collectionId, doc, this);
-      doc = new FakeFirestore.DocumentReference(documentId, collection);
-
-      index++; // skip to next collection
+      coll = new FakeFirestore.CollectionReference(collectionId, doc, this);
+      doc = new FakeFirestore.DocumentReference(documentId, coll);
     }
+
     return doc;
   }
 
@@ -129,7 +165,7 @@ FakeFirestore.DocumentReference = class {
     this.id = id;
     this.parent = parent;
     this.firestore = parent.firestore;
-    this.path = parent.path.concat(`/${id}`);
+    this.path = parent.path.concat(`/${id}`).replace(/^\/+/, '');
   }
 
   collection(collectionName) {
@@ -176,14 +212,16 @@ FakeFirestore.DocumentReference = class {
     // Ignore leading slash
     const pathArray = this.path.replace(/^\/+/, '').split('/');
 
-    pathArray.shift(); // drop 'database'; it's always first
+    if (pathArray[0] === 'database') {
+      pathArray.shift(); // drop 'database'; it's always first
+    }
     let requestedRecords = this.firestore.database[pathArray.shift()];
     let document = null;
     if (requestedRecords) {
       const documentId = pathArray.shift();
       document = requestedRecords.find(record => record.id === documentId);
     } else {
-      return Promise.resolve({ exists: false, data: () => undefined, id: this.id });
+      return Promise.resolve({ exists: false, data: () => undefined, id: this.id, ref: this });
     }
 
     for (let index = 0; index < pathArray.length; index += 2) {
@@ -191,16 +229,16 @@ FakeFirestore.DocumentReference = class {
       const documentId = pathArray[index + 1];
 
       if (!document || !document._collections) {
-        return Promise.resolve({ exists: false, data: () => undefined, id: this.id });
+        return Promise.resolve({ exists: false, data: () => undefined, id: this.id, ref: this });
       }
       requestedRecords = document._collections[collectionId] || [];
       if (requestedRecords.length === 0) {
-        return Promise.resolve({ exists: false, data: () => undefined, id: this.id });
+        return Promise.resolve({ exists: false, data: () => undefined, id: this.id, ref: this });
       }
 
       document = requestedRecords.find(record => record.id === documentId);
       if (!document) {
-        return Promise.resolve({ exists: false, data: () => undefined, id: this.id });
+        return Promise.resolve({ exists: false, data: () => undefined, id: this.id, ref: this });
       }
 
       // +2 skips to next document
@@ -267,7 +305,7 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
     if (parent) {
       this.path = parent.path.concat(`/${id}`);
     } else {
-      this.path = `database/${id}`;
+      this.path = id;
     }
   }
 
