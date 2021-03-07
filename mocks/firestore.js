@@ -121,8 +121,6 @@ class FakeFirestore {
       throw new Error(`A document-path must be document-level. Received ''`);
     }
 
-    this.filters = [];
-
     // Ignore leading slash
     const pathArray = path.replace(/^\/+/, '').split('/');
     // Must be document-level, so even-numbered elements
@@ -320,16 +318,14 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
   }
 
   /**
-   * @function records
    * A private method, meant mainly to be used by `get` and other internal objects to retrieve
    * the list of database records referenced by this CollectionReference.
    * @returns {Object[]} An array of mocked document records.
    */
-  records() {
+  _records() {
     // Ignore leading slash
     const pathArray = this.path.replace(/^\/+/, '').split('/');
 
-    pathArray.shift(); // drop 'database'; it's always first
     let requestedRecords = this.firestore.database[pathArray.shift()];
     if (pathArray.length === 0) {
       return requestedRecords || [];
@@ -363,7 +359,7 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
   get() {
     query.mocks.mockGet(...arguments);
     // Make sure we have a 'good enough' document reference
-    const records = this.records();
+    const records = this._records();
     records.forEach(rec => {
       rec._ref = this.doc(rec.id);
     });
