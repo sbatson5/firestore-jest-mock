@@ -17,6 +17,7 @@ const {
   mockBatchSet,
   mockSettings,
   mockOnSnapShot,
+  mockUseEmulator,
 } = require('../mocks/firestore');
 
 describe('we can start a firebase application', () => {
@@ -55,6 +56,12 @@ describe('we can start a firebase application', () => {
     db.settings({ ignoreUndefinedProperties: true });
     expect(mockInitializeApp).toHaveBeenCalled();
     expect(mockSettings).toHaveBeenCalledWith({ ignoreUndefinedProperties: true });
+  });
+
+  test('we can use emulator', async () => {
+    const db = this.firebase.firestore();
+    db.useEmulator('localhost', 9000);
+    expect(mockUseEmulator).toHaveBeenCalledWith('localhost', 9000);
   });
 
   describe('Examples from documentation', () => {
