@@ -327,7 +327,7 @@ Your application doesn't double-check Firestore's response -- it trusts that it'
 | `mockSignInWithEmailAndPassword`     | Assert correct email and password were passed. Returns a promise           | [signInWithEmailAndPassword](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#signinwithemailandpassword)         |
 | `mockSendPasswordResetEmail`         | Assert correct email was passed.                                           | [sendPasswordResetEmail](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#send-password-reset-email)              |
 | `mockVerifyIdToken`                  | Assert correct token is passed. Returns a promise                          | [verifyIdToken](https://firebase.google.com/docs/reference/admin/node/admin.auth.Auth.html#verifyidtoken)                              |
-| `mockSignOut`                        | Assert sign out is called. Returns a promise                               | [signOut](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#signout)
+| `mockSignOut`                        | Assert sign out is called. Returns a promise                               | [signOut](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#signout)                                               |
 
 ## Contributing
 
