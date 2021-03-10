@@ -275,16 +275,16 @@ Your application doesn't double-check Firestore's response -- it trusts that it'
 
 #### [Firestore.Query](https://googleapis.dev/nodejs/firestore/latest/Query.html)
 
-| Method           | Use                                                                                       | Method in Firestore                                                                |
-| ---------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `mockGet`        | Assert get is called. Returns a promise resolving either to a single doc or querySnapshot | [get](https://googleapis.dev/nodejs/firestore/latest/Query.html#get)               |
-| `mockWhere`      | Assert the correct query is written. Tells the mock you are fetching multiple records     | [where](https://googleapis.dev/nodejs/firestore/latest/Query.html#where)           |
-| `mockLimit`      | Assert limit is set properly                                                              | [limit](https://googleapis.dev/nodejs/firestore/latest/Query.html#limit)           |
-| `mockOrderBy`    | Assert correct field is passed to orderBy                                                 | [orderBy](https://googleapis.dev/nodejs/firestore/latest/Query.html#orderBy)       |
-| `mockOffset`     | Assert offset is set properly                                                             | [offset](https://googleapis.dev/nodejs/firestore/latest/Query.html#offset)         |
-| `mockStartAfter` | Assert startAfter is called                                                               | [startAfter](https://googleapis.dev/nodejs/firestore/latest/Query.html#startAfter) |
-| `mockStartAt`    | Assert startAt is called                                                                  | [startAt](https://googleapis.dev/nodejs/firestore/latest/Query.html#startAt)       |
-| `mockWithConverter` | Assert withConverter is called                                                      | [withConverter](https://firebase.google.com/docs/reference/js/firebase.firestore.Query#withconverter) |
+| Method              | Use                                                                                       | Method in Firestore                                                                                   |
+| ------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `mockGet`           | Assert get is called. Returns a promise resolving either to a single doc or querySnapshot | [get](https://googleapis.dev/nodejs/firestore/latest/Query.html#get)                                  |
+| `mockWhere`         | Assert the correct query is written. Tells the mock you are fetching multiple records     | [where](https://googleapis.dev/nodejs/firestore/latest/Query.html#where)                              |
+| `mockLimit`         | Assert limit is set properly                                                              | [limit](https://googleapis.dev/nodejs/firestore/latest/Query.html#limit)                              |
+| `mockOrderBy`       | Assert correct field is passed to orderBy                                                 | [orderBy](https://googleapis.dev/nodejs/firestore/latest/Query.html#orderBy)                          |
+| `mockOffset`        | Assert offset is set properly                                                             | [offset](https://googleapis.dev/nodejs/firestore/latest/Query.html#offset)                            |
+| `mockStartAfter`    | Assert startAfter is called                                                               | [startAfter](https://googleapis.dev/nodejs/firestore/latest/Query.html#startAfter)                    |
+| `mockStartAt`       | Assert startAt is called                                                                  | [startAt](https://googleapis.dev/nodejs/firestore/latest/Query.html#startAt)                          |
+| `mockWithConverter` | Assert withConverter is called                                                            | [withConverter](https://firebase.google.com/docs/reference/js/firebase.firestore.Query#withconverter) |
 
 #### [Firestore.FieldValue](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html)
 
