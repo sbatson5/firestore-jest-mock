@@ -4,6 +4,7 @@ const {
   mockGet,
   mockWhere,
   mockOffset,
+  mockWithConverter,
   FakeFirestore,
 } = require('../mocks/firestore');
 const { mockFirebase } = require('firestore-jest-mock');
@@ -120,5 +121,18 @@ describe('test', () => {
     expect(mockCollection).toHaveBeenCalledWith('animals');
     expect(mockGet).toHaveBeenCalled();
     expect(mockOffset).toHaveBeenCalledWith(2);
+  });
+
+  test('it can convert query', () => {
+    const converter = {
+      fromFirestore: () => {},
+      toFirestore: () => {},
+    };
+
+    db.collection('animals').withConverter(converter).get();
+
+    expect(mockCollection).toHaveBeenCalledWith('animals');
+    expect(mockWithConverter).toHaveBeenCalledWith(converter);
+    expect(mockGet).toHaveBeenCalled();
   });
 });

@@ -284,6 +284,7 @@ Your application doesn't double-check Firestore's response -- it trusts that it'
 | `mockOffset`     | Assert offset is set properly                                                             | [offset](https://googleapis.dev/nodejs/firestore/latest/Query.html#offset)         |
 | `mockStartAfter` | Assert startAfter is called                                                               | [startAfter](https://googleapis.dev/nodejs/firestore/latest/Query.html#startAfter) |
 | `mockStartAt`    | Assert startAt is called                                                                  | [startAt](https://googleapis.dev/nodejs/firestore/latest/Query.html#startAt)       |
+| `mockWithConverter` | Assert withConverter is called                                                      | [withConverter](https://firebase.google.com/docs/reference/js/firebase.firestore.Query#withconverter) |
 
 #### [Firestore.FieldValue](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html)
 
