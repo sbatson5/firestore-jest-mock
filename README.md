@@ -21,6 +21,7 @@ Small, easy to grok pull requests are welcome, but please note that there is no 
   - [Installation](#installation)
   - [Usage](#usage)
     - [`mockFirebase`](#mockfirebase)
+    - [`@google-cloud/firestore` compatibility](#google-cloudfirestore-compatibility)
     - [Subcollections](#subcollections)
     - [What would you want to test?](#what-would-you-want-to-test)
     - [Don't forget to reset your mocks](#dont-forget-to-reset-your-mocks)
@@ -102,6 +103,41 @@ test('testing stuff', () => {
     });
 });
 ```
+
+### `@google-cloud/firestore` compatibility
+
+If you use `@google-cloud/firestore`, use `mockGoogleCloudFirestore` instead of `mockFirebase` in all the documentation.
+
+```js
+const { mockGoogleCloudFirestore } = require('firestore-jest-mock');
+
+mockGoogleCloudFirestore({
+  database: {
+    users: [
+      { id: 'abc123', name: 'Homer Simpson' },
+      { id: 'abc456', name: 'Lisa Simpson' },
+    ],
+    posts: [{ id: '123abc', title: 'Really cool title' }],
+  },
+});
+
+const { mockCollection } = require('firestore-jest-mock/mocks/firestore');
+
+test('testing stuff', () => {
+  const { Firestore } = require('@google-cloud/firestore');
+  const firestore = new Firestore();
+
+  return firestore
+    .collection('users')
+    .get()
+    .then(userDocs => {
+      expect(mockCollection).toHaveBeenCalledWith('users');
+      expect(userDocs[0].name).toEqual('Homer Simpson');
+    });
+});
+```
+*Note: Authentication with `@google-cloud/firestore` is not handled in the same way as with `firebase`.
+The `Auth` module is not available for `@google-cloud/firestore` compatibility.*
 
 ### Subcollections
 
@@ -329,6 +365,7 @@ Your application doesn't double-check Firestore's response -- it trusts that it'
 | `mockSendPasswordResetEmail`         | Assert correct email was passed.                                           | [sendPasswordResetEmail](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#send-password-reset-email)              |
 | `mockVerifyIdToken`                  | Assert correct token is passed. Returns a promise                          | [verifyIdToken](https://firebase.google.com/docs/reference/admin/node/admin.auth.Auth.html#verifyidtoken)                              |
 | `mockUseEmulator`                    | Assert correct emulator url is passed                                      | [useEmulator](https://firebase.google.com/docs/reference/js/firebase.auth.Auth#useemulator)                                            |
+| `mockSignOut`                        | Assert sign out is called. Returns a promise                               | [signOut](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#signout)                                               |
 
 ## Contributing
 

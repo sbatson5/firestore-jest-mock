@@ -3,6 +3,7 @@ const { mockInitializeApp } = require('../mocks/firebase');
 const {
   mockCreateUserWithEmailAndPassword,
   mockSignInWithEmailAndPassword,
+  mockSignOut,
   mockSendPasswordResetEmail,
   mockDeleteUser,
   mockVerifyIdToken,
@@ -66,6 +67,12 @@ describe('we can start a firebase application', () => {
         expect.assertions(1);
         await this.firebase.auth().signInWithEmailAndPassword('sam', 'hill');
         expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith('sam', 'hill');
+      });
+
+      test('sign out', async () => {
+        expect.assertions(1);
+        await this.firebase.auth().signOut();
+        expect(mockSignOut).toHaveBeenCalled();
       });
 
       test('send password reset email', async () => {
