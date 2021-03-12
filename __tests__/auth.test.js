@@ -9,6 +9,7 @@ const {
   mockVerifyIdToken,
   mockGetUser,
   mockSetCustomUserClaims,
+  mockUseEmulator,
 } = require('../mocks/auth');
 
 describe('we can start a firebase application', () => {
@@ -47,6 +48,11 @@ describe('we can start a firebase application', () => {
   test('We can start an application', async () => {
     this.firebase.auth();
     expect(mockInitializeApp).toHaveBeenCalled();
+  });
+
+  test('We can use emulator', () => {
+    this.firebase.auth().useEmulator('http://localhost:9099');
+    expect(mockUseEmulator).toHaveBeenCalledWith('http://localhost:9099');
   });
 
   describe('Client Auth Operations', () => {

@@ -3,6 +3,7 @@ const mockBatch = jest.fn();
 const mockRunTransaction = jest.fn();
 
 const mockSettings = jest.fn();
+const mockUseEmulator = jest.fn();
 const mockCollection = jest.fn();
 const mockDoc = jest.fn();
 const mockUpdate = jest.fn();
@@ -71,6 +72,10 @@ class FakeFirestore {
   settings() {
     mockSettings(...arguments);
     return;
+  }
+
+  useEmulator() {
+    mockUseEmulator(...arguments);
   }
 
   collection(collectionName) {
@@ -352,6 +357,7 @@ module.exports = {
   mockUpdate,
   mockSet,
   mockSettings,
+  mockUseEmulator,
   mockBatchDelete,
   mockBatchCommit,
   mockBatchUpdate,

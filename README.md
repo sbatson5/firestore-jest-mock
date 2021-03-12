@@ -295,19 +295,20 @@ Your application doesn't double-check Firestore's response -- it trusts that it'
 
 #### [Firestore](https://googleapis.dev/nodejs/firestore/latest/Firestore.html)
 
-| Method                | Use                                                                                               | Method in Firestore                                                                              |
-| --------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `mockCollection`      | Assert the correct collection is being queried                                                    | [collection](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#collection)           |
-| `mockCollectionGroup` | Assert the correct collectionGroup is being queried                                               | [collectionGroup](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#collectionGroup) |
-| `mockDoc`             | Assert the correct record is being fetched by id. Tells the mock you are fetching a single record | [doc](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#doc)                         |
-| `mockBatch`           | Assert batch was called                                                                           | [batch](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#batch)                     |
-| `mockBatchDelete`     | Assert correct refs are passed                                                                    | [batch delete](https://googleapis.dev/nodejs/firestore/latest/WriteBatch.html#delete)            |
-| `mockBatchCommit`     | Assert commit is called. Returns a promise                                                        | [batch commit](https://googleapis.dev/nodejs/firestore/latest/WriteBatch.html#commit)            |
-| `mockGetAll`          | Assert correct refs are passed. Returns a promise resolving to array of docs.                     | [getAll](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#getAll)                   |
-| `mockUpdate`          | Assert correct params are passed to update. Returns a promise                                     | [update](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#update)           |
-| `mockAdd`             | Assert correct params are passed to add. Returns a promise resolving to the doc with new id       | [add](https://googleapis.dev/nodejs/firestore/latest/CollectionReference.html#add)               |
-| `mockSet`             | Assert correct params are passed to set. Returns a promise                                        | [set](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#set)                 |
-| `mockDelete`          | Assert delete is called on ref. Returns a promise                                                 | [delete](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#delete)           |
+| Method                | Use                                                                                               | Method in Firestore                                                                                   |
+| --------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `mockCollection`      | Assert the correct collection is being queried                                                    | [collection](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#collection)                |
+| `mockCollectionGroup` | Assert the correct collectionGroup is being queried                                               | [collectionGroup](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#collectionGroup)      |
+| `mockDoc`             | Assert the correct record is being fetched by id. Tells the mock you are fetching a single record | [doc](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#doc)                              |
+| `mockBatch`           | Assert batch was called                                                                           | [batch](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#batch)                          |
+| `mockBatchDelete`     | Assert correct refs are passed                                                                    | [batch delete](https://googleapis.dev/nodejs/firestore/latest/WriteBatch.html#delete)                 |
+| `mockBatchCommit`     | Assert commit is called. Returns a promise                                                        | [batch commit](https://googleapis.dev/nodejs/firestore/latest/WriteBatch.html#commit)                 |
+| `mockGetAll`          | Assert correct refs are passed. Returns a promise resolving to array of docs.                     | [getAll](https://googleapis.dev/nodejs/firestore/latest/Firestore.html#getAll)                        |
+| `mockUpdate`          | Assert correct params are passed to update. Returns a promise                                     | [update](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#update)                |
+| `mockAdd`             | Assert correct params are passed to add. Returns a promise resolving to the doc with new id       | [add](https://googleapis.dev/nodejs/firestore/latest/CollectionReference.html#add)                    |
+| `mockSet`             | Assert correct params are passed to set. Returns a promise                                        | [set](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#set)                      |
+| `mockDelete`          | Assert delete is called on ref. Returns a promise                                                 | [delete](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#delete)                |
+| `mockUseEmulator`     | Assert correct host and port are passed                                                           | [useEmulator](https://firebase.google.com/docs/reference/js/firebase.firestore.Firestore#useemulator) |
 
 #### [Firestore.Query](https://googleapis.dev/nodejs/firestore/latest/Query.html)
 
@@ -363,6 +364,7 @@ Your application doesn't double-check Firestore's response -- it trusts that it'
 | `mockSignInWithEmailAndPassword`     | Assert correct email and password were passed. Returns a promise           | [signInWithEmailAndPassword](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#signinwithemailandpassword)         |
 | `mockSendPasswordResetEmail`         | Assert correct email was passed.                                           | [sendPasswordResetEmail](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#send-password-reset-email)              |
 | `mockVerifyIdToken`                  | Assert correct token is passed. Returns a promise                          | [verifyIdToken](https://firebase.google.com/docs/reference/admin/node/admin.auth.Auth.html#verifyidtoken)                              |
+| `mockUseEmulator`                    | Assert correct emulator url is passed                                      | [useEmulator](https://firebase.google.com/docs/reference/js/firebase.auth.Auth#useemulator)                                            |
 | `mockSignOut`                        | Assert sign out is called. Returns a promise                               | [signOut](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#signout)                                               |
 
 ## Contributing
