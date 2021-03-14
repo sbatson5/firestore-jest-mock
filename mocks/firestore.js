@@ -251,7 +251,8 @@ FakeFirestore.DocumentReference = class {
   }
 
   withConverter() {
-    return this.query.withConverter(...arguments);
+    query.mocks.mockWithConverter(...arguments);
+    return this;
   }
 };
 

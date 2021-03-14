@@ -17,6 +17,9 @@ const {
   mockBatchSet,
   mockSettings,
   mockOnSnapShot,
+  mockDoc,
+  mockCollection,
+  mockWithConverter,
 } = require('../mocks/firestore');
 
 describe('we can start a firebase application', () => {
@@ -281,6 +284,43 @@ describe('we can start a firebase application', () => {
       expect(unsubscribe).toBeInstanceOf(Function);
       expect(mockWhere).toHaveBeenCalled();
       expect(mockOnSnapShot).toHaveBeenCalled();
+    });
+
+    describe('withConverter', () => {
+      const converter = {
+        fromFirestore: () => {},
+        toFirestore: () => {},
+      };
+
+      test('single document', async () => {
+        const db = this.firebase.firestore();
+
+        await db.doc('characters/homer').withConverter(converter).get();
+
+        expect(mockDoc).toHaveBeenCalledWith('characters/homer');
+        expect(mockWithConverter).toHaveBeenCalledWith(converter);
+        expect(mockGet).toHaveBeenCalled();
+      });
+
+      test('single undefined document', async () => {
+        const db = this.firebase.firestore();
+
+        await db.collection('characters').withConverter(converter).doc().get();
+
+        expect(mockCollection).toHaveBeenCalledWith('characters');
+        expect(mockWithConverter).toHaveBeenCalledWith(converter);
+        expect(mockGet).toHaveBeenCalled();
+      });
+
+      test('multiple documents', async () => {
+        const db = this.firebase.firestore();
+
+        await db.collection('characters').withConverter(converter).get();
+
+        expect(mockCollection).toHaveBeenCalledWith('characters');
+        expect(mockWithConverter).toHaveBeenCalledWith(converter);
+        expect(mockGet).toHaveBeenCalled();
+      });
     });
   });
 });
