@@ -254,6 +254,11 @@ FakeFirestore.DocumentReference = class {
   startAt() {
     return this.query.startAt(...arguments);
   }
+
+  withConverter() {
+    query.mocks.mockWithConverter(...arguments);
+    return this;
+  }
 };
 
 /*

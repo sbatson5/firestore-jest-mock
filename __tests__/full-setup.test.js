@@ -18,6 +18,10 @@ const {
   mockSettings,
   mockOnSnapShot,
   mockUseEmulator,
+  mockDoc,
+  mockCollection,
+  mockWithConverter,
+  FakeFirestore,
 } = require('../mocks/firestore');
 
 describe('we can start a firebase application', () => {
@@ -288,6 +292,58 @@ describe('we can start a firebase application', () => {
       expect(unsubscribe).toBeInstanceOf(Function);
       expect(mockWhere).toHaveBeenCalled();
       expect(mockOnSnapShot).toHaveBeenCalled();
+    });
+
+    describe('withConverter', () => {
+      const converter = {
+        fromFirestore: () => {},
+        toFirestore: () => {},
+      };
+
+      test('single document', async () => {
+        const db = this.firebase.firestore();
+
+        const recordDoc = db.doc('cities/la').withConverter(converter);
+
+        expect(mockDoc).toHaveBeenCalledWith('cities/la');
+        expect(mockWithConverter).toHaveBeenCalledWith(converter);
+        expect(recordDoc).toBeInstanceOf(FakeFirestore.DocumentReference);
+
+        const record = await recordDoc.get();
+        expect(mockGet).toHaveBeenCalled();
+        expect(record).toHaveProperty('id', 'la');
+        expect(record.data).toBeInstanceOf(Function);
+      });
+
+      test('single undefined document', async () => {
+        const db = this.firebase.firestore();
+
+        const recordDoc = db.collection('cities').withConverter(converter).doc();
+
+        expect(mockCollection).toHaveBeenCalledWith('cities');
+        expect(mockWithConverter).toHaveBeenCalledWith(converter);
+        expect(mockDoc).toHaveBeenCalledWith('abc123');
+        expect(recordDoc).toBeInstanceOf(FakeFirestore.DocumentReference);
+
+        const record = await recordDoc.get();
+        expect(mockGet).toHaveBeenCalled();
+        expect(record).toHaveProperty('id', 'abc123');
+        expect(record.data).toBeInstanceOf(Function);
+      });
+
+      test('multiple documents', async () => {
+        const db = this.firebase.firestore();
+
+        const recordsCol = db.collection('cities').withConverter(converter);
+
+        expect(mockCollection).toHaveBeenCalledWith('cities');
+        expect(mockWithConverter).toHaveBeenCalledWith(converter);
+        expect(recordsCol).toBeInstanceOf(FakeFirestore.CollectionReference);
+
+        const records = await recordsCol.get();
+        expect(mockGet).toHaveBeenCalled();
+        expect(records).toHaveProperty('docs', expect.any(Array));
+      });
     });
   });
 });
