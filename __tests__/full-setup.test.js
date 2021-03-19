@@ -213,7 +213,8 @@ describe('we can start a firebase application', () => {
       batch.delete(laRef);
 
       // Commit the batch
-      return batch.commit().then(function() {
+      return batch.commit().then(function(result) {
+        expect(result).toBeInstanceOf(Array);
         expect(mockBatch).toHaveBeenCalled();
         expect(mockBatchDelete).toHaveBeenCalledWith(laRef);
         expect(mockBatchUpdate).toHaveBeenCalledWith(sfRef, { population: 1000000 });
@@ -318,7 +319,10 @@ describe('we can start a firebase application', () => {
       test('single undefined document', async () => {
         const db = this.firebase.firestore();
 
-        const recordDoc = db.collection('cities').withConverter(converter).doc();
+        const recordDoc = db
+          .collection('cities')
+          .withConverter(converter)
+          .doc();
 
         expect(mockCollection).toHaveBeenCalledWith('cities');
         expect(mockWithConverter).toHaveBeenCalledWith(converter);
