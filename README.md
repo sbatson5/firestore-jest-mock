@@ -26,6 +26,8 @@ Small, easy to grok pull requests are welcome, but please note that there is no 
     - [What would you want to test?](#what-would-you-want-to-test)
     - [Don't forget to reset your mocks](#dont-forget-to-reset-your-mocks)
       - [I wrote a where clause, but all the records were returned!](#i-wrote-a-where-clause-but-all-the-records-were-returned)
+    - [Additional options](#additional-options)
+      - [includeIdsInData](#includeidsindata)
     - [Functions you can test](#functions-you-can-test)
       - [Firestore](#firestore)
       - [Firestore.Query](#firestorequery)
@@ -136,8 +138,9 @@ test('testing stuff', () => {
     });
 });
 ```
-*Note: Authentication with `@google-cloud/firestore` is not handled in the same way as with `firebase`.
-The `Auth` module is not available for `@google-cloud/firestore` compatibility.*
+
+_Note: Authentication with `@google-cloud/firestore` is not handled in the same way as with `firebase`.
+The `Auth` module is not available for `@google-cloud/firestore` compatibility._
 
 ### Subcollections
 
@@ -290,6 +293,25 @@ The `where` clause in the mocked Firestore will not actually filter the data at 
 We are not recreating Firestore in this mock, just exposing an API that allows us to write assertions.
 It is also not the job of the developer (you) to test that Firestore filtered the data appropriately.
 Your application doesn't double-check Firestore's response -- it trusts that it's always correct!
+
+### Additional options
+
+The default state of this mock is meant for basic testing that should cover most everyone.  
+However, you can pass an `options` object to the mock to overwrite some default behavior.
+
+```js
+const options = {
+  includeIdsInData: true,
+};
+
+mockFirebase(database, options);
+```
+
+#### includeIdsInData
+
+By default, id's are not returned with the document's data.
+Although you can declare an id when setting up your fake database, it will not be returned with `data()` as that is not the default behavior of firebase.
+However, a common practice for firestore users is to manually write an `id` property to their documents, allowing them to query `collectionGroup` by id.
 
 ### Functions you can test
 

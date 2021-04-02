@@ -1,12 +1,14 @@
 const mockInitializeApp = jest.fn();
 const mockCert = jest.fn();
 
-const firebaseStub = overrides => {
+const defaultOptions = require('./helpers/defaultMockOptions');
+
+const firebaseStub = (overrides, options = defaultOptions) => {
   const { FakeFirestore, FakeAuth } = require('firestore-jest-mock');
 
   // Prepare namespaced classes
   function firestoreConstructor() {
-    return new FakeFirestore(overrides.database);
+    return new FakeFirestore(overrides.database, options);
   }
 
   firestoreConstructor.Query = FakeFirestore.Query;
@@ -32,15 +34,15 @@ const firebaseStub = overrides => {
   };
 };
 
-const mockFirebase = (overrides = {}) => {
-  mockModuleIfFound('firebase', overrides);
-  mockModuleIfFound('firebase-admin', overrides);
+const mockFirebase = (overrides = {}, options = defaultOptions) => {
+  mockModuleIfFound('firebase', overrides, options);
+  mockModuleIfFound('firebase-admin', overrides, options);
 };
 
-function mockModuleIfFound(moduleName, overrides) {
+function mockModuleIfFound(moduleName, overrides, options) {
   try {
     require.resolve(moduleName);
-    jest.doMock(moduleName, () => firebaseStub(overrides));
+    jest.doMock(moduleName, () => firebaseStub(overrides, options));
   } catch (e) {
     // eslint-disable-next-line no-console
     console.info(`Module ${moduleName} not found, mocking skipped.`);

@@ -27,9 +27,10 @@ const buildDocFromHash = require('./helpers/buildDocFromHash');
 const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
 
 class FakeFirestore {
-  constructor(stubbedDatabase = {}) {
+  constructor(stubbedDatabase = {}, options = {}) {
     this.database = stubbedDatabase;
     this.query = new query.Query('', this);
+    this.options = options;
   }
 
   set collectionName(collectionName) {
