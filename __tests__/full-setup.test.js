@@ -104,6 +104,7 @@ describe('we can start a firebase application', () => {
           querySnapshot.forEach(doc => {
             expect(doc.exists).toBe(true);
             expect(doc.data()).toBeTruthy();
+            expect(doc.data().id).toBeFalsy();
           });
         });
     });

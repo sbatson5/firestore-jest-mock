@@ -14,7 +14,9 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123') {
         return undefined;
       }
       const copy = { ...hash };
-      delete copy.id;
+      if (!hash._ref.parent.firestore.options.includeIdsInData) {
+        delete copy.id;
+      }
       delete copy._collections;
       delete copy._ref;
       return copy;

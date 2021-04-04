@@ -15,6 +15,10 @@ export interface StubOverrides {
   currentUser?: unknown; // User, to be defined later
 }
 
+export interface StubOptions {
+  includeIdsInData?: boolean;
+}
+
 export interface FirebaseMock {
   initializeApp: jest.Mock;
   credential: {
@@ -24,7 +28,7 @@ export interface FirebaseMock {
   firestore(): unknown; // Firestore, to be defined later
 }
 
-export const firebaseStub: (overrides?: StubOverrides) => FirebaseMock;
-export const mockFirebase: (overrides?: StubOverrides) => void;
+export const firebaseStub: (overrides?: StubOverrides, options?: StubOptions) => FirebaseMock;
+export const mockFirebase: (overrides?: StubOverrides, options?: StubOptions) => void;
 export const mockInitializeApp: jest.Mock;
 export const mockCert: jest.Mock;
