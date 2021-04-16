@@ -4,6 +4,7 @@ const mockGetTransaction = jest.fn();
 const mockSetTransaction = jest.fn();
 const mockUpdateTransaction = jest.fn();
 const mockDeleteTransaction = jest.fn();
+const mockCreateTransaction = jest.fn();
 
 class Transaction {
   getAll(...refsOrReadOptions) {
@@ -40,6 +41,12 @@ class Transaction {
     ref.delete();
     return this;
   }
+
+  create(ref, options) {
+    mockCreateTransaction(...arguments);
+    ref.set(options);
+    return this;
+  }
 }
 
 module.exports = {
@@ -51,5 +58,6 @@ module.exports = {
     mockSetTransaction,
     mockUpdateTransaction,
     mockDeleteTransaction,
+    mockCreateTransaction,
   },
 };
