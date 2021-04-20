@@ -12,7 +12,7 @@ export type FakeFirestoreDocumentData = Record<string, unknown>;
 
 export interface StubOverrides {
   database?: DatabaseCollections;
-  currentUser?: unknown; // User, to be defined later
+  currentUser?: unknown; // TODO: User, to be defined later
 }
 
 export interface StubOptions {
@@ -24,8 +24,8 @@ export interface FirebaseMock {
   credential: {
     cert: jest.Mock;
   };
-  auth(): unknown; // Auth, to be defined later
-  firestore(): unknown; // Firestore, to be defined later
+  auth(): unknown; // TODO: Auth, to be defined later
+  firestore(): unknown; // TODO: FakeFirestore, to be defined later
 }
 
 export const firebaseStub: (overrides?: StubOverrides, options?: StubOptions) => FirebaseMock;
