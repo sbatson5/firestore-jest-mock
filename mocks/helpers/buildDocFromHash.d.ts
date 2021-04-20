@@ -1,10 +1,10 @@
-import type { FakeFirestore } from '../firestore';
+import type { FakeFirestore, FakeFirestoreDatabase } from '../firestore';
 
 export type DocumentData = { [field: string]: unknown };
 
 export interface DocumentHash extends DocumentData {
   id?: string;
-  _collections: unknown; // TODO: FakeFirestore subcollections, to be defined later
+  _collections: FakeFirestoreDatabase;
   _ref: typeof FakeFirestore.DocumentReference;
 }
 

@@ -15,6 +15,7 @@ const firestoreStub = (overrides, options = defaultOptions) => {
     FieldValue: FakeFirestore.FieldValue,
     Timestamp: FakeFirestore.Timestamp,
     Transaction: FakeFirestore.Transaction,
+    /** @type {Firestore.constructor} */
     Firestore,
   };
 };
