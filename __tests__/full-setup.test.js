@@ -286,7 +286,7 @@ describe('we can start a firebase application', () => {
           expect(querySnapshot.docChanges).toBeInstanceOf(Function);
           expect(querySnapshot.docs).toBeInstanceOf(Array);
 
-          expect(querySnapshot.docChanges().forEach).toBeInstanceOf(Function);
+          expect(querySnapshot.docChanges()).toBeInstanceOf(Array);
         });
 
       await flushPromises();
