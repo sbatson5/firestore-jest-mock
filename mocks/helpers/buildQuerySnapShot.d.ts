@@ -4,10 +4,8 @@ export interface MockedQuerySnapshot<Doc = MockedDocument> {
   empty: boolean;
   size: number;
   docs: Array<Doc>;
-  forEach(callbackfn: (value: Doc, index: number, array: Doc[]) => void): void;
-  docChanges(): {
-    forEach(callbackfn: () => void): void
-  };
+  forEach(callbackfn: (value: Doc, index: number, array: Array<Doc>) => void): void;
+  docChanges(): Array<never>;
 }
 
 /**
