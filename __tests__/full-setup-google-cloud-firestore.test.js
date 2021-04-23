@@ -196,7 +196,8 @@ describe('we can start a firestore application', () => {
     test('onSnapshot single doc', async () => {
       const firestore = new this.Firestore();
 
-      firestore.collection('cities')
+      firestore
+        .collection('cities')
         .doc('LA')
         .onSnapshot(doc => {
           expect(doc).toHaveProperty('data');
@@ -212,7 +213,8 @@ describe('we can start a firestore application', () => {
     test('onSnapshot can work with options', async () => {
       const firestore = new this.Firestore();
 
-      firestore.collection('cities')
+      firestore
+        .collection('cities')
         .doc('LA')
         .onSnapshot(
           {
@@ -246,7 +248,7 @@ describe('we can start a firestore application', () => {
           expect(querySnapshot.docChanges).toBeInstanceOf(Function);
           expect(querySnapshot.docs).toBeInstanceOf(Array);
 
-          expect(querySnapshot.docChanges().forEach).toBeInstanceOf(Function);
+          expect(querySnapshot.docChanges()).toBeInstanceOf(Array);
         });
 
       await flushPromises();
