@@ -3,6 +3,7 @@ const mockBatch = jest.fn();
 const mockRunTransaction = jest.fn();
 
 const mockSettings = jest.fn();
+const mockUseEmulator = jest.fn();
 const mockCollection = jest.fn();
 const mockDoc = jest.fn();
 const mockUpdate = jest.fn();
@@ -26,9 +27,10 @@ const buildDocFromHash = require('./helpers/buildDocFromHash');
 const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
 
 class FakeFirestore {
-  constructor(stubbedDatabase = {}) {
+  constructor(stubbedDatabase = {}, options = {}) {
     this.database = stubbedDatabase;
     this.query = new query.Query('', this);
+    this.options = options;
   }
 
   set collectionName(collectionName) {
@@ -63,7 +65,7 @@ class FakeFirestore {
       },
       commit() {
         mockBatchCommit(...arguments);
-        return Promise.resolve();
+        return Promise.resolve([]);
       },
     };
   }
@@ -71,6 +73,10 @@ class FakeFirestore {
   settings() {
     mockSettings(...arguments);
     return;
+  }
+
+  useEmulator() {
+    mockUseEmulator(...arguments);
   }
 
   collection(collectionName) {
@@ -201,6 +207,7 @@ FakeFirestore.DocumentReference = class {
       if (typeof arguments[0] === 'function') {
         [callback, errorCallback] = arguments;
       } else {
+        // eslint-disable-next-line
         [options, callback, errorCallback] = arguments;
       }
 
@@ -306,6 +313,11 @@ FakeFirestore.DocumentReference = class {
       return buildDocFromHash(document);
     }
     return { exists: false, data: () => undefined, id: this.id, ref: this };
+  }
+
+  withConverter() {
+    query.mocks.mockWithConverter(...arguments);
+    return this;
   }
 };
 
@@ -416,6 +428,7 @@ module.exports = {
   mockUpdate,
   mockSet,
   mockSettings,
+  mockUseEmulator,
   mockBatchDelete,
   mockBatchCommit,
   mockBatchUpdate,

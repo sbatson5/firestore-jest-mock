@@ -11,6 +11,7 @@ const {
   mockGetTransaction,
   mockGetAll,
   mockGetAllTransaction,
+  mockCreateTransaction,
 } = require('firestore-jest-mock/mocks/firestore');
 
 describe('Transactions', () => {
@@ -130,5 +131,23 @@ describe('Transactions', () => {
       expect(mockGetAll).toHaveBeenCalled();
     });
     expect(mockGetAllTransaction).toHaveBeenCalled();
+  });
+
+  test('mockCreateTransaction is accessible', async () => {
+    expect.assertions(2);
+    expect(mockCreateTransaction).not.toHaveBeenCalled();
+    // Example from documentation
+    // https://googleapis.dev/nodejs/firestore/latest/Transaction.html#create-examples
+
+    await db.runTransaction(async transaction => {
+      const documentRef = db.doc('col/doc');
+      return transaction.get(documentRef).then(doc => {
+        if (!doc.exists) {
+          transaction.create(documentRef, { foo: 'bar' });
+        }
+      });
+    });
+
+    expect(mockCreateTransaction).toHaveBeenCalled();
   });
 });
