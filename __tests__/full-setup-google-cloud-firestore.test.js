@@ -63,7 +63,7 @@ describe('we can start a firestore application', () => {
         })
         .then(function(docRef) {
           expect(mockAdd).toHaveBeenCalled();
-          expect(docRef).toHaveProperty('id', 'abc123');
+          expect(docRef).toHaveProperty('id');
         });
     });
 

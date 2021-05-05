@@ -51,18 +51,19 @@ class FakeFirestore {
   batch() {
     mockBatch(...arguments);
     return {
+      _ref: this,
       delete() {
         mockBatchDelete(...arguments);
         return this;
       },
-      set(doc, data, setOptions) {
+      set(doc, data, setOptions = {}) {
         mockBatchSet(...arguments);
-        this._updateData(doc.path, data, setOptions.merge);
+        this._ref._updateData(doc.path, data, setOptions.merge);
         return this;
       },
       update(doc, data) {
         mockBatchUpdate(...arguments);
-        this._updateData(doc.path, data, true);
+        this._ref._updateData(doc.path, data, true);
         return this;
       },
       commit() {
@@ -121,7 +122,9 @@ class FakeFirestore {
 
   _updateData(path, object, merge) {
     // Do not update unless explicity set to mutable.
-    if (!this.options.mutable) {return;}
+    if (!this.options.mutable) {
+      return;
+    }
 
     // note: this logic could be deduplicated
     const pathArray = path

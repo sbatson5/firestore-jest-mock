@@ -75,6 +75,24 @@ describe('database mutations', () => {
     expect(doc.data().occupation).toEqual('Astronaut');
   });
 
+  test('it can batch appropriately', async () => {
+    const mdb = db();
+    const homer = mdb.collection('characters').doc('homer');
+    const krusty = mdb.collection('characters').doc('krusty');
+    await mdb
+      .batch()
+      .update(homer, { drink: 'duff' })
+      .set(krusty, { causeOfDeath: 'Simian homicide' })
+      .commit();
+
+    const homerData = (await homer.get()).data();
+    expect(homerData.name).toEqual('Homer');
+    expect(homerData.drink).toEqual('duff');
+    const krustyData = (await krusty.get()).data();
+    expect(krustyData.name).toBeUndefined();
+    expect(krustyData.causeOfDeath).toEqual('Simian homicide');
+  });
+
   test('it can add to collection', async () => {
     const col = db().collection('characters');
     const newDoc1 = await col.add({
