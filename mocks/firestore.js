@@ -55,12 +55,14 @@ class FakeFirestore {
         mockBatchDelete(...arguments);
         return this;
       },
-      set() {
+      set(doc, data, setOptions) {
         mockBatchSet(...arguments);
+        this._updateData(doc.path, data, setOptions.merge);
         return this;
       },
-      update() {
+      update(doc, data) {
         mockBatchUpdate(...arguments);
+        this._updateData(doc.path, data, true);
         return this;
       },
       commit() {
@@ -118,6 +120,9 @@ class FakeFirestore {
   }
 
   _updateData(path, object, merge) {
+    // Do not update unless explicity set to mutable.
+    if (!this.options.mutable) {return;}
+
     // note: this logic could be deduplicated
     const pathArray = path
       .replace(/^\/+/, '')
@@ -127,9 +132,9 @@ class FakeFirestore {
     if (pathArray.length % 2) {
       throw new Error('The path array must be document-level');
     }
+
     // The parent entry is the id of the document
     const docId = pathArray.pop();
-
     // Find the parent of docId
     let parent = this.database;
     // Is the parent a collection (if yes, it's an array of documents)
@@ -235,14 +240,14 @@ FakeFirestore.DocumentReference = class {
   update(object) {
     mockUpdate(...arguments);
     if (this._get().exists) {
-      this.firestore._updateData(this.path, object);
+      this.firestore._updateData(this.path, object, true);
     }
     return Promise.resolve(buildDocFromHash({ ...object, _ref: this }));
   }
 
-  set(object) {
+  set(object, setOptions = {}) {
     mockSet(...arguments);
-    this.firestore._updateData(this.path, object);
+    this.firestore._updateData(this.path, object, setOptions.merge);
     return Promise.resolve(buildDocFromHash({ ...object, _ref: this }));
   }
 
