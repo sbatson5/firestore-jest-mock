@@ -140,25 +140,23 @@ class FakeFirestore {
 
     // The parent entry is the id of the document
     const docId = pathArray.pop();
-    // Find the parent of docId
-    let parent = this.database;
-    // Run through the path, creating missing entries
-
-    pathArray.forEach((entry, index) => {
+    // Find the parent of docId. Run through the path, creating missing entries
+    const parent = pathArray.reduce((last, entry, index) => {
       const isCollection = index % 2 === 0;
       if (isCollection) {
-        return (parent = parent[entry] || (parent[entry] = []));
+        return last[entry] || (last[entry] = []);
       } else {
-        const existingDoc = parent.find(doc => doc.id === entry);
+        const existingDoc = last.find(doc => doc.id === entry);
         if (existingDoc) {
-          return (parent = existingDoc._collections);
+          // return _collections, creating it if it doesn't already exist
+          return existingDoc._collections || (existingDoc._collections = {});
         }
 
-        const collections = {};
-        parent.push({ id: entry, _collections: collections });
-        return (parent = collections);
+        const _collections = {};
+        last.push({ id: entry, _collections });
+        return _collections;
       }
-    });
+    }, this.database);
 
     // parent should now be an array of documents
     // Replace existing data, if it's there, or add to the end of the array
