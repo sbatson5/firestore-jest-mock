@@ -26,6 +26,8 @@ const transaction = require('./transaction');
 const buildDocFromHash = require('./helpers/buildDocFromHash');
 const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
 
+const _randomId = () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
+
 class FakeFirestore {
   constructor(stubbedDatabase = {}, options = {}) {
     this.database = stubbedDatabase;
@@ -140,30 +142,24 @@ class FakeFirestore {
     const docId = pathArray.pop();
     // Find the parent of docId
     let parent = this.database;
-    // Is the parent a collection (if yes, it's an array of documents)
-    let parentIsCollection = false;
     // Run through the path, creating missing entries
-    for (const entry of pathArray) {
-      if (parentIsCollection) {
-        // find doc in our parent collection (array), or add a new entry
-        // Because we know this isn't the final entry, we immediately
-        // look into _collections for the next entry
-        parent = (
-          parent.find(doc => doc.id === entry) ||
-          // if not found, push a new entry to the collection and return it
-          parent[
-            parent.push({
-              id: entry,
-              _collections: {},
-            }) - 1
-          ]
-        )._collections;
+
+    pathArray.forEach((entry, index) => {
+      const isCollection = index % 2 === 0;
+      if (isCollection) {
+        return (parent = parent[entry] || (parent[entry] = []));
       } else {
-        // If parent exists, use it else create a new entry and use that
-        parent = parent[entry] || (parent[entry] = []);
+        const existingDoc = parent.find(doc => doc.id === entry);
+        if (existingDoc) {
+          return (parent = existingDoc._collections);
+        }
+
+        const collections = {};
+        parent.push({ id: entry, _collections: collections });
+        return (parent = collections);
       }
-      parentIsCollection = !parentIsCollection;
-    }
+    });
+
     // parent should now be an array of documents
     // Replace existing data, if it's there, or add to the end of the array
     const oldIndex = parent.findIndex(doc => doc.id === docId);
@@ -350,12 +346,12 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
 
   add(object) {
     mockAdd(...arguments);
-    const newDoc = new FakeFirestore.DocumentReference(this._randomId(), this);
+    const newDoc = new FakeFirestore.DocumentReference(_randomId(), this);
     this.firestore._updateData(newDoc.path, object);
     return Promise.resolve(newDoc);
   }
 
-  doc(id = this._randomId()) {
+  doc(id = _randomId()) {
     mockDoc(id);
     return new FakeFirestore.DocumentReference(id, this, this.firestore);
   }
@@ -417,10 +413,6 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
       other.firestore === this.firestore &&
       other.path === this.path
     );
-  }
-
-  _randomId() {
-    return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
   }
 };
 
