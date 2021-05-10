@@ -22,6 +22,7 @@ const timestamp = require('./timestamp');
 const fieldValue = require('./fieldValue');
 const query = require('./query');
 const transaction = require('./transaction');
+const path = require('./path');
 
 const buildDocFromHash = require('./helpers/buildDocFromHash');
 const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
@@ -173,6 +174,7 @@ FakeFirestore.Query = query.Query;
 FakeFirestore.FieldValue = fieldValue.FieldValue;
 FakeFirestore.Timestamp = timestamp.Timestamp;
 FakeFirestore.Transaction = transaction.Transaction;
+FakeFirestore.FieldPath = path.FieldPath;
 
 /*
  * ============
@@ -225,7 +227,7 @@ FakeFirestore.DocumentReference = class {
     }
 
     // Returns an unsubscribe function
-    return () => {};
+    return () => { };
   }
 
   get() {
