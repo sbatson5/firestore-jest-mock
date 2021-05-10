@@ -10,6 +10,7 @@ const mockUpdate = jest.fn();
 const mockSet = jest.fn();
 const mockAdd = jest.fn();
 const mockDelete = jest.fn();
+const mockListDocuments = jest.fn();
 
 const mockBatchDelete = jest.fn();
 const mockBatchCommit = jest.fn();
@@ -397,6 +398,11 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
     return requestedRecords;
   }
 
+  listDocuments() {
+    mockListDocuments();
+    return Promise.resolve([new FakeFirestore.DocumentReference('abc123', this)]);
+  }
+
   get() {
     query.mocks.mockGet(...arguments);
     // Make sure we have a 'good enough' document reference
@@ -434,6 +440,7 @@ module.exports = {
   mockBatchUpdate,
   mockBatchSet,
   mockOnSnapShot,
+  mockListDocuments,
   ...query.mocks,
   ...transaction.mocks,
   ...fieldValue.mocks,
