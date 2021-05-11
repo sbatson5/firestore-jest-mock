@@ -283,10 +283,11 @@ describe('Queries', () => {
 
   test('New documents with random ID', async () => {
     expect.assertions(1);
-    // As per docs, should have 'random' ID, but we'll use our usual 'abc123' for now.
     // See https://firebase.google.com/docs/reference/js/firebase.firestore.CollectionReference#doc
     // "If no path is specified, an automatically-generated unique ID will be used for the returned DocumentReference."
-    const newDoc = db.collection('foo').doc();
-    expect(newDoc.path).toBe('database/foo/abc123');
+    const col = db.collection('characters');
+    const newDoc = col.doc();
+    const otherIds = col.records().map(doc => doc.id);
+    expect(otherIds).not.toContainEqual(newDoc.id);
   });
 });

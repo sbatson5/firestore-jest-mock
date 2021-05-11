@@ -84,7 +84,7 @@ describe('we can start a firebase application', () => {
         })
         .then(function(docRef) {
           expect(mockAdd).toHaveBeenCalled();
-          expect(docRef).toHaveProperty('id', 'abc123');
+          expect(docRef).toHaveProperty('id');
         });
     });
 
@@ -332,7 +332,7 @@ describe('we can start a firebase application', () => {
 
         const record = await recordDoc.get();
         expect(mockGet).toHaveBeenCalled();
-        expect(record).toHaveProperty('id', 'abc123');
+        expect(record).toHaveProperty('id');
         expect(record.data).toBeInstanceOf(Function);
       });
 
