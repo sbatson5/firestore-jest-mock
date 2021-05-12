@@ -71,7 +71,11 @@ function convertTimestamps(data, path = []) {
   if (typeof data === 'object') {
     const keys = Object.keys(data);
     // if it is a timestamp, convert to the appropriate class
-    if (keys.find(k => k === 'seconds') && keys.find(k => k === 'nanoseconds')) {
+    if (
+      keys.length === 2 &&
+      keys.find(k => k === 'seconds') &&
+      keys.find(k => k === 'nanoseconds')
+    ) {
       return new Timestamp(data.seconds, data.nanoseconds);
     } else {
       // Search recursively for any timestamps in this data
