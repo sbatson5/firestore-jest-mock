@@ -9,6 +9,9 @@ const {
   mockSetTransaction,
   mockGet,
   mockGetTransaction,
+  mockGetAll,
+  mockGetAllTransaction,
+  mockCreateTransaction,
 } = require('firestore-jest-mock/mocks/firestore');
 
 describe('Transactions', () => {
@@ -35,9 +38,9 @@ describe('Transactions', () => {
     expect(mockRunTransaction).toHaveBeenCalled();
   });
 
-  test('it returns quickly', async () => {
-    await db.runTransaction(async () => {});
-    expect(true).toBe(true);
+  test('it returns the same value returned by the transaction callback', async () => {
+    const result = await db.runTransaction(() => 'Success!');
+    expect(result).toBe('Success!');
   });
 
   test('it provides a Transaction object', () => {
@@ -74,7 +77,7 @@ describe('Transactions', () => {
     expect(mockSetTransaction).not.toHaveBeenCalled();
     const ref = db.collection('some').doc('body');
 
-    await db.runTransaction(async transaction => {
+    await db.runTransaction(transaction => {
       const newData = { foo: 'bar' };
       const options = { merge: true };
       const result = transaction.set(ref, newData, options);
@@ -90,7 +93,7 @@ describe('Transactions', () => {
     expect(mockUpdateTransaction).not.toHaveBeenCalled();
     const ref = db.collection('some').doc('body');
 
-    await db.runTransaction(async transaction => {
+    await db.runTransaction(transaction => {
       const newData = { foo: 'bar' };
       const result = transaction.update(ref, newData);
 
@@ -112,5 +115,39 @@ describe('Transactions', () => {
       expect(mockDelete).toHaveBeenCalled();
     });
     expect(mockDeleteTransaction).toHaveBeenCalled();
+  });
+
+  test('mockGetAll is accessible', async () => {
+    expect.assertions(4);
+    expect(mockGetAllTransaction).not.toHaveBeenCalled();
+    const ref1 = db.collection('some').doc('body');
+    const ref2 = ref1.collection('once').doc('told');
+
+    await db.runTransaction(async transaction => {
+      // FIXME: getAll is not defined on the client library, so this is a shot in the dark
+      const result = await transaction.getAll(ref1, ref2);
+
+      expect(result).toBeInstanceOf(Array);
+      expect(mockGetAll).toHaveBeenCalled();
+    });
+    expect(mockGetAllTransaction).toHaveBeenCalled();
+  });
+
+  test('mockCreateTransaction is accessible', async () => {
+    expect.assertions(2);
+    expect(mockCreateTransaction).not.toHaveBeenCalled();
+    // Example from documentation
+    // https://googleapis.dev/nodejs/firestore/latest/Transaction.html#create-examples
+
+    await db.runTransaction(async transaction => {
+      const documentRef = db.doc('col/doc');
+      return transaction.get(documentRef).then(doc => {
+        if (!doc.exists) {
+          transaction.create(documentRef, { foo: 'bar' });
+        }
+      });
+    });
+
+    expect(mockCreateTransaction).toHaveBeenCalled();
   });
 });
