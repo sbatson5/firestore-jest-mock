@@ -56,9 +56,12 @@ class Timestamp {
 }
 
 //
-// Search data for possible timestamps and convert to type.
-// we need to avoid self-referencing DB's (can happen on db.get)
+// Search data for possible timestamps and convert to class.
 function convertTimestamps(data, path = []) {
+  if (!data) {
+    return data;
+  }
+  // we need to avoid self-referencing DB's (can happen on db.get)
   // Check we have not looped.  If we have, backout
   if (path.includes(data)) {
     return;
