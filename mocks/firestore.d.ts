@@ -6,20 +6,23 @@ import type { Transaction } from './transaction';
 import type { MockedDocument, DocumentData } from './helpers/buildDocFromHash';
 import type { MockedQuerySnapshot } from './helpers/buildQuerySnapShot';
 
-interface DatabaseDocument {
+interface DatabaseDocument extends DocumentData {
   id: string;
   _collections?: DatabaseCollections;
-  [key: string]: unknown;
 }
 
 interface DatabaseCollections {
   [collectionName: string]: Array<DatabaseDocument> | undefined;
 }
 
+interface SetOptions {
+  merge?: boolean;
+}
+
 interface FirestoreBatch {
   delete(): FirestoreBatch;
-  set(): FirestoreBatch;
-  update(): FirestoreBatch;
+  set(doc: DocumentReference, data: DocumentData, options?: SetOptions): FirestoreBatch;
+  update(doc: DocumentReference, data: DocumentData): FirestoreBatch;
   commit(): Promise<void>;
 }
 
@@ -98,7 +101,7 @@ declare class CollectionReference extends FakeFirestore.Query {
 
   doc(id?: string): DocumentReference;
   get(): Promise<MockedQuerySnapshot>;
-  add(): Promise<DocumentReference>;
+  add(data: DocumentData): Promise<DocumentReference>;
   isEqual(other: CollectionReference): boolean;
 
   /**
