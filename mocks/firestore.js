@@ -26,6 +26,8 @@ const transaction = require('./transaction');
 const buildDocFromHash = require('./helpers/buildDocFromHash');
 const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
 
+const _randomId = () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
+
 class FakeFirestore {
   constructor(stubbedDatabase = {}, options = {}) {
     this.database = stubbedDatabase;
@@ -51,16 +53,19 @@ class FakeFirestore {
   batch() {
     mockBatch(...arguments);
     return {
+      _ref: this,
       delete() {
         mockBatchDelete(...arguments);
         return this;
       },
-      set() {
+      set(doc, data, setOptions = {}) {
         mockBatchSet(...arguments);
+        this._ref._updateData(doc.path, data, setOptions.merge);
         return this;
       },
-      update() {
+      update(doc, data) {
         mockBatchUpdate(...arguments);
+        this._ref._updateData(doc.path, data, true);
         return this;
       },
       commit() {
@@ -115,6 +120,52 @@ class FakeFirestore {
   runTransaction(updateFunction) {
     mockRunTransaction(...arguments);
     return updateFunction(new FakeFirestore.Transaction());
+  }
+
+  _updateData(path, object, merge) {
+    // Do not update unless explicity set to mutable.
+    if (!this.options.mutable) {
+      return;
+    }
+
+    // note: this logic could be deduplicated
+    const pathArray = path
+      .replace(/^\/+/, '')
+      .split('/')
+      .slice(1);
+    // Must be document-level, so even-numbered elements
+    if (pathArray.length % 2) {
+      throw new Error('The path array must be document-level');
+    }
+
+    // The parent entry is the id of the document
+    const docId = pathArray.pop();
+    // Find the parent of docId. Run through the path, creating missing entries
+    const parent = pathArray.reduce((last, entry, index) => {
+      const isCollection = index % 2 === 0;
+      if (isCollection) {
+        return last[entry] || (last[entry] = []);
+      } else {
+        const existingDoc = last.find(doc => doc.id === entry);
+        if (existingDoc) {
+          // return _collections, creating it if it doesn't already exist
+          return existingDoc._collections || (existingDoc._collections = {});
+        }
+
+        const _collections = {};
+        last.push({ id: entry, _collections });
+        return _collections;
+      }
+    }, this.database);
+
+    // parent should now be an array of documents
+    // Replace existing data, if it's there, or add to the end of the array
+    const oldIndex = parent.findIndex(doc => doc.id === docId);
+    parent[oldIndex >= 0 ? oldIndex : parent.length] = {
+      ...(merge ? parent[oldIndex] : undefined),
+      ...object,
+      id: docId,
+    };
   }
 }
 
@@ -179,53 +230,21 @@ FakeFirestore.DocumentReference = class {
 
   get() {
     query.mocks.mockGet(...arguments);
-    // Ignore leading slash
-    const pathArray = this.path.replace(/^\/+/, '').split('/');
-
-    pathArray.shift(); // drop 'database'; it's always first
-    let requestedRecords = this.firestore.database[pathArray.shift()];
-    let document = null;
-    if (requestedRecords) {
-      const documentId = pathArray.shift();
-      document = requestedRecords.find(record => record.id === documentId);
-    } else {
-      return Promise.resolve({ exists: false, data: () => undefined, id: this.id });
-    }
-
-    for (let index = 0; index < pathArray.length; index += 2) {
-      const collectionId = pathArray[index];
-      const documentId = pathArray[index + 1];
-
-      if (!document || !document._collections) {
-        return Promise.resolve({ exists: false, data: () => undefined, id: this.id });
-      }
-      requestedRecords = document._collections[collectionId] || [];
-      if (requestedRecords.length === 0) {
-        return Promise.resolve({ exists: false, data: () => undefined, id: this.id });
-      }
-
-      document = requestedRecords.find(record => record.id === documentId);
-      if (!document) {
-        return Promise.resolve({ exists: false, data: () => undefined, id: this.id });
-      }
-
-      // +2 skips to next document
-    }
-
-    if (!!document || false) {
-      document._ref = this;
-      return Promise.resolve(buildDocFromHash(document));
-    }
-    return Promise.resolve({ exists: false, data: () => undefined, id: this.id, ref: this });
+    const data = this._get();
+    return Promise.resolve(data);
   }
 
   update(object) {
     mockUpdate(...arguments);
+    if (this._get().exists) {
+      this.firestore._updateData(this.path, object, true);
+    }
     return Promise.resolve(buildDocFromHash({ ...object, _ref: this }));
   }
 
-  set(object) {
+  set(object, setOptions = {}) {
     mockSet(...arguments);
+    this.firestore._updateData(this.path, object, setOptions.merge);
     return Promise.resolve(buildDocFromHash({ ...object, _ref: this }));
   }
 
@@ -257,6 +276,47 @@ FakeFirestore.DocumentReference = class {
     return this.query.startAt(...arguments);
   }
 
+  _get() {
+    // Ignore leading slash
+    const pathArray = this.path.replace(/^\/+/, '').split('/');
+
+    pathArray.shift(); // drop 'database'; it's always first
+    let requestedRecords = this.firestore.database[pathArray.shift()];
+    let document = null;
+    if (requestedRecords) {
+      const documentId = pathArray.shift();
+      document = requestedRecords.find(record => record.id === documentId);
+    } else {
+      return { exists: false, data: () => undefined, id: this.id };
+    }
+
+    for (let index = 0; index < pathArray.length; index += 2) {
+      const collectionId = pathArray[index];
+      const documentId = pathArray[index + 1];
+
+      if (!document || !document._collections) {
+        return { exists: false, data: () => undefined, id: this.id };
+      }
+      requestedRecords = document._collections[collectionId] || [];
+      if (requestedRecords.length === 0) {
+        return { exists: false, data: () => undefined, id: this.id };
+      }
+
+      document = requestedRecords.find(record => record.id === documentId);
+      if (!document) {
+        return { exists: false, data: () => undefined, id: this.id };
+      }
+
+      // +2 skips to next document
+    }
+
+    if (!!document || false) {
+      document._ref = this;
+      return buildDocFromHash(document);
+    }
+    return { exists: false, data: () => undefined, id: this.id, ref: this };
+  }
+
   withConverter() {
     query.mocks.mockWithConverter(...arguments);
     return this;
@@ -282,12 +342,14 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
     }
   }
 
-  add() {
+  add(object) {
     mockAdd(...arguments);
-    return Promise.resolve(new FakeFirestore.DocumentReference('abc123', this));
+    const newDoc = new FakeFirestore.DocumentReference(_randomId(), this);
+    this.firestore._updateData(newDoc.path, object);
+    return Promise.resolve(newDoc);
   }
 
-  doc(id = 'abc123') {
+  doc(id = _randomId()) {
     mockDoc(id);
     return new FakeFirestore.DocumentReference(id, this, this.firestore);
   }
