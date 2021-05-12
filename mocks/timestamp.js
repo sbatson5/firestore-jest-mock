@@ -55,8 +55,39 @@ class Timestamp {
   }
 }
 
+//
+// Search data for possible timestamps and convert to type.
+// we need to avoid self-referencing DB's (can happen on db.get)
+function convertTimestamps(data, path = []) {
+  // Check we have not looped.  If we have, backout
+  if (path.includes(data)) {
+    return;
+  }
+
+  // Check if this object is or contains a timestamp
+  if (typeof data === 'object') {
+    const keys = Object.keys(data);
+    // if it is a timestamp, convert to the appropriate class
+    if (keys.find(k => k === 'seconds') && keys.find(k => k === 'nanoseconds')) {
+      return new Timestamp(data.seconds, data.nanoseconds);
+    } else {
+      // Search recursively for any timestamps in this data
+      // Keep track of the path taken, so we can avoid self-referencing loops
+      // Note: running full-setup.test.js will fail without this check
+      // add console.log(`${path} => ${k}`); to see how this class is added as a property
+      path.push(data);
+      keys.forEach(k => {
+        data[k] = convertTimestamps(data[k], path);
+      });
+      path.pop();
+    }
+  }
+  return data;
+}
+
 module.exports = {
   Timestamp,
+  convertTimestamps,
   mocks: {
     mockTimestampToDate,
     mockTimestampToMillis,

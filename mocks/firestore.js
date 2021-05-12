@@ -30,7 +30,7 @@ const _randomId = () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toSt
 
 class FakeFirestore {
   constructor(stubbedDatabase = {}, options = {}) {
-    this.database = this.convertTimestamps(stubbedDatabase);
+    this.database = timestamp.convertTimestamps(stubbedDatabase);
     this.query = new query.Query('', this);
     this.options = options;
   }
@@ -320,36 +320,6 @@ FakeFirestore.DocumentReference = class {
   withConverter() {
     query.mocks.mockWithConverter(...arguments);
     return this;
-  }
-
-  //
-  // Search data for possible timestamps and convert to type.
-  // we need to avoid self-referencing DB's (is that even legal?)
-  convertTimestamps(data, path = []) {
-    // Check we have not looped.  If we have, backout
-    if (path.includes(data)) {
-      return;
-    }
-
-    // Check if this object is or contains a timestamp
-    if (typeof data === 'object') {
-      const keys = Object.keys(data);
-      // if it is a timestamp, convert to the appropriate class
-      if (keys.find(k => k === 'seconds') && keys.find(k => k === 'nanoseconds')) {
-        return new timestamp.Timestamp(data.seconds, data.nanoseconds);
-      } else {
-        // Search recursively for any timestamps in this data
-        // Keep track of the path taken, so we can avoid self-referencing loops
-        // Note: running full-setup.test.js will fail without this check
-        // add console.log(`${path} => ${k}`); to see how this class is added as a property
-        path.push(data);
-        keys.forEach(k => {
-          data[k] = this.convertTimestamps(data[k], path);
-        });
-        path.pop();
-      }
-    }
-    return data;
   }
 };
 
