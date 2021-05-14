@@ -13,6 +13,7 @@ const firestoreStub = (overrides, options = defaultOptions) => {
     CollectionReference: FakeFirestore.CollectionReference,
     DocumentReference: FakeFirestore.DocumentReference,
     FieldValue: FakeFirestore.FieldValue,
+    FieldPath: FakeFirestore.FieldPath,
     Timestamp: FakeFirestore.Timestamp,
     Transaction: FakeFirestore.Transaction,
     /** @type {Firestore.constructor} */

@@ -11,6 +11,7 @@ interface GCloudFirestoreMock {
   CollectionReference: typeof Firestore.CollectionReference;
   DocumentReference: typeof Firestore.DocumentReference;
   FieldValue: typeof Firestore.FieldValue;
+  FieldPath: typeof Firestore.FieldPath;
   Timestamp: typeof Firestore.Timestamp;
   Transaction: typeof Firestore.Transaction;
 }
