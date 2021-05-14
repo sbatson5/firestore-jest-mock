@@ -85,7 +85,7 @@ describe('we can start a firebase application', () => {
           last: 'Lovelace',
           born: 1815,
         })
-        .then(docRef => {
+        .then(function(docRef) {
           expect(mockAdd).toHaveBeenCalled();
           expect(docRef).toHaveProperty('id');
           expect(docRef).toHaveProperty('path', `users/${docRef.id}`);
@@ -117,17 +117,18 @@ describe('we can start a firebase application', () => {
     });
 
     test('collectionGroup with collections only at root', () => {
-      const db = this.firebase.firestore();
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/query-data/queries#collection-group-query
 
-      return db
+      jest.clearAllMocks();
+      return this.firebase
+        .firestore()
         .collectionGroup('users')
         .where('last', '==', 'builder')
         .get()
         .then(querySnapshot => {
           expect(mockCollectionGroup).toHaveBeenCalledWith('users');
-          expect(mockGet).toHaveBeenCalled();
+          expect(mockGet).toHaveBeenCalledTimes(1);
           expect(mockWhere).toHaveBeenCalledWith('last', '==', 'builder');
 
           expect(querySnapshot.forEach).toBeTruthy();
@@ -142,14 +143,15 @@ describe('we can start a firebase application', () => {
     });
 
     test('collectionGroup with subcollections', () => {
-      const db = this.firebase.firestore();
-      return db
+      jest.clearAllMocks();
+      return this.firebase
+        .firestore()
         .collectionGroup('cities')
         .where('country', '==', 'USA')
         .get()
         .then(querySnapshot => {
           expect(mockCollectionGroup).toHaveBeenCalledWith('cities');
-          expect(mockGet).toHaveBeenCalled();
+          expect(mockGet).toHaveBeenCalledTimes(1);
           expect(mockWhere).toHaveBeenCalledWith('country', '==', 'USA');
 
           expect(querySnapshot.forEach).toBeTruthy();

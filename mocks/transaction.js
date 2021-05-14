@@ -17,7 +17,7 @@ class Transaction {
 
   get(ref) {
     mockGetTransaction(...arguments);
-    return ref.get();
+    return Promise.resolve(ref._get());
   }
 
   set(ref) {

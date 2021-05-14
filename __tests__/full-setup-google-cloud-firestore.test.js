@@ -109,6 +109,7 @@ describe('we can start a firestore application', () => {
     });
 
     test('collectionGroup with subcollections', () => {
+      jest.clearAllMocks();
       const firestore = new this.Firestore();
 
       return firestore
@@ -117,7 +118,7 @@ describe('we can start a firestore application', () => {
         .get()
         .then(querySnapshot => {
           expect(mockCollectionGroup).toHaveBeenCalledWith('cities');
-          expect(mockGet).toHaveBeenCalled();
+          expect(mockGet).toHaveBeenCalledTimes(1);
           expect(mockWhere).toHaveBeenCalledWith('country', '==', 'USA');
 
           expect(querySnapshot.forEach).toBeTruthy();

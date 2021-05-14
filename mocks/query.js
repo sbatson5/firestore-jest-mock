@@ -20,7 +20,11 @@ class Query {
 
   get() {
     mockGet(...arguments);
+    const results = this._get();
+    return Promise.resolve(results);
+  }
 
+  _get() {
     // Use BFS to find all records in collections that match collectionName
     const requestedRecords = [];
 
@@ -54,7 +58,7 @@ class Query {
       });
     }
 
-    return Promise.resolve(buildQuerySnapShot(requestedRecords, this.filters));
+    return buildQuerySnapShot(requestedRecords, this.filters);
   }
 
   where(key, comp, value) {
@@ -90,9 +94,7 @@ class Query {
     mockQueryOnSnapshot(...arguments);
     const [callback, errorCallback] = arguments;
     try {
-      this.get().then(result => {
-        callback(result);
-      });
+      callback(this._get());
     } catch (e) {
       errorCallback(e);
     }

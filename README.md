@@ -84,7 +84,7 @@ mockFirebase({
 });
 ```
 
-This will populate a fake read-only database with a `users` and `posts` collection.
+This will populate a fake database with a `users` and `posts` collection. This database is read-only by default, meaning that any Firestore write calls will not actually persist across invocations.
 
 Now you can write queries or requests for data just as you would with Firestore:
 
@@ -204,7 +204,7 @@ test('testing stuff', () => {
 
 ### What would you want to test?
 
-The job of the this library is not to test Firestore, but to allow you to test your code without hitting Firebase servers or booting a local emulator. Since this allows the full test stack to run on plain JavaScript calls, unit tests are quick and easy to write and to execute.
+The job of the this library is not to test Firestore, but to allow you to test your code without hitting Firebase servers or booting a local emulator. Since this package simulates most of the Firestore interface in plain JavaScript, unit tests can be quick and easy both to write and to execute.
 
 Take this example:
 
