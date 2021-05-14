@@ -209,7 +209,7 @@ FakeFirestore.DocumentReference = class {
       if (typeof arguments[0] === 'function') {
         [callback, errorCallback] = arguments;
       } else {
-        // eslint-disable-next-line
+        // eslint-disable-next-line no-unused-vars
         [options, callback, errorCallback] = arguments;
       }
 
