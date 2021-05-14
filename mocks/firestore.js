@@ -228,7 +228,7 @@ FakeFirestore.DocumentReference = class {
     }
 
     // Returns an unsubscribe function
-    return () => { };
+    return () => {};
   }
 
   get() {
@@ -400,7 +400,7 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
 
   listDocuments() {
     mockListDocuments();
-    return Promise.resolve([new FakeFirestore.DocumentReference('abc123', this)]);
+    return Promise.resolve([new FakeFirestore.DocumentReference(_randomId(), this)]);
   }
 
   get() {

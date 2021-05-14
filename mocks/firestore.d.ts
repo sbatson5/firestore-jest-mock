@@ -2,6 +2,7 @@ import type { FieldValue } from './fieldValue';
 import type { Query } from './query';
 import type { Timestamp } from './timestamp';
 import type { Transaction } from './transaction';
+import type { FieldPath } from './path'
 
 import type { MockedDocument, DocumentData } from './helpers/buildDocFromHash';
 import type { MockedQuerySnapshot } from './helpers/buildQuerySnapShot';
@@ -33,6 +34,7 @@ export class FakeFirestore {
   static Timestamp: typeof Timestamp
   static Query: typeof Query;
   static Transaction: typeof Transaction;
+  static FieldPath: typeof FieldPath;
 
   static DocumentReference: typeof DocumentReference;
   static CollectionReference: typeof CollectionReference;
@@ -125,6 +127,7 @@ export const mockAdd: jest.Mock;
 export const mockDelete: jest.Mock;
 export const mockSettings: jest.Mock;
 export const mockUseEmulator: jest.Mock;
+export const mockListDocuments: jest.Mock;
 
 export const mockBatchDelete: jest.Mock;
 export const mockBatchCommit: jest.Mock;
