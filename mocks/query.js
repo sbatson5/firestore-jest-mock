@@ -8,6 +8,7 @@ const mockOffset = jest.fn();
 const mockStartAfter = jest.fn();
 const mockStartAt = jest.fn();
 const mockQueryOnSnapshot = jest.fn();
+const mockWithConverter = jest.fn();
 
 class Query {
   constructor(collectionName, firestore, isGroupQuery = false) {
@@ -81,6 +82,10 @@ class Query {
     return mockStartAt(...arguments) || this;
   }
 
+  withConverter() {
+    return mockWithConverter(...arguments) || this;
+  }
+
   onSnapshot() {
     mockQueryOnSnapshot(...arguments);
     const [callback, errorCallback] = arguments;
@@ -108,5 +113,6 @@ module.exports = {
     mockStartAfter,
     mockStartAt,
     mockQueryOnSnapshot,
+    mockWithConverter,
   },
 };

@@ -9,7 +9,12 @@ describe('Queries', () => {
 
   const db = new FakeFirestore({
     characters: [
-      { id: 'homer', name: 'Homer', occupation: 'technician' },
+      {
+        id: 'homer',
+        name: 'Homer',
+        occupation: 'technician',
+        address: { street: '742 Evergreen Terrace' },
+      },
       { id: 'krusty', name: 'Krusty', occupation: 'clown' },
       {
         id: 'bob',
@@ -69,6 +74,10 @@ describe('Queries', () => {
           expect(data).toBeDefined();
           expect(data).toHaveProperty('name', 'Homer');
           expect(data).toHaveProperty('occupation', 'technician');
+
+          expect(record.get('name')).toEqual('Homer');
+          expect(record.get('address.street')).toEqual('742 Evergreen Terrace');
+          expect(record.get('address.street.doesntExist')).toBeNull();
         }));
 
     test('it can fetch a single record with a promise without a specified collection', () =>
@@ -291,10 +300,12 @@ describe('Queries', () => {
 
   test('New documents with random ID', async () => {
     expect.assertions(1);
-    // As per docs, should have 'random' ID, but we'll use our usual 'abc123' for now.
     // See https://firebase.google.com/docs/reference/js/firebase.firestore.CollectionReference#doc
     // "If no path is specified, an automatically-generated unique ID will be used for the returned DocumentReference."
-    const newDoc = db.collection('foo').doc();
-    expect(newDoc).toHaveProperty('path', 'foo/abc123');
+    const col = db.collection('characters');
+    const newDoc = col.doc();
+    const otherIds = col.records().map(doc => doc.id);
+    expect(otherIds).not.toContainEqual(newDoc.id);
+    expect(newDoc).toHaveProperty('path', `foo/${newDoc.id}`);
   });
 });
