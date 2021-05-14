@@ -113,12 +113,12 @@ describe('we can start a firestore application', () => {
 
       return firestore
         .collectionGroup('cities')
-        .where('type', '==', 'museum')
+        .where('country', '==', 'USA')
         .get()
         .then(querySnapshot => {
           expect(mockCollectionGroup).toHaveBeenCalledWith('cities');
           expect(mockGet).toHaveBeenCalled();
-          expect(mockWhere).toHaveBeenCalledWith('type', '==', 'museum');
+          expect(mockWhere).toHaveBeenCalledWith('country', '==', 'USA');
 
           expect(querySnapshot.forEach).toBeTruthy();
           expect(querySnapshot.docs.length).toBe(3);

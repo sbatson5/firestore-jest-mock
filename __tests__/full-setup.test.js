@@ -335,7 +335,7 @@ describe('we can start a firebase application', () => {
 
         expect(mockCollection).toHaveBeenCalledWith('cities');
         expect(mockWithConverter).toHaveBeenCalledWith(converter);
-        expect(mockDoc).toHaveBeenCalledWith('abc123');
+        expect(mockDoc).toHaveBeenCalled();
         expect(recordDoc).toBeInstanceOf(FakeFirestore.DocumentReference);
 
         const record = await recordDoc.get();

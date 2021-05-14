@@ -164,13 +164,11 @@ class FakeFirestore {
     }
 
     // note: this logic could be deduplicated
-    const pathArray = path
-      .replace(/^\/+/, '')
-      .split('/')
-      .slice(1);
+    const pathArray = path.replace(/^\/+/, '').split('/');
+
     // Must be document-level, so even-numbered elements
-    if (pathArray.length % 2) {
-      throw new Error('The path array must be document-level');
+    if (pathArray.length % 2 !== 0) {
+      throw new Error(`The path array must be document-level. Received '${pathArray.join('/')}'`);
     }
 
     // The parent entry is the id of the document
@@ -220,7 +218,10 @@ FakeFirestore.DocumentReference = class {
     this.id = id;
     this.parent = parent;
     this.firestore = parent.firestore;
-    this.path = parent.path.concat(`/${id}`).replace(/^\/+/, '');
+    this.path = parent.path
+      .split('/')
+      .concat(id)
+      .join('/');
   }
 
   collection(collectionName) {
@@ -316,15 +317,16 @@ FakeFirestore.DocumentReference = class {
     const pathArray = this.path.replace(/^\/+/, '').split('/');
 
     if (pathArray[0] === 'database') {
-      pathArray.shift(); // drop 'database'; it's always first
+      pathArray.shift(); // drop 'database'; it was included in legacy paths, but we don't need it now
     }
+
     let requestedRecords = this.firestore.database[pathArray.shift()];
     let document = null;
     if (requestedRecords) {
       const documentId = pathArray.shift();
       document = requestedRecords.find(record => record.id === documentId);
     } else {
-      return Promise.resolve({ exists: false, data: () => undefined, id: this.id, ref: this });
+      return { exists: false, data: () => undefined, id: this.id, ref: this };
     }
 
     for (let index = 0; index < pathArray.length; index += 2) {
@@ -332,16 +334,16 @@ FakeFirestore.DocumentReference = class {
       const documentId = pathArray[index + 1];
 
       if (!document || !document._collections) {
-        return Promise.resolve({ exists: false, data: () => undefined, id: this.id, ref: this });
+        return { exists: false, data: () => undefined, id: this.id, ref: this };
       }
       requestedRecords = document._collections[collectionId] || [];
       if (requestedRecords.length === 0) {
-        return Promise.resolve({ exists: false, data: () => undefined, id: this.id, ref: this });
+        return { exists: false, data: () => undefined, id: this.id, ref: this };
       }
 
       document = requestedRecords.find(record => record.id === documentId);
       if (!document) {
-        return Promise.resolve({ exists: false, data: () => undefined, id: this.id, ref: this });
+        return { exists: false, data: () => undefined, id: this.id, ref: this };
       }
 
       // +2 skips to next document
@@ -349,48 +351,9 @@ FakeFirestore.DocumentReference = class {
 
     if (!!document || false) {
       document._ref = this;
-      return Promise.resolve(buildDocFromHash(document));
+      return buildDocFromHash(document);
     }
-    return Promise.resolve({ exists: false, data: () => undefined, id: this.id, ref: this });
-
-    // // Ignore leading slash
-    // const pathArray = this.path.replace(/^\/+/, '').split('/');
-
-    // pathArray.shift(); // drop 'database'; it's always first
-    // let requestedRecords = this.firestore.database[pathArray.shift()];
-    // let document = null;
-    // if (requestedRecords) {
-    //   const documentId = pathArray.shift();
-    //   document = requestedRecords.find(record => record.id === documentId);
-    // } else {
-    //   return { exists: false, data: () => undefined, id: this.id };
-    // }
-
-    // for (let index = 0; index < pathArray.length; index += 2) {
-    //   const collectionId = pathArray[index];
-    //   const documentId = pathArray[index + 1];
-
-    //   if (!document || !document._collections) {
-    //     return { exists: false, data: () => undefined, id: this.id };
-    //   }
-    //   requestedRecords = document._collections[collectionId] || [];
-    //   if (requestedRecords.length === 0) {
-    //     return { exists: false, data: () => undefined, id: this.id };
-    //   }
-
-    //   document = requestedRecords.find(record => record.id === documentId);
-    //   if (!document) {
-    //     return { exists: false, data: () => undefined, id: this.id };
-    //   }
-
-    //   // +2 skips to next document
-    // }
-
-    // if (!!document || false) {
-    //   document._ref = this;
-    //   return buildDocFromHash(document);
-    // }
-    // return { exists: false, data: () => undefined, id: this.id, ref: this };
+    return { exists: false, data: () => undefined, id: this.id, ref: this };
   }
 
   withConverter() {
@@ -474,7 +437,7 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
     // Make sure we have a 'good enough' document reference
     const records = this._records();
     records.forEach(rec => {
-      rec._ref = this.doc(rec.id);
+      rec._ref = new FakeFirestore.DocumentReference(rec.id, this, this.firestore);
     });
     return Promise.resolve(buildQuerySnapShot(records, this.filters));
   }

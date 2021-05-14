@@ -299,12 +299,12 @@ describe('Queries', () => {
   });
 
   test('New documents with random ID', async () => {
-    expect.assertions(1);
+    expect.assertions(2);
     // See https://firebase.google.com/docs/reference/js/firebase.firestore.CollectionReference#doc
     // "If no path is specified, an automatically-generated unique ID will be used for the returned DocumentReference."
-    const col = db.collection('characters');
+    const col = db.collection('foo');
     const newDoc = col.doc();
-    const otherIds = col.records().map(doc => doc.id);
+    const otherIds = col._records().map(doc => doc.id);
     expect(otherIds).not.toContainEqual(newDoc.id);
     expect(newDoc).toHaveProperty('path', `foo/${newDoc.id}`);
   });

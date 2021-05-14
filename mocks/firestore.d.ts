@@ -109,10 +109,10 @@ declare class CollectionReference extends FakeFirestore.Query {
    * the list of database records referenced by this CollectionReference.
    * @returns An array of mocked document records.
    */
-  private records(): Array<MockedDocument>
+  private _records(): Array<MockedDocument>
 }
 
-// Mocks defined here
+// Mocks defined in this file
 export const mockBatch: jest.Mock;
 export const mockRunTransaction: jest.Mock;
 
