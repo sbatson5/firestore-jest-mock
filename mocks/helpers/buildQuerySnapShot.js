@@ -28,7 +28,7 @@ module.exports = function buildQuerySnapShot(requestedRecords, filters) {
         // https://firebase.google.com/docs/firestore/query-data/queries#query_operators
         case '<':
           results = results.filter(record => {
-            if (!record || (!record[key] && record[key] !== 0)) {
+            if (!record || record[key] === undefined) {
               return false;
             }
             return String(record[key]) < String(value);
@@ -36,7 +36,7 @@ module.exports = function buildQuerySnapShot(requestedRecords, filters) {
           break;
         case '<=':
           results = results.filter(record => {
-            if (!record || (!record[key] && record[key] !== 0)) {
+            if (!record || record[key] === undefined) {
               return false;
             }
             return String(record[key]) <= String(value);
@@ -44,7 +44,7 @@ module.exports = function buildQuerySnapShot(requestedRecords, filters) {
           break;
         case '==':
           results = results.filter(record => {
-            if (!record || (!record[key] && record[key] !== 0)) {
+            if (!record || record[key] === undefined) {
               return false;
             }
             return String(record[key]) === String(value);
@@ -52,7 +52,7 @@ module.exports = function buildQuerySnapShot(requestedRecords, filters) {
           break;
         case '>=':
           results = results.filter(record => {
-            if (!record || (!record[key] && record[key] !== 0)) {
+            if (!record || record[key] === undefined) {
               return false;
             }
             return String(record[key]) >= String(value);
@@ -60,7 +60,7 @@ module.exports = function buildQuerySnapShot(requestedRecords, filters) {
           break;
         case '>':
           results = results.filter(record => {
-            if (!record || (!record[key] && record[key] !== 0)) {
+            if (!record || record[key] === undefined) {
               return false;
             }
             return String(record[key]) > String(value);
@@ -79,7 +79,7 @@ module.exports = function buildQuerySnapShot(requestedRecords, filters) {
         // TODO: Throw an error when a value is passed that contains more than 10 values
         case 'in':
           results = results.filter(record => {
-            if (!record || (!record[key] && record[key] !== 0)) {
+            if (!record || record[key] === undefined) {
               return false;
             }
             return value && Array.isArray(value) && value.includes(record[key]);

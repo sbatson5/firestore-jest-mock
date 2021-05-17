@@ -60,6 +60,16 @@ describe('Queries', () => {
             ],
           },
         },
+        {
+          id: 'worm',
+          name: 'worm',
+          legCount: null,
+        },
+        {
+          id: 'pogo-stick',
+          name: 'pogo-stick',
+          food: false,
+        },
       ],
       foodSchedule: [
         { id: 'ants', interval: 'daily' },
@@ -123,6 +133,30 @@ describe('Queries', () => {
     expect(mockCollection).toHaveBeenCalledWith('animals');
     expect(mockDoc).toHaveBeenCalledWith('monkey');
     expect(mockGet).toHaveBeenCalled();
+  });
+
+  test('it can query null values', async () => {
+    const noLegs = await db
+      .collection('animals')
+      .where('legCount', '==', null)
+      .get();
+
+    expect(noLegs).toHaveProperty('size', 1);
+    const worm = noLegs.docs[0];
+    expect(worm).toBeDefined();
+    expect(worm).toHaveProperty('id', 'worm');
+  });
+
+  test('it can query false values', async () => {
+    const noFood = await db
+      .collection('animals')
+      .where('food', '==', false)
+      .get();
+
+    expect(noFood).toHaveProperty('size', 1);
+    const pogoStick = noFood.docs[0];
+    expect(pogoStick).toBeDefined();
+    expect(pogoStick).toHaveProperty('id', 'pogo-stick');
   });
 
   test('it can query multiple documents', async () => {
@@ -249,10 +283,10 @@ describe('Queries', () => {
       ${'=='} | ${4}      | ${1}
       ${'=='} | ${6}      | ${1}
       ${'=='} | ${7}      | ${0}
-      ${'>'}  | ${1}      | ${4}
-      ${'>'}  | ${6}      | ${0}
-      ${'>='} | ${6}      | ${1}
-      ${'>='} | ${0}      | ${4}
+      ${'>'}  | ${1}      | ${5}
+      ${'>'}  | ${6}      | ${1}
+      ${'>='} | ${6}      | ${2}
+      ${'>='} | ${0}      | ${5}
       ${'<'}  | ${2}      | ${0}
       ${'<'}  | ${6}      | ${3}
       ${'<='} | ${2}      | ${2}
@@ -291,7 +325,7 @@ describe('Queries', () => {
       ${'in'} | ${[2, 0]} | ${2}
     `(
       // eslint-disable-next-line quotes
-      "it performs '$comp' queries on possibly-zero number values ($count doc(s) where foodCount $comp $value)",
+      "it performs '$comp' queries on number values that may be zero ($count doc(s) where foodCount $comp $value)",
       async ({ comp, value, count }) => {
         const results = await db
           .collection('animals')
@@ -361,7 +395,7 @@ describe('Queries', () => {
       ${'array-contains-any'} | ${[0, 11, 500]} | ${2}
     `(
       // eslint-disable-next-line quotes
-      "it performs '$comp' queries on possibly-zero array values ($count doc(s) where foodEaten $comp '$value')",
+      "it performs '$comp' queries on array values that may be zero ($count doc(s) where foodEaten $comp '$value')",
       async ({ comp, value, count }) => {
         const results = await db
           .collection('animals')
