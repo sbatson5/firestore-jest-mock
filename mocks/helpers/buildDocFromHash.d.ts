@@ -1,14 +1,14 @@
 import type { FakeFirestore, FakeFirestoreDatabase } from '../firestore';
 
-export type DocumentData = { [field: string]: unknown };
+type DocumentData = { [field: string]: unknown };
 
-export interface DocumentHash extends DocumentData {
+interface DocumentHash extends DocumentData {
   id?: string;
   _collections: FakeFirestoreDatabase;
   _ref: typeof FakeFirestore.DocumentReference;
 }
 
-export interface MockedDocument<T = DocumentData> {
+interface MockedDocument<T = DocumentData> {
   exists: boolean;
   id: string;
   ref: typeof FakeFirestore.DocumentReference;
@@ -19,4 +19,10 @@ export interface MockedDocument<T = DocumentData> {
   get(fieldPath: string): unknown;
 }
 
-export default function buildDocFromHash(hash?: DocumentHash, id?: string): MockedDocument;
+declare function buildDocFromHash(hash?: DocumentHash, id?: string): MockedDocument;
+
+// Export in the way that Node require() expects
+declare module 'buildDocFromHash' {
+  export { DocumentData, DocumentHash, MockedDocument };
+  export = buildDocFromHash;
+}

@@ -1,14 +1,14 @@
 import type { MockedDocument, DocumentHash } from './buildDocFromHash';
 
-export type Comparator = '<' | '<=' | '==' | '>=' | '>' | 'array-contains' | 'in' | 'array-contains-any';
+type Comparator = '<' | '<=' | '==' | '>=' | '>' | 'array-contains' | 'in' | 'array-contains-any';
 
-export interface QueryFilter {
+interface QueryFilter {
   key: string;
   comp: Comparator;
   value: string;
 }
 
-export interface MockedQuerySnapshot<Doc = MockedDocument> {
+interface MockedQuerySnapshot<Doc = MockedDocument> {
   empty: boolean;
   size: number;
   docs: Array<Doc>;
@@ -22,7 +22,13 @@ export interface MockedQuerySnapshot<Doc = MockedDocument> {
  * @param requestedRecords
  * @param filters
  */
-export default function buildQuerySnapShot(
+declare function buildQuerySnapShot(
   requestedRecords: Array<DocumentHash>,
   filters?: Array<QueryFilter>
 ): MockedQuerySnapshot;
+
+// Export in the way that Node require() expects
+declare module 'buildQuerySnapShot' {
+  export { Comparator, QueryFilter, MockedQuerySnapshot };
+  export = buildQuerySnapShot;
+}
