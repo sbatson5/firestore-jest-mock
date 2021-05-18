@@ -44,7 +44,7 @@ class Query {
             const path = `${lastParent}/${doc.id}`;
             return {
               ...doc,
-              _ref: this.firestore.doc(path),
+              _ref: this.firestore._doc(path),
             };
           });
           requestedRecords.push(...docHashes);

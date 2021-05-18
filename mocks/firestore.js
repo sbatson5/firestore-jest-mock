@@ -124,9 +124,13 @@ class FakeFirestore {
   }
 
   doc(path) {
+    mockDoc(path);
+    return this._doc(path);
+  }
+
+  _doc(path) {
     // Accept any document path
     // See https://firebase.google.com/docs/reference/js/firebase.firestore.Firestore#doc
-    mockDoc(path);
 
     if (!path) {
       throw new Error(`A document-path must be document-level. Received ''`);
