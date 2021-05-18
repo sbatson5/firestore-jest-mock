@@ -85,6 +85,12 @@ mockFirebase({
 });
 ```
 
+If you are using TypeScript, you can import `mockFirebase` using ES module syntax:
+
+```TypeScript
+import { mockFirebase } from 'firestore-jest-mock';
+```
+
 This will populate a fake database with a `users` and `posts` collection. This database is read-only by default, meaning that any Firestore write calls will not actually persist across invocations.
 
 Now you can write queries or requests for data just as you would with Firestore:
@@ -107,6 +113,14 @@ test('testing stuff', () => {
     });
 });
 ```
+
+In TypeScript, you would import `mockCollection` using ES module syntax:
+
+```TypeScript
+import { mockCollection } from 'firestore-jest-mock/mocks/firestore';
+```
+
+The other mock functions may be imported similarly.
 
 ### `@google-cloud/firestore` compatibility
 
