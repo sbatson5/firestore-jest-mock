@@ -9,106 +9,109 @@ const {
 const { mockFirebase } = require('firestore-jest-mock');
 
 describe('Queries', () => {
-  mockFirebase({
-    database: {
-      animals: [
-        {
-          id: 'monkey',
-          name: 'monkey',
-          type: 'mammal',
-          legCount: 2,
-          food: ['banana', 'mango'],
-          foodCount: 1,
-          foodEaten: [500, 20],
-        },
-        {
-          id: 'elephant',
-          name: 'elephant',
-          type: 'mammal',
-          legCount: 4,
-          food: ['banana', 'peanut'],
-          foodCount: 0,
-          foodEaten: [0, 500],
-        },
-        {
-          id: 'chicken',
-          name: 'chicken',
-          type: 'bird',
-          legCount: 2,
-          food: ['leaf', 'nut', 'ant'],
-          foodCount: 4,
-          foodEaten: [80, 20, 16],
-        },
-        {
-          id: 'ant',
-          name: 'ant',
-          type: 'insect',
-          legCount: 6,
-          food: ['leaf', 'bread'],
-          foodCount: 2,
-          foodEaten: [80, 12],
-          _collections: {
-            foodSchedule: [
-              {
-                id: 'leaf',
-                interval: 'daily',
-              },
-              {
-                id: 'peanut',
-                interval: 'weekly',
-              },
-            ],
+  mockFirebase(
+    {
+      database: {
+        animals: [
+          {
+            id: 'monkey',
+            name: 'monkey',
+            type: 'mammal',
+            legCount: 2,
+            food: ['banana', 'mango'],
+            foodCount: 1,
+            foodEaten: [500, 20],
           },
-        },
-        {
-          id: 'worm',
-          name: 'worm',
-          legCount: null,
-        },
-        {
-          id: 'pogo-stick',
-          name: 'pogo-stick',
-          food: false,
-        },
-      ],
-      foodSchedule: [
-        { id: 'ants', interval: 'daily' },
-        { id: 'cows', interval: 'twice daily' },
-      ],
-      nested: [
-        {
-          id: 'collections',
-          _collections: {
-            have: [
-              {
-                id: 'lots',
-                _collections: {
-                  of: [
-                    {
-                      id: 'applications',
-                      _collections: {
-                        foodSchedule: [
-                          {
-                            id: 'layer4_a',
-                            interval: 'daily',
-                          },
-                          {
-                            id: 'layer4_b',
-                            interval: 'weekly',
-                          },
-                        ],
-                      },
-                    },
-                  ],
+          {
+            id: 'elephant',
+            name: 'elephant',
+            type: 'mammal',
+            legCount: 4,
+            food: ['banana', 'peanut'],
+            foodCount: 0,
+            foodEaten: [0, 500],
+          },
+          {
+            id: 'chicken',
+            name: 'chicken',
+            type: 'bird',
+            legCount: 2,
+            food: ['leaf', 'nut', 'ant'],
+            foodCount: 4,
+            foodEaten: [80, 20, 16],
+          },
+          {
+            id: 'ant',
+            name: 'ant',
+            type: 'insect',
+            legCount: 6,
+            food: ['leaf', 'bread'],
+            foodCount: 2,
+            foodEaten: [80, 12],
+            _collections: {
+              foodSchedule: [
+                {
+                  id: 'leaf',
+                  interval: 'daily',
                 },
-              },
-            ],
+                {
+                  id: 'peanut',
+                  interval: 'weekly',
+                },
+              ],
+            },
           },
-        },
-      ],
+          {
+            id: 'worm',
+            name: 'worm',
+            legCount: null,
+          },
+          {
+            id: 'pogo-stick',
+            name: 'pogo-stick',
+            food: false,
+          },
+        ],
+        foodSchedule: [
+          { id: 'ants', interval: 'daily' },
+          { id: 'cows', interval: 'twice daily' },
+        ],
+        nested: [
+          {
+            id: 'collections',
+            _collections: {
+              have: [
+                {
+                  id: 'lots',
+                  _collections: {
+                    of: [
+                      {
+                        id: 'applications',
+                        _collections: {
+                          foodSchedule: [
+                            {
+                              id: 'layer4_a',
+                              interval: 'daily',
+                            },
+                            {
+                              id: 'layer4_b',
+                              interval: 'weekly',
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+      currentUser: { uid: 'homer-user' },
     },
-    currentUser: { uid: 'homer-user' },
-  });
+    { simulateQueryFilters: true },
+  );
 
   const firebase = require('firebase');
   firebase.initializeApp({

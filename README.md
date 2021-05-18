@@ -29,6 +29,7 @@ Small, easy to grok pull requests are welcome, but please note that there is no 
     - [Additional options](#additional-options)
       - [includeIdsInData](#includeidsindata)
       - [mutable](#mutable)
+      - [simulateQueryFilters](#simulateQueryFilters)
     - [Functions you can test](#functions-you-can-test)
       - [Firestore](#firestore)
       - [Firestore.Query](#firestorequery)
@@ -305,30 +306,37 @@ However, you can pass an `options` object to the mock to overwrite some default 
 const options = {
   includeIdsInData: true,
   mutable: true,
+  simulateQueryFilters: true,
 };
 
 mockFirebase(database, options);
 ```
 
-#### includeIdsInData
+#### `includeIdsInData`
 
 By default, id's are not returned with the document's data.
 Although you can declare an id when setting up your fake database, it will not be returned with `data()` as that is not the default behavior of firebase.
 However, a common practice for firestore users is to manually write an `id` property to their documents, allowing them to query `collectionGroup` by id.
 
-#### mutable
+#### `mutable`
 
 _Warning: Thar be dragons_
 
 By default, the mock database you set up is immutable.
 This means it doesn't update, even when you call things like `set` or `add`, as the result isn't typically important for your tests.
-If you need your tests to update the mock database, you can set `mutable` to true when calling `mockFirebase`.
+If you need your tests to update the mock database, you can set `mutable` to `true` when calling `mockFirebase`.
 Calling `.set()` on a document or collection would update the mock database you created.
 This can make your tests less predictable, as they may need to be run in the same order.
 
 Use with caution.
 
-_Note: not all APIs that update the database are supported yet. PR's welcome!_
+_Note: not all APIs that update the database are supported yet. PRs welcome!_
+
+#### `simulateQueryFilters`
+
+By default, query filters (read: `where` clauses) pass through all mock Firestore data without applying the requested filters.
+
+If you need your tests to perform `where` queries on mock database data, you can set `simulateQueryFilters` to `true` when calling `mockFirebase`.
 
 ### Functions you can test
 

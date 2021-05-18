@@ -433,7 +433,10 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
     records.forEach(rec => {
       rec._ref = new FakeFirestore.DocumentReference(rec.id, this, this.firestore);
     });
-    return Promise.resolve(buildQuerySnapShot(records, this.filters));
+    const isFilteringEnabled = this.firestore.options.simulateQueryFilters;
+    return Promise.resolve(
+      buildQuerySnapShot(records, isFilteringEnabled ? this.filters : undefined),
+    );
   }
 
   isEqual(other) {

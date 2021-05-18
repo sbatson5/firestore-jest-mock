@@ -7,35 +7,39 @@ describe('Queries', () => {
     jest.clearAllMocks();
   });
 
-  const db = new FakeFirestore({
-    characters: [
+  const db = (simulateQueryFilters = false) =>
+    new FakeFirestore(
       {
-        id: 'homer',
-        name: 'Homer',
-        occupation: 'technician',
-        address: { street: '742 Evergreen Terrace' },
+        characters: [
+          {
+            id: 'homer',
+            name: 'Homer',
+            occupation: 'technician',
+            address: { street: '742 Evergreen Terrace' },
+          },
+          { id: 'krusty', name: 'Krusty', occupation: 'clown' },
+          {
+            id: 'bob',
+            name: 'Bob',
+            occupation: 'insurance agent',
+            _collections: {
+              family: [
+                { id: 'violet', name: 'Violet', relation: 'daughter' },
+                { id: 'dash', name: 'Dash', relation: 'son' },
+                { id: 'jackjack', name: 'Jackjack', relation: 'son' },
+                { id: 'helen', name: 'Helen', relation: 'wife' },
+              ],
+            },
+          },
+        ],
       },
-      { id: 'krusty', name: 'Krusty', occupation: 'clown' },
-      {
-        id: 'bob',
-        name: 'Bob',
-        occupation: 'insurance agent',
-        _collections: {
-          family: [
-            { id: 'violet', name: 'Violet', relation: 'daughter' },
-            { id: 'dash', name: 'Dash', relation: 'son' },
-            { id: 'jackjack', name: 'Jackjack', relation: 'son' },
-            { id: 'helen', name: 'Helen', relation: 'wife' },
-          ],
-        },
-      },
-    ],
-  });
+      { simulateQueryFilters },
+    );
 
   describe('Single records versus queries', () => {
     test('it can fetch a single record', async () => {
       expect.assertions(6);
-      const record = await db
+      const record = await db()
         .collection('characters')
         .doc('krusty')
         .get();
@@ -50,7 +54,7 @@ describe('Queries', () => {
 
     test('it flags records do not exist', async () => {
       expect.assertions(4);
-      const record = await db
+      const record = await db()
         .collection('animals')
         .doc('monkey')
         .get();
@@ -61,7 +65,7 @@ describe('Queries', () => {
     });
 
     test('it can fetch a single record with a promise', () =>
-      db
+      db()
         .collection('characters')
         .doc('homer')
         .get()
@@ -81,7 +85,7 @@ describe('Queries', () => {
         }));
 
     test('it can fetch a single record with a promise without a specified collection', () =>
-      db
+      db()
         .doc('characters/homer')
         .get()
         .then(record => {
@@ -96,7 +100,7 @@ describe('Queries', () => {
         }));
 
     test('it can fetch multiple records and returns documents', async () => {
-      const records = await db
+      const records = await db()
         .collection('characters')
         .where('name', '==', 'Homer')
         .get();
@@ -112,21 +116,23 @@ describe('Queries', () => {
     });
 
     test('it throws an error if the collection path ends at a document', () => {
-      expect(() => db.collection('')).toThrow(Error);
-      expect(db.collection('foo')).toBeInstanceOf(FakeFirestore.CollectionReference);
-      expect(() => db.collection('foo/bar')).toThrow(Error);
-      expect(db.collection('foo/bar/baz')).toBeInstanceOf(FakeFirestore.CollectionReference);
+      expect(() => db().collection('')).toThrow(Error);
+      expect(db().collection('foo')).toBeInstanceOf(FakeFirestore.CollectionReference);
+      expect(() => db().collection('foo/bar')).toThrow(Error);
+      expect(db().collection('foo/bar/baz')).toBeInstanceOf(FakeFirestore.CollectionReference);
     });
 
     test('it throws an error if the document path ends at a collection', () => {
-      expect(() => db.doc('')).toThrow(Error);
-      expect(() => db.doc('characters')).toThrow(Error);
-      expect(db.doc('characters/bob')).toBeInstanceOf(FakeFirestore.DocumentReference);
-      expect(() => db.doc('characters/bob/family')).toThrow(Error);
+      expect(() => db().doc('')).toThrow(Error);
+      expect(() => db().doc('characters')).toThrow(Error);
+      expect(db().doc('characters/bob')).toBeInstanceOf(FakeFirestore.DocumentReference);
+      expect(() => db().doc('characters/bob/family')).toThrow(Error);
     });
 
     test('it can fetch nonexistent documents from a root collection', async () => {
-      const nope = await db.doc('characters/joe').get();
+      const nope = await db()
+        .doc('characters/joe')
+        .get();
       expect(nope).toHaveProperty('exists', false);
       expect(nope).toHaveProperty('id', 'joe');
       expect(nope).toHaveProperty('ref');
@@ -134,7 +140,9 @@ describe('Queries', () => {
     });
 
     test('it can fetch nonexistent documents from extant subcollections', async () => {
-      const nope = await db.doc('characters/bob/family/thing3').get();
+      const nope = await db()
+        .doc('characters/bob/family/thing3')
+        .get();
       expect(nope).toHaveProperty('exists', false);
       expect(nope).toHaveProperty('id', 'thing3');
       expect(nope).toHaveProperty('ref');
@@ -142,7 +150,9 @@ describe('Queries', () => {
     });
 
     test('it can fetch nonexistent documents from nonexistent subcollections', async () => {
-      const nope = await db.doc('characters/sam/family/phil').get();
+      const nope = await db()
+        .doc('characters/sam/family/phil')
+        .get();
       expect(nope).toHaveProperty('exists', false);
       expect(nope).toHaveProperty('id', 'phil');
       expect(nope).toHaveProperty('ref');
@@ -150,7 +160,9 @@ describe('Queries', () => {
     });
 
     test('it can fetch nonexistent documents from nonexistent root collections', async () => {
-      const nope = await db.doc('foo/bar/baz/bin').get();
+      const nope = await db()
+        .doc('foo/bar/baz/bin')
+        .get();
       expect(nope).toHaveProperty('exists', false);
       expect(nope).toHaveProperty('id', 'bin');
       expect(nope).toHaveProperty('ref');
@@ -159,33 +171,42 @@ describe('Queries', () => {
 
     test('it flags when a collection is empty', async () => {
       expect.assertions(1);
-      const records = await db
+      const records = await db()
         .collection('animals')
         .where('type', '==', 'mammal')
         .get();
       expect(records).toHaveProperty('empty', true);
     });
 
-    test('it can fetch multiple records as a promise', () =>
-      db
+    test.each`
+      simulateQueryFilters | expectedSize
+      ${true}              | ${1}
+      ${false}             | ${3}
+    `('it can fetch multiple records as a promise', ({ simulateQueryFilters, expectedSize }) =>
+      db(simulateQueryFilters)
         .collection('characters')
         .where('name', '==', 'Homer')
         .get()
         .then(records => {
           expect(records).toHaveProperty('empty', false);
           expect(records).toHaveProperty('docs', expect.any(Array));
-          expect(records).toHaveProperty('size', 1);
+          expect(records).toHaveProperty('size', expectedSize);
           expect(records.docs[0]).toHaveProperty('id', 'homer');
           expect(records.docs[0]).toHaveProperty('exists', true);
           expect(records.docs[0].data()).toHaveProperty('name', 'Homer');
-        }));
+        }),
+    );
 
     test('it can return all root records', async () => {
       expect.assertions(4);
-      const firstRecord = db.collection('characters').doc('homer');
-      const secondRecord = db.collection('characters').doc('krusty');
+      const firstRecord = db()
+        .collection('characters')
+        .doc('homer');
+      const secondRecord = db()
+        .collection('characters')
+        .doc('krusty');
 
-      const records = await db.getAll(firstRecord, secondRecord);
+      const records = await db().getAll(firstRecord, secondRecord);
       expect(records.length).toBe(2);
       expect(records[0]).toHaveProperty('id', 'homer');
       expect(records[0]).toHaveProperty('exists', true);
@@ -194,7 +215,7 @@ describe('Queries', () => {
 
     test('it does not fetch subcollections unless we tell it to', async () => {
       expect.assertions(4);
-      const record = await db
+      const record = await db()
         .collection('characters')
         .doc('bob')
         .get();
@@ -206,7 +227,7 @@ describe('Queries', () => {
 
     test('it can fetch records from subcollections', async () => {
       expect.assertions(8);
-      const family = db
+      const family = db()
         .collection('characters')
         .doc('bob')
         .collection('family');
@@ -226,23 +247,32 @@ describe('Queries', () => {
       expect(record.data()).toHaveProperty('name', 'Violet');
     });
 
-    test('it can fetch records from subcollections with query parameters', async () => {
-      const family = db
-        .collection('characters')
-        .doc('bob')
-        .collection('family')
-        .where('relation', '==', 'son'); // should return only sons
-      expect(family).toHaveProperty('path', 'characters/bob/family');
+    test.each`
+      simulateQueryFilters | expectedSize
+      ${true}              | ${2}
+      ${false}             | ${4}
+    `(
+      'it can fetch records from subcollections with query parameters',
+      async ({ simulateQueryFilters, expectedSize }) => {
+        const family = db(simulateQueryFilters)
+          .collection('characters')
+          .doc('bob')
+          .collection('family')
+          .where('relation', '==', 'son'); // should return only sons
+        expect(family).toHaveProperty('path', 'characters/bob/family');
 
-      const docs = await family.get();
-      expect(docs).toHaveProperty('size', 2);
-    });
+        const docs = await family.get();
+        expect(docs).toHaveProperty('size', expectedSize);
+      },
+    );
   });
 
   describe('Multiple records versus queries', () => {
     test('it fetches all records from a root collection', async () => {
       expect.assertions(4);
-      const characters = await db.collection('characters').get();
+      const characters = await db()
+        .collection('characters')
+        .get();
       expect(characters).toHaveProperty('empty', false);
       expect(characters).toHaveProperty('size', 3);
       expect(Array.isArray(characters.docs)).toBe(true);
@@ -251,7 +281,9 @@ describe('Queries', () => {
 
     test('it fetches no records from nonexistent collection', async () => {
       expect.assertions(4);
-      const nope = await db.collection('foo').get();
+      const nope = await db()
+        .collection('foo')
+        .get();
       expect(nope).toHaveProperty('empty', true);
       expect(nope).toHaveProperty('size', 0);
       expect(Array.isArray(nope.docs)).toBe(true);
@@ -260,7 +292,7 @@ describe('Queries', () => {
 
     test('it fetches all records from subcollection', async () => {
       expect.assertions(4);
-      const familyRef = db
+      const familyRef = db()
         .collection('characters')
         .doc('bob')
         .collection('family');
@@ -273,7 +305,7 @@ describe('Queries', () => {
 
     test('it fetches no records from nonexistent subcollection', async () => {
       expect.assertions(4);
-      const nope = await db
+      const nope = await db()
         .collection('characters')
         .doc('bob')
         .collection('not-here')
@@ -286,7 +318,7 @@ describe('Queries', () => {
 
     test('it fetches no records from nonexistent root collection', async () => {
       expect.assertions(4);
-      const nope = await db
+      const nope = await db()
         .collection('foo')
         .doc('bar')
         .collection('baz')
@@ -302,7 +334,7 @@ describe('Queries', () => {
     expect.assertions(2);
     // See https://firebase.google.com/docs/reference/js/firebase.firestore.CollectionReference#doc
     // "If no path is specified, an automatically-generated unique ID will be used for the returned DocumentReference."
-    const col = db.collection('foo');
+    const col = db().collection('foo');
     const newDoc = col.doc();
     const otherIds = col._records().map(doc => doc.id);
     expect(otherIds).not.toContainEqual(newDoc.id);

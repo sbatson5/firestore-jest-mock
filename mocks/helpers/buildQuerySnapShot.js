@@ -1,21 +1,8 @@
 const buildDocFromHash = require('./buildDocFromHash');
 
-/**
- * @typedef Filter
- *
- * @property {String} key
- * @property {'<'|'<='|'=='|'>='|'>'|'array-contains'|'in'|'array-contains-any'} comp
- * @property {String} value
- */
-
-/**
- * Builds a query result from the given array of record objects.
- *
- * @param {*[]} requestedRecords
- * @param {Filter[]} filters
- */
 module.exports = function buildQuerySnapShot(requestedRecords, filters) {
   let results = requestedRecords.filter(rec => !!rec);
+
   if (filters && Array.isArray(filters) && filters.length > 0) {
     // Apply filters
     filters.forEach(({ key, comp, value }) => {
