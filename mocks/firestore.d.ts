@@ -112,7 +112,7 @@ declare class CollectionReference extends FakeFirestore.Query {
   private _records(): Array<MockedDocument>
 }
 
-// Mocks defined in this file
+// Mocks exported from this module
 export const mockBatch: jest.Mock;
 export const mockRunTransaction: jest.Mock;
 
