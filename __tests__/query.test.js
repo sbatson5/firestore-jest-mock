@@ -122,10 +122,6 @@ describe('Queries', () => {
 
   const db = firebase.firestore();
 
-  beforeEach(() => {
-    jest.resetAllMocks();
-  });
-
   test('it can query a single document', async () => {
     const monkey = await db
       .collection('animals')
