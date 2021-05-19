@@ -255,7 +255,11 @@ FakeFirestore.DocumentReference = class {
 
       callback(this._get());
     } catch (e) {
-      errorCallback(e);
+      if (errorCallback) {
+        errorCallback(e);
+      } else {
+        throw e;
+      }
     }
 
     // Returns an unsubscribe function
@@ -432,15 +436,17 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
 
   get() {
     query.mocks.mockGet(...arguments);
+    return Promise.resolve(this._get());
+  }
+
+  _get() {
     // Make sure we have a 'good enough' document reference
     const records = this._records();
     records.forEach(rec => {
       rec._ref = new FakeFirestore.DocumentReference(rec.id, this, this.firestore);
     });
     const isFilteringEnabled = this.firestore.options.simulateQueryFilters;
-    return Promise.resolve(
-      buildQuerySnapShot(records, isFilteringEnabled ? this.filters : undefined),
-    );
+    return buildQuerySnapShot(records, isFilteringEnabled ? this.filters : undefined);
   }
 
   isEqual(other) {

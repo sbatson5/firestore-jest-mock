@@ -20,8 +20,7 @@ class Query {
 
   get() {
     mockGet(...arguments);
-    const results = this._get();
-    return Promise.resolve(results);
+    return Promise.resolve(this._get());
   }
 
   _get() {
@@ -96,7 +95,11 @@ class Query {
     try {
       callback(this._get());
     } catch (e) {
-      errorCallback(e);
+      if (errorCallback) {
+        errorCallback(e);
+      } else {
+        throw e;
+      }
     }
 
     // Returns an unsubscribe function

@@ -26,6 +26,14 @@ module.exports = function buildQuerySnapShot(requestedRecords, filters) {
             if (!record || record[key] === undefined) {
               return false;
             }
+            // Possibly useful
+            // if (typeof record[key] === 'number' && typeof value === 'number') {
+            //   return record[key] <= value;
+            // }
+            // if (typeof record[key] === 'string' && typeof value === 'string') {
+            //   const comparison = record[key].localeCompare(value);
+            //   return comparison <= 0;
+            // }
             return String(record[key]) <= String(value);
           });
           break;

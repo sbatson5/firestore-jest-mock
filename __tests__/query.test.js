@@ -39,6 +39,18 @@ describe('Queries', () => {
             food: ['leaf', 'nut', 'ant'],
             foodCount: 4,
             foodEaten: [80, 20, 16],
+            _collections: {
+              foodSchedule: [
+                {
+                  id: 'nut',
+                  interval: 'whenever',
+                },
+                {
+                  id: 'leaf',
+                  interval: 'hourly',
+                },
+              ],
+            },
           },
           {
             id: 'ant',
@@ -183,7 +195,7 @@ describe('Queries', () => {
     expect(animals).toHaveProperty('size', 2); // Returns 2 of 4 documents
   });
 
-  test('it can filter firestore queries in subcollections', async () => {
+  test('it can filter firestore equality queries in subcollections', async () => {
     const antSchedule = await db
       .collection('animals')
       .doc('ant')
@@ -191,24 +203,88 @@ describe('Queries', () => {
       .where('interval', '==', 'daily')
       .get();
 
-    expect(antSchedule).toHaveProperty('docs', expect.any(Array));
     expect(mockCollection).toHaveBeenCalledWith('animals');
     expect(mockCollection).toHaveBeenCalledWith('foodSchedule');
     expect(mockWhere).toHaveBeenCalledWith('interval', '==', 'daily');
     expect(mockGet).toHaveBeenCalled();
+    expect(antSchedule).toHaveProperty('docs', expect.any(Array));
     expect(antSchedule).toHaveProperty('size', 1); // Returns 1 of 2 documents
+  });
+
+  test('in a transaction, it can filter firestore equality queries in subcollections', async () => {
+    mockGet.mockReset();
+
+    const antSchedule = db
+      .collection('animals')
+      .doc('ant')
+      .collection('foodSchedule')
+      .where('interval', '==', 'daily');
+
+    expect.assertions(6);
+    await db.runTransaction(async transaction => {
+      const scheduleItems = await transaction.get(antSchedule);
+      expect(mockCollection).toHaveBeenCalledWith('animals');
+      expect(mockCollection).toHaveBeenCalledWith('foodSchedule');
+      expect(mockWhere).toHaveBeenCalledWith('interval', '==', 'daily');
+      expect(mockGet).not.toHaveBeenCalled();
+      expect(scheduleItems).toHaveProperty('docs', expect.any(Array));
+      expect(scheduleItems).toHaveProperty('size', 1); // Returns 1 of 2 documents
+    });
+  });
+
+  test('it can filter firestore comparison queries in subcollections', async () => {
+    const chickenSchedule = db
+      .collection('animals')
+      .doc('chicken')
+      .collection('foodSchedule')
+      .where('interval', '<=', 'hourly'); // should have 1 result
+
+    const scheduleItems = await chickenSchedule.get();
+    expect(scheduleItems).toHaveProperty('docs', expect.any(Array));
+    expect(scheduleItems).toHaveProperty('size', 1); // Returns 1 document
+    expect(scheduleItems.docs[0]).toHaveProperty(
+      'ref',
+      expect.any(FakeFirestore.DocumentReference),
+    );
+    expect(scheduleItems.docs[0]).toHaveProperty('id', 'leaf');
+    expect(scheduleItems.docs[0].data()).toHaveProperty('interval', 'hourly');
+    expect(scheduleItems.docs[0].ref).toHaveProperty('path', 'animals/chicken/foodSchedule/leaf');
+  });
+
+  test('in a transaction, it can filter firestore comparison queries in subcollections', async () => {
+    const chickenSchedule = db
+      .collection('animals')
+      .doc('chicken')
+      .collection('foodSchedule')
+      .where('interval', '<=', 'hourly'); // should have 1 result
+
+    expect.assertions(6);
+    await db.runTransaction(async transaction => {
+      const scheduleItems = await transaction.get(chickenSchedule);
+      expect(scheduleItems).toHaveProperty('docs', expect.any(Array));
+      expect(scheduleItems).toHaveProperty('size', 1); // Returns 1 document
+      expect(scheduleItems.docs[0]).toHaveProperty(
+        'ref',
+        expect.any(FakeFirestore.DocumentReference),
+      );
+      expect(scheduleItems.docs[0]).toHaveProperty('id', 'leaf');
+      expect(scheduleItems.docs[0].data()).toHaveProperty('interval', 'hourly');
+      expect(scheduleItems.docs[0].ref).toHaveProperty('path', 'animals/chicken/foodSchedule/leaf');
+    });
   });
 
   test('it can query collection groups', async () => {
     const allSchedules = await db.collectionGroup('foodSchedule').get();
 
-    expect(allSchedules).toHaveProperty('size', 6); // Returns all 6
+    expect(allSchedules).toHaveProperty('size', 8); // Returns all 8
     const paths = allSchedules.docs.map(doc => doc.ref.path).sort();
     const expectedPaths = [
       'nested/collections/have/lots/of/applications/foodSchedule/layer4_a',
       'nested/collections/have/lots/of/applications/foodSchedule/layer4_b',
       'animals/ant/foodSchedule/leaf',
       'animals/ant/foodSchedule/peanut',
+      'animals/chicken/foodSchedule/leaf',
+      'animals/chicken/foodSchedule/nut',
       'foodSchedule/ants',
       'foodSchedule/cows',
     ].sort();

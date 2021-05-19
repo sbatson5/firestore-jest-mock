@@ -288,9 +288,9 @@ describe('we can start a firebase application', () => {
         .collection('cities')
         .where('state', '==', 'CA')
         .onSnapshot(querySnapshot => {
-          expect(querySnapshot).toHaveProperty('forEach');
+          expect(querySnapshot).toHaveProperty('forEach', expect.any(Function));
           expect(querySnapshot).toHaveProperty('docChanges');
-          expect(querySnapshot).toHaveProperty('docs');
+          expect(querySnapshot).toHaveProperty('docs', expect.any(Array));
 
           expect(querySnapshot.forEach).toBeInstanceOf(Function);
           expect(querySnapshot.docChanges).toBeInstanceOf(Function);
