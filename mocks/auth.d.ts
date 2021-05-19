@@ -7,6 +7,8 @@ export const mockVerifyIdToken: jest.Mock;
 export const mockGetUser: jest.Mock;
 export const mockSetCustomUserClaims: jest.Mock;
 export const mockSignOut: jest.Mock;
+
+// FIXME: We should decide whether this should be exported from auth or firestore
 export const mockUseEmulator: jest.Mock;
 
 export interface FirebaseUser {}

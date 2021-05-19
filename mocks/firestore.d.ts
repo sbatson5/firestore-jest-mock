@@ -124,6 +124,8 @@ export const mockSet: jest.Mock;
 export const mockAdd: jest.Mock;
 export const mockDelete: jest.Mock;
 export const mockSettings: jest.Mock;
+
+// FIXME: We should decide whether this should be exported from auth or firestore
 export const mockUseEmulator: jest.Mock;
 
 export const mockBatchDelete: jest.Mock;
