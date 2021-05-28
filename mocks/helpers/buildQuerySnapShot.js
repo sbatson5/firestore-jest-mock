@@ -2,7 +2,7 @@ const buildDocFromHash = require('./buildDocFromHash');
 
 module.exports = function buildQuerySnapShot(requestedRecords, filters) {
   const definiteRecords = requestedRecords.filter(rec => !!rec);
-  const results = filteredDocuments(definiteRecords, filters);
+  const results = _filteredDocuments(definiteRecords, filters);
   const docs = results.map(buildDocFromHash);
 
   return {
@@ -37,7 +37,7 @@ module.exports = function buildQuerySnapShot(requestedRecords, filters) {
  *
  * @returns {Array<import('./buildDocFromHash').DocumentHash>} The filtered documents.
  */
-function filteredDocuments(records, filters) {
+function _filteredDocuments(records, filters) {
   if (!filters || !Array.isArray(filters) || filters.length === 0) {
     return records;
   }

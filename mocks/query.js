@@ -24,23 +24,33 @@ class Query {
   }
 
   _get() {
-    // Use BFS to find all records in collections that match collectionName
+    // Simulate collectionGroup query
+
+    // Get Firestore collections whose name match `this.collectionName`; return their documents
     const requestedRecords = [];
 
-    const queue = [['', this.firestore.database]];
+    const queue = [
+      {
+        lastParent: '',
+        collections: this.firestore.database,
+      },
+    ];
 
     while (queue.length > 0) {
-      const node = queue.shift();
+      // Get a collection
+      const { lastParent, collections } = queue.shift();
 
-      let lastParent = node[0];
-      Object.entries(node[1]).forEach(([collectionPath, docs]) => {
-        const prefix = node[0] ? `${node[0]}/` : '';
-        lastParent = `${prefix}${collectionPath}`;
+      Object.entries(collections).forEach(([collectionPath, docs]) => {
+        const prefix = lastParent ? `${lastParent}/` : '';
+
+        const newLastParent = `${prefix}${collectionPath}`;
         const lastPathComponent = collectionPath.split('/').pop();
+
+        // If this is a matching collection, grep its documents
         if (lastPathComponent === this.collectionName) {
           const docHashes = docs.map(doc => {
-            // Construct the document's path
-            const path = `${lastParent}/${doc.id}`;
+            // Fetch the document from the mock db
+            const path = `${newLastParent}/${doc.id}`;
             return {
               ...doc,
               _ref: this.firestore._doc(path),
@@ -48,16 +58,22 @@ class Query {
           });
           requestedRecords.push(...docHashes);
         }
-        // Enqueue adjacent nodes
+
+        // Enqueue adjacent collections for next run
         docs.forEach(doc => {
           if (doc._collections) {
-            queue.push([`${prefix}${collectionPath}/${doc.id}`, doc._collections]);
+            queue.push({
+              lastParent: `${prefix}${collectionPath}/${doc.id}`,
+              collections: doc._collections,
+            });
           }
         });
       });
     }
 
-    return buildQuerySnapShot(requestedRecords, this.filters);
+    // Return the requested documents
+    const isFilteringEnabled = this.firestore.options.simulateQueryFilters;
+    return buildQuerySnapShot(requestedRecords, isFilteringEnabled ? this.filters : undefined);
   }
 
   where(key, comp, value) {
