@@ -89,8 +89,16 @@ class FakeFirestore {
     // See https://firebase.google.com/docs/reference/js/firebase.firestore.Firestore#collection
     mockCollection(...arguments);
 
-    if (!path) {
-      throw new Error(`A collection-path must be collection-level. Received ''`);
+    if (path === undefined) {
+      throw new Error(
+        `FakeFirebaseError: Function Firestore.collection() requires 1 argument, but was called with 0 arguments.`,
+      );
+    } else if (!path || typeof path !== 'string') {
+      throw new Error(
+        `FakeFirebaseError: Function Firestore.collection() requires its first argument to be of type non-empty string, but it was: ${JSON.stringify(
+          path,
+        )}`,
+      );
     }
 
     // Ignore leading slash
@@ -98,7 +106,7 @@ class FakeFirestore {
     // Must be collection-level, so odd-numbered elements
     if (pathArray.length % 2 !== 1) {
       throw new Error(
-        `A collection-path must be collection-level. Received '${pathArray.join('/')}'`,
+        `FakeFirebaseError: Invalid collection reference. Collection references must have an odd number of segments, but ${path} has ${pathArray.length}`,
       );
     }
 
@@ -132,15 +140,24 @@ class FakeFirestore {
     // Accept any document path
     // See https://firebase.google.com/docs/reference/js/firebase.firestore.Firestore#doc
 
-    if (!path) {
-      throw new Error(`A document-path must be document-level. Received ''`);
+    if (path === undefined) {
+      throw new Error(
+        `FakeFirebaseError: Function Firestore.doc() requires 1 argument, but was called with 0 arguments.`,
+      );
+    } else if (!path || typeof path !== 'string') {
+      throw new Error(
+        `FakeFirebaseError: Function Firestore.doc() requires its first argument to be of type non-empty string, but it was: ${JSON.stringify(
+          path,
+        )}`,
+      );
     }
 
     // Ignore leading slash
     const pathArray = path.replace(/^\/+/, '').split('/');
     // Must be document-level, so even-numbered elements
     if (pathArray.length % 2 !== 0) {
-      throw new Error(`A document-path must be document-level. Received '${pathArray.join('/')}'`);
+      throw new Error(`FakeFirebaseError: Invalid document reference. Document references must have an even number of segments, but ${path} has ${pathArray.length}
+      `);
     }
 
     let doc = null;
@@ -172,7 +189,9 @@ class FakeFirestore {
 
     // Must be document-level, so even-numbered elements
     if (pathArray.length % 2 !== 0) {
-      throw new Error(`The path array must be document-level. Received '${pathArray.join('/')}'`);
+      throw new Error(
+        `FakeFirebaseError: Invalid document reference. Document references must have an even number of segments, but ${path} has ${pathArray.length}`,
+      );
     }
 
     // The parent entry is the id of the document
