@@ -110,19 +110,7 @@ class FakeFirestore {
       );
     }
 
-    let coll = null;
-    let doc = null;
-    for (let index = 0; index < pathArray.length; index += 2) {
-      const collectionId = pathArray[index] || '';
-      const documentId = pathArray[index + 1] || '';
-
-      coll = new FakeFirestore.CollectionReference(collectionId, doc, this);
-      if (!documentId) {
-        break;
-      }
-      doc = new FakeFirestore.DocumentReference(documentId, coll);
-    }
-
+    const { coll } = this._docAndColForPathArray(pathArray);
     return coll;
   }
 
@@ -160,6 +148,11 @@ class FakeFirestore {
       `);
     }
 
+    const { doc } = this._docAndColForPathArray(pathArray);
+    return doc;
+  }
+
+  _docAndColForPathArray(pathArray) {
     let doc = null;
     let coll = null;
     for (let index = 0; index < pathArray.length; index += 2) {
@@ -167,10 +160,13 @@ class FakeFirestore {
       const documentId = pathArray[index + 1] || '';
 
       coll = new FakeFirestore.CollectionReference(collectionId, doc, this);
+      if (!documentId) {
+        break;
+      }
       doc = new FakeFirestore.DocumentReference(documentId, coll);
     }
 
-    return doc;
+    return { doc, coll };
   }
 
   runTransaction(updateFunction) {
