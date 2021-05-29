@@ -315,6 +315,22 @@ describe('Queries', () => {
     expect(ref.startAt(null)).toBeInstanceOf(FakeFirestore.Query);
   });
 
+  test('it throws an error when comparing to null', () => {
+    expect(() => db.collection('animals').where('legCount', '>', null)).toThrow();
+    expect(() => db.collection('animals').where('legCount', '>=', null)).toThrow();
+    expect(() => db.collection('animals').where('legCount', '<', null)).toThrow();
+    expect(() => db.collection('animals').where('legCount', '<=', null)).toThrow();
+    expect(() => db.collection('animals').where('legCount', 'array-contains', null)).toThrow();
+    expect(() => db.collection('animals').where('legCount', 'array-contains-any', null)).toThrow();
+    expect(() => db.collection('animals').where('legCount', 'in', null)).toThrow();
+    expect(() => db.collection('animals').where('legCount', 'not-in', null)).toThrow();
+  });
+
+  test('it allows equality comparisons with null', () => {
+    expect(() => db.collection('animals').where('legCount', '==', null)).not.toThrow();
+    expect(() => db.collection('animals').where('legCount', '!=', null)).not.toThrow();
+  });
+
   test('it permits mocking the results of a where clause', async () => {
     expect.assertions(2);
     const ref = db.collection('animals');
@@ -360,12 +376,18 @@ describe('Queries', () => {
       ${'=='}     | ${7}      | ${0}
       ${'!='}     | ${7}      | ${5}
       ${'!='}     | ${4}      | ${4}
-      ${'>'}      | ${1}      | ${5}
-      ${'>'}      | ${6}      | ${1}
-      ${'>='}     | ${6}      | ${2}
-      ${'>='}     | ${0}      | ${5}
+      ${'>'}      | ${1000}   | ${0}
+      ${'>'}      | ${1}      | ${4}
+      ${'>'}      | ${6}      | ${0}
+      ${'>='}     | ${1000}   | ${0}
+      ${'>='}     | ${6}      | ${1}
+      ${'>='}     | ${0}      | ${4}
+      ${'<'}      | ${-10000} | ${0}
+      ${'<'}      | ${10000}  | ${4}
       ${'<'}      | ${2}      | ${0}
       ${'<'}      | ${6}      | ${3}
+      ${'<='}     | ${-10000} | ${0}
+      ${'<='}     | ${10000}  | ${4}
       ${'<='}     | ${2}      | ${2}
       ${'<='}     | ${6}      | ${4}
       ${'in'}     | ${[6, 2]} | ${3}

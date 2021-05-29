@@ -77,8 +77,19 @@ class Query {
   }
 
   where(key, comp, value) {
+    const result = mockWhere(...arguments);
+    if (result) {
+      return result;
+    }
+
+    // Firestore has been tested to throw an error at this point when trying to compare null as a quantity
+    if (value === null && !['==', '!='].includes(comp)) {
+      throw new Error(
+        `FakeFirebaseError: Invalid query. Null only supports '==' and '!=' comparisons.`,
+      );
+    }
     this.filters.push({ key, comp, value });
-    return mockWhere(...arguments) || this;
+    return result || this;
   }
 
   offset() {
