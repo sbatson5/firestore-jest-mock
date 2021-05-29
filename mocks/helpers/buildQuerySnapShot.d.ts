@@ -1,6 +1,6 @@
 import type { MockedDocument, DocumentHash } from './buildDocFromHash';
 
-export type Comparator = '<' | '<=' | '==' | '>=' | '>' | 'array-contains' | 'in' | 'array-contains-any';
+export type Comparator = '<' | '<=' | '==' | '!=' | '>=' | '>' | 'array-contains' | 'in' | 'not-in' | 'array-contains-any';
 
 export interface QueryFilter {
   key: string;

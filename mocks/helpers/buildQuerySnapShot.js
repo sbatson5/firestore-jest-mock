@@ -51,90 +51,215 @@ function _filteredDocuments(records, filters) {
     switch (comp) {
       // https://firebase.google.com/docs/firestore/query-data/queries#query_operators
       case '<':
-        records = records.filter(record => {
-          if (!record || record[key] === undefined) {
-            return false;
-          }
-          return String(record[key]) < String(value);
-        });
+        records = _recordsLessThanValue(records, key, value);
         break;
 
       case '<=':
-        records = records.filter(record => {
-          if (!record || record[key] === undefined) {
-            return false;
-          }
-          // Possibly useful
-          // if (typeof record[key] === 'number' && typeof value === 'number') {
-          //   return record[key] <= value;
-          // }
-          // if (typeof record[key] === 'string' && typeof value === 'string') {
-          //   const comparison = record[key].localeCompare(value);
-          //   return comparison <= 0;
-          // }
-          return String(record[key]) <= String(value);
-        });
+        records = _recordsLessThanOrEqualToValue(records, key, value);
         break;
 
       case '==':
-        records = records.filter(record => {
-          if (!record || record[key] === undefined) {
-            return false;
-          }
-          return String(record[key]) === String(value);
-        });
+        records = _recordsEqualToValue(records, key, value);
+        break;
+
+      case '!=':
+        records = _recordsNotEqualToValue(records, key, value);
         break;
 
       case '>=':
-        records = records.filter(record => {
-          if (!record || record[key] === undefined) {
-            return false;
-          }
-          return String(record[key]) >= String(value);
-        });
+        records = _recordsGreaterThanOrEqualToValue(records, key, value);
         break;
 
       case '>':
-        records = records.filter(record => {
-          if (!record || record[key] === undefined) {
-            return false;
-          }
-          return String(record[key]) > String(value);
-        });
+        records = _recordsGreaterThanValue(records, key, value);
         break;
 
-      // https://firebase.google.com/docs/firestore/query-data/queries#array_membership
       case 'array-contains':
-        records = records.filter(
-          record =>
-            record && record[key] && Array.isArray(record[key]) && record[key].includes(value),
-        );
+        records = _recordsArrayContainsValue(records, key, value);
         break;
 
-      // https://firebase.google.com/docs/firestore/query-data/queries#in_and_array-contains-any
-      // TODO: Throw an error when a value is passed that contains more than 10 values
       case 'in':
-        records = records.filter(record => {
-          if (!record || record[key] === undefined) {
-            return false;
-          }
-          return value && Array.isArray(value) && value.includes(record[key]);
-        });
+        records = _recordsWithValueInList(records, key, value);
+        break;
+
+      case 'not-in':
+        records = _recordsWithValueNotInList(records, key, value);
         break;
 
       case 'array-contains-any':
-        records = records.filter(
-          record =>
-            record &&
-            record[key] &&
-            Array.isArray(record[key]) &&
-            value &&
-            Array.isArray(value) &&
-            record[key].some(v => value.includes(v)),
-        );
+        records = _recordsWithOneOfValues(records, key, value);
         break;
     }
   });
 
   return records;
+}
+
+/**
+ * @param {Array<DocumentHash>} records
+ * @param {string} key
+ * @param {unknown} value
+ * @returns {Array<DocumentHash>}
+ */
+function _recordsLessThanValue(records, key, value) {
+  return records.filter(record => {
+    if (!record || record[key] === undefined) {
+      return false;
+    }
+    return String(record[key]) < String(value);
+  });
+}
+
+/**
+ * @param {Array<DocumentHash>} records
+ * @param {string} key
+ * @param {unknown} value
+ * @returns {Array<DocumentHash>}
+ */
+function _recordsLessThanOrEqualToValue(records, key, value) {
+  return records.filter(record => {
+    if (!record || record[key] === undefined) {
+      return false;
+    }
+    // Possibly useful
+    // if (typeof record[key] === 'number' && typeof value === 'number') {
+    //   return record[key] <= value;
+    // }
+    // if (typeof record[key] === 'string' && typeof value === 'string') {
+    //   const comparison = record[key].localeCompare(value);
+    //   return comparison <= 0;
+    // }
+    return String(record[key]) <= String(value);
+  });
+}
+
+/**
+ * @param {Array<DocumentHash>} records
+ * @param {string} key
+ * @param {unknown} value
+ * @returns {Array<DocumentHash>}
+ */
+function _recordsEqualToValue(records, key, value) {
+  return records.filter(record => {
+    if (!record || record[key] === undefined) {
+      return false;
+    }
+    return String(record[key]) === String(value);
+  });
+}
+
+/**
+ * @param {Array<DocumentHash>} records
+ * @param {string} key
+ * @param {unknown} value
+ * @returns {Array<DocumentHash>}
+ */
+function _recordsNotEqualToValue(records, key, value) {
+  return records.filter(record => {
+    if (!record || record[key] === undefined) {
+      return false;
+    }
+    return String(record[key]) !== String(value);
+  });
+}
+
+/**
+ * @param {Array<DocumentHash>} records
+ * @param {string} key
+ * @param {unknown} value
+ * @returns {Array<DocumentHash>}
+ */
+function _recordsGreaterThanOrEqualToValue(records, key, value) {
+  return records.filter(record => {
+    if (!record || record[key] === undefined) {
+      return false;
+    }
+    return String(record[key]) >= String(value);
+  });
+}
+
+/**
+ * @param {Array<DocumentHash>} records
+ * @param {string} key
+ * @param {unknown} value
+ * @returns {Array<DocumentHash>}
+ */
+function _recordsGreaterThanValue(records, key, value) {
+  return records.filter(record => {
+    if (!record || record[key] === undefined) {
+      return false;
+    }
+    return String(record[key]) > String(value);
+  });
+}
+
+/**
+ * @see https://firebase.google.com/docs/firestore/query-data/queries#array_membership
+ *
+ * @param {Array<DocumentHash>} records
+ * @param {string} key
+ * @param {unknown} value
+ * @returns {Array<DocumentHash>}
+ */
+function _recordsArrayContainsValue(records, key, value) {
+  return records.filter(
+    record => record && record[key] && Array.isArray(record[key]) && record[key].includes(value),
+  );
+}
+
+/**
+ * @see https://firebase.google.com/docs/firestore/query-data/queries#in_not-in_and_array-contains-any
+ *
+ * @param {Array<DocumentHash>} records
+ * @param {string} key
+ * @param {unknown} value
+ * @returns {Array<DocumentHash>}
+ */
+function _recordsWithValueInList(records, key, value) {
+  // TODO: Throw an error when a value is passed that contains more than 10 values
+  return records.filter(record => {
+    if (!record || record[key] === undefined) {
+      return false;
+    }
+    return value && Array.isArray(value) && value.includes(record[key]);
+  });
+}
+
+/**
+ * @see https://firebase.google.com/docs/firestore/query-data/queries#not-in
+ *
+ * @param {Array<DocumentHash>} records
+ * @param {string} key
+ * @param {unknown} value
+ * @returns {Array<DocumentHash>}
+ */
+function _recordsWithValueNotInList(records, key, value) {
+  // TODO: Throw an error when a value is passed that contains more than 10 values
+  return records.filter(record => {
+    if (!record || record[key] === undefined) {
+      return false;
+    }
+    return value && Array.isArray(value) && !value.includes(record[key]);
+  });
+}
+
+/**
+ * @see https://firebase.google.com/docs/firestore/query-data/queries#in_not-in_and_array-contains-any
+ *
+ * @param {Array<DocumentHash>} records
+ * @param {string} key
+ * @param {unknown} value
+ * @returns {Array<DocumentHash>}
+ */
+function _recordsWithOneOfValues(records, key, value) {
+  // TODO: Throw an error when a value is passed that contains more than 10 values
+  return records.filter(
+    record =>
+      record &&
+      record[key] &&
+      Array.isArray(record[key]) &&
+      value &&
+      Array.isArray(value) &&
+      record[key].some(v => value.includes(v)),
+  );
 }
