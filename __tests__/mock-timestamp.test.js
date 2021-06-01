@@ -4,6 +4,8 @@ const {
   mockTimestampToMillis,
   mockTimestampNow,
 } = require('firestore-jest-mock/mocks/firestore');
+const admin = require('firebase-admin');
+const ref = admin.firestore.Timestamp;
 
 describe('Timestamp mock', () => {
   test('it is equal to itself', () => {
@@ -81,5 +83,13 @@ describe('Timestamp mock', () => {
     mockTimestampNow.mockReturnValueOnce('Success!');
     const timestamp = FakeFirestore.Timestamp.now();
     expect(timestamp).toBe('Success!');
+  });
+
+  test('it handles negative seconds', () => {
+    // Since this is a mock (and I'm bad with time maths) we don't expect nanosecond accuracy
+    const timestamp = FakeFirestore.Timestamp.fromMillis(-54001);
+    const rts = ref.fromMillis(-54001);
+    expect(timestamp.seconds).toBe(rts.seconds);
+    expect(timestamp.nanoseconds).toBe(rts.nanoseconds);
   });
 });

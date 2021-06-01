@@ -40,7 +40,7 @@ class Timestamp {
 
   static _fromMillis(millis) {
     const seconds = Math.floor(millis / 1000);
-    const nanoseconds = 1000000 * (millis % 1000);
+    const nanoseconds = 1000000 * (millis - seconds * 1000);
     return new Timestamp(seconds, nanoseconds);
   }
 
