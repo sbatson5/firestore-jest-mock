@@ -18,9 +18,8 @@ export interface StubOverrides {
   currentUser?: FirebaseUser;
 }
 
-export interface StubOptions {
-  includeIdsInData?: boolean;
-}
+type DefaultOptions = typeof import('./helpers/defaultMockOptions');
+export interface StubOptions extends Partial<DefaultOptions> {}
 
 export interface FirebaseMock {
   initializeApp: jest.Mock;

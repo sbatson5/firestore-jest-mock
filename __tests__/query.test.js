@@ -8,18 +8,123 @@ const {
 } = require('../mocks/firestore');
 const { mockFirebase } = require('firestore-jest-mock');
 
-describe('test', () => {
-  mockFirebase({
-    database: {
-      animals: [
-        { id: 'monkey', name: 'monkey', type: 'mammal' },
-        { id: 'elephant', name: 'elephant', type: 'mammal' },
-        { id: 'chicken', name: 'chicken', type: 'bird' },
-        { id: 'ant', name: 'ant', type: 'insect' },
-      ],
+describe('Queries', () => {
+  mockFirebase(
+    {
+      database: {
+        animals: [
+          {
+            id: 'monkey',
+            name: 'monkey',
+            type: 'mammal',
+            legCount: 2,
+            food: ['banana', 'mango'],
+            foodCount: 1,
+            foodEaten: [500, 20],
+          },
+          {
+            id: 'elephant',
+            name: 'elephant',
+            type: 'mammal',
+            legCount: 4,
+            food: ['banana', 'peanut'],
+            foodCount: 0,
+            foodEaten: [0, 500],
+          },
+          {
+            id: 'chicken',
+            name: 'chicken',
+            type: 'bird',
+            legCount: 2,
+            food: ['leaf', 'nut', 'ant'],
+            foodCount: 4,
+            foodEaten: [80, 20, 16],
+            _collections: {
+              foodSchedule: [
+                {
+                  id: 'nut',
+                  interval: 'whenever',
+                },
+                {
+                  id: 'leaf',
+                  interval: 'hourly',
+                },
+              ],
+            },
+          },
+          {
+            id: 'ant',
+            name: 'ant',
+            type: 'insect',
+            legCount: 6,
+            food: ['leaf', 'bread'],
+            foodCount: 2,
+            foodEaten: [80, 12],
+            _collections: {
+              foodSchedule: [
+                {
+                  id: 'leaf',
+                  interval: 'daily',
+                },
+                {
+                  id: 'peanut',
+                  interval: 'weekly',
+                },
+              ],
+            },
+          },
+          {
+            id: 'worm',
+            name: 'worm',
+            legCount: null,
+          },
+          {
+            id: 'pogo-stick',
+            name: 'pogo-stick',
+            food: false,
+          },
+        ],
+        foodSchedule: [
+          { id: 'ants', interval: 'daily' },
+          { id: 'cows', interval: 'twice daily' },
+        ],
+        nested: [
+          {
+            id: 'collections',
+            _collections: {
+              have: [
+                {
+                  id: 'lots',
+                  _collections: {
+                    of: [
+                      {
+                        id: 'applications',
+                        _collections: {
+                          foodSchedule: [
+                            {
+                              id: 'layer4_a',
+                              interval: 'daily',
+                            },
+                            {
+                              id: 'layer4_b',
+                              interval: 'weekly',
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+      currentUser: { uid: 'homer-user' },
     },
-    currentUser: { uid: 'homer-user' },
-  });
+    { simulateQueryFilters: true },
+  );
+
   const firebase = require('firebase');
   firebase.initializeApp({
     apiKey: '### FIREBASE API KEY ###',
@@ -41,15 +146,43 @@ describe('test', () => {
     expect(mockGet).toHaveBeenCalled();
   });
 
+  test('it can query null values', async () => {
+    const noLegs = await db
+      .collection('animals')
+      .where('legCount', '==', null)
+      .get();
+
+    expect(noLegs).toHaveProperty('size', 1);
+    const worm = noLegs.docs[0];
+    expect(worm).toBeDefined();
+    expect(worm).toHaveProperty('id', 'worm');
+  });
+
+  test('it can query false values', async () => {
+    const noFood = await db
+      .collection('animals')
+      .where('food', '==', false)
+      .get();
+
+    expect(noFood).toHaveProperty('size', 1);
+    const pogoStick = noFood.docs[0];
+    expect(pogoStick).toBeDefined();
+    expect(pogoStick).toHaveProperty('id', 'pogo-stick');
+  });
+
   test('it can query multiple documents', async () => {
-    expect.assertions(10);
+    expect.assertions(9);
     const animals = await db
       .collection('animals')
       .where('type', '==', 'mammal')
       .get();
 
     expect(animals).toHaveProperty('docs', expect.any(Array));
-    expect(animals.docs.length).toBe(4);
+    expect(mockCollection).toHaveBeenCalledWith('animals');
+
+    // Make sure that the filter behaves appropriately
+    expect(animals.docs.length).toBe(2);
+
     // Make sure that forEach works properly
     expect(animals).toHaveProperty('forEach', expect.any(Function));
     animals.forEach(doc => {
@@ -58,8 +191,104 @@ describe('test', () => {
     });
 
     expect(mockWhere).toHaveBeenCalledWith('type', '==', 'mammal');
-    expect(mockCollection).toHaveBeenCalledWith('animals');
     expect(mockGet).toHaveBeenCalled();
+    expect(animals).toHaveProperty('size', 2); // Returns 2 of 4 documents
+  });
+
+  test('it can filter firestore equality queries in subcollections', async () => {
+    const antSchedule = await db
+      .collection('animals')
+      .doc('ant')
+      .collection('foodSchedule')
+      .where('interval', '==', 'daily')
+      .get();
+
+    expect(mockCollection).toHaveBeenCalledWith('animals');
+    expect(mockCollection).toHaveBeenCalledWith('foodSchedule');
+    expect(mockWhere).toHaveBeenCalledWith('interval', '==', 'daily');
+    expect(mockGet).toHaveBeenCalled();
+    expect(antSchedule).toHaveProperty('docs', expect.any(Array));
+    expect(antSchedule).toHaveProperty('size', 1); // Returns 1 of 2 documents
+  });
+
+  test('in a transaction, it can filter firestore equality queries in subcollections', async () => {
+    mockGet.mockReset();
+
+    const antSchedule = db
+      .collection('animals')
+      .doc('ant')
+      .collection('foodSchedule')
+      .where('interval', '==', 'daily');
+
+    expect.assertions(6);
+    await db.runTransaction(async transaction => {
+      const scheduleItems = await transaction.get(antSchedule);
+      expect(mockCollection).toHaveBeenCalledWith('animals');
+      expect(mockCollection).toHaveBeenCalledWith('foodSchedule');
+      expect(mockWhere).toHaveBeenCalledWith('interval', '==', 'daily');
+      expect(mockGet).not.toHaveBeenCalled();
+      expect(scheduleItems).toHaveProperty('docs', expect.any(Array));
+      expect(scheduleItems).toHaveProperty('size', 1); // Returns 1 of 2 documents
+    });
+  });
+
+  test('it can filter firestore comparison queries in subcollections', async () => {
+    const chickenSchedule = db
+      .collection('animals')
+      .doc('chicken')
+      .collection('foodSchedule')
+      .where('interval', '<=', 'hourly'); // should have 1 result
+
+    const scheduleItems = await chickenSchedule.get();
+    expect(scheduleItems).toHaveProperty('docs', expect.any(Array));
+    expect(scheduleItems).toHaveProperty('size', 1); // Returns 1 document
+    expect(scheduleItems.docs[0]).toHaveProperty(
+      'ref',
+      expect.any(FakeFirestore.DocumentReference),
+    );
+    expect(scheduleItems.docs[0]).toHaveProperty('id', 'leaf');
+    expect(scheduleItems.docs[0].data()).toHaveProperty('interval', 'hourly');
+    expect(scheduleItems.docs[0].ref).toHaveProperty('path', 'animals/chicken/foodSchedule/leaf');
+  });
+
+  test('in a transaction, it can filter firestore comparison queries in subcollections', async () => {
+    const chickenSchedule = db
+      .collection('animals')
+      .doc('chicken')
+      .collection('foodSchedule')
+      .where('interval', '<=', 'hourly'); // should have 1 result
+
+    expect.assertions(6);
+    await db.runTransaction(async transaction => {
+      const scheduleItems = await transaction.get(chickenSchedule);
+      expect(scheduleItems).toHaveProperty('docs', expect.any(Array));
+      expect(scheduleItems).toHaveProperty('size', 1); // Returns 1 document
+      expect(scheduleItems.docs[0]).toHaveProperty(
+        'ref',
+        expect.any(FakeFirestore.DocumentReference),
+      );
+      expect(scheduleItems.docs[0]).toHaveProperty('id', 'leaf');
+      expect(scheduleItems.docs[0].data()).toHaveProperty('interval', 'hourly');
+      expect(scheduleItems.docs[0].ref).toHaveProperty('path', 'animals/chicken/foodSchedule/leaf');
+    });
+  });
+
+  test('it can query collection groups', async () => {
+    const allSchedules = await db.collectionGroup('foodSchedule').get();
+
+    expect(allSchedules).toHaveProperty('size', 8); // Returns all 8
+    const paths = allSchedules.docs.map(doc => doc.ref.path).sort();
+    const expectedPaths = [
+      'nested/collections/have/lots/of/applications/foodSchedule/layer4_a',
+      'nested/collections/have/lots/of/applications/foodSchedule/layer4_b',
+      'animals/ant/foodSchedule/leaf',
+      'animals/ant/foodSchedule/peanut',
+      'animals/chicken/foodSchedule/leaf',
+      'animals/chicken/foodSchedule/nut',
+      'foodSchedule/ants',
+      'foodSchedule/cows',
+    ].sort();
+    expect(paths).toStrictEqual(expectedPaths);
   });
 
   test('it returns the same instance from query methods', () => {
@@ -86,12 +315,28 @@ describe('test', () => {
     expect(ref.startAt(null)).toBeInstanceOf(FakeFirestore.Query);
   });
 
+  test('it throws an error when comparing to null', () => {
+    expect(() => db.collection('animals').where('legCount', '>', null)).toThrow();
+    expect(() => db.collection('animals').where('legCount', '>=', null)).toThrow();
+    expect(() => db.collection('animals').where('legCount', '<', null)).toThrow();
+    expect(() => db.collection('animals').where('legCount', '<=', null)).toThrow();
+    expect(() => db.collection('animals').where('legCount', 'array-contains', null)).toThrow();
+    expect(() => db.collection('animals').where('legCount', 'array-contains-any', null)).toThrow();
+    expect(() => db.collection('animals').where('legCount', 'in', null)).toThrow();
+    expect(() => db.collection('animals').where('legCount', 'not-in', null)).toThrow();
+  });
+
+  test('it allows equality comparisons with null', () => {
+    expect(() => db.collection('animals').where('legCount', '==', null)).not.toThrow();
+    expect(() => db.collection('animals').where('legCount', '!=', null)).not.toThrow();
+  });
+
   test('it permits mocking the results of a where clause', async () => {
     expect.assertions(2);
     const ref = db.collection('animals');
 
     let result = await ref.where('type', '==', 'mammal').get();
-    expect(result.docs.length).toBe(4);
+    expect(result.docs.length).toBe(2);
 
     // There's got to be a better way to mock like this, but at least it works.
     mockWhere.mockReturnValueOnce({
@@ -108,7 +353,7 @@ describe('test', () => {
     expect(result.docs.length).toBe(2);
   });
 
-  test('It can offset query', async () => {
+  test('it can offset query', async () => {
     const firstTwoMammals = await db
       .collection('animals')
       .where('type', '==', 'mammal')
@@ -120,5 +365,152 @@ describe('test', () => {
     expect(mockCollection).toHaveBeenCalledWith('animals');
     expect(mockGet).toHaveBeenCalled();
     expect(mockOffset).toHaveBeenCalledWith(2);
+  });
+
+  describe('Query Operations', () => {
+    test.each`
+      comp        | value     | count
+      ${'=='}     | ${2}      | ${2}
+      ${'=='}     | ${4}      | ${1}
+      ${'=='}     | ${6}      | ${1}
+      ${'=='}     | ${7}      | ${0}
+      ${'!='}     | ${7}      | ${5}
+      ${'!='}     | ${4}      | ${4}
+      ${'>'}      | ${1000}   | ${0}
+      ${'>'}      | ${1}      | ${4}
+      ${'>'}      | ${6}      | ${0}
+      ${'>='}     | ${1000}   | ${0}
+      ${'>='}     | ${6}      | ${1}
+      ${'>='}     | ${0}      | ${4}
+      ${'<'}      | ${-10000} | ${0}
+      ${'<'}      | ${10000}  | ${4}
+      ${'<'}      | ${2}      | ${0}
+      ${'<'}      | ${6}      | ${3}
+      ${'<='}     | ${-10000} | ${0}
+      ${'<='}     | ${10000}  | ${4}
+      ${'<='}     | ${2}      | ${2}
+      ${'<='}     | ${6}      | ${4}
+      ${'in'}     | ${[6, 2]} | ${3}
+      ${'not-in'} | ${[6, 2]} | ${2}
+      ${'not-in'} | ${[4]}    | ${4}
+      ${'not-in'} | ${[7]}    | ${5}
+    `(
+      // eslint-disable-next-line quotes
+      "it performs '$comp' queries on number values ($count doc(s) where legCount $comp $value)",
+      async ({ comp, value, count }) => {
+        const results = await db
+          .collection('animals')
+          .where('legCount', comp, value)
+          .get();
+        expect(results.size).toBe(count);
+      },
+    );
+
+    test.each`
+      comp        | value     | count
+      ${'=='}     | ${0}      | ${1}
+      ${'=='}     | ${1}      | ${1}
+      ${'=='}     | ${2}      | ${1}
+      ${'=='}     | ${4}      | ${1}
+      ${'=='}     | ${6}      | ${0}
+      ${'>'}      | ${-1}     | ${4}
+      ${'>'}      | ${0}      | ${3}
+      ${'>'}      | ${1}      | ${2}
+      ${'>'}      | ${4}      | ${0}
+      ${'>='}     | ${6}      | ${0}
+      ${'>='}     | ${4}      | ${1}
+      ${'>='}     | ${0}      | ${4}
+      ${'<'}      | ${2}      | ${2}
+      ${'<'}      | ${6}      | ${4}
+      ${'<='}     | ${2}      | ${3}
+      ${'<='}     | ${6}      | ${4}
+      ${'in'}     | ${[2, 0]} | ${2}
+      ${'not-in'} | ${[2, 0]} | ${2}
+    `(
+      // eslint-disable-next-line quotes
+      "it performs '$comp' queries on number values that may be zero ($count doc(s) where foodCount $comp $value)",
+      async ({ comp, value, count }) => {
+        const results = await db
+          .collection('animals')
+          .where('foodCount', comp, value)
+          .get();
+        expect(results.size).toBe(count);
+      },
+    );
+
+    test.each`
+      comp        | value                      | count
+      ${'=='}     | ${'mammal'}                | ${2}
+      ${'=='}     | ${'bird'}                  | ${1}
+      ${'=='}     | ${'fish'}                  | ${0}
+      ${'!='}     | ${'bird'}                  | ${3}
+      ${'!='}     | ${'fish'}                  | ${4}
+      ${'>'}      | ${'insect'}                | ${2}
+      ${'>'}      | ${'z'}                     | ${0}
+      ${'>='}     | ${'mammal'}                | ${2}
+      ${'>='}     | ${'insect'}                | ${3}
+      ${'<'}      | ${'bird'}                  | ${0}
+      ${'<'}      | ${'mammal'}                | ${2}
+      ${'<='}     | ${'mammal'}                | ${4}
+      ${'<='}     | ${'bird'}                  | ${1}
+      ${'<='}     | ${'a'}                     | ${0}
+      ${'in'}     | ${['a', 'bird', 'mammal']} | ${3}
+      ${'not-in'} | ${['a', 'bird', 'mammal']} | ${1}
+    `(
+      // eslint-disable-next-line quotes
+      "it performs '$comp' queries on string values ($count doc(s) where type $comp '$value')",
+      async ({ comp, value, count }) => {
+        const results = await db
+          .collection('animals')
+          .where('type', comp, value)
+          .get();
+        expect(results.size).toBe(count);
+      },
+    );
+
+    test.each`
+      comp                    | value                            | count
+      ${'=='}                 | ${['banana', 'mango']}           | ${1}
+      ${'=='}                 | ${['mango', 'banana']}           | ${0}
+      ${'=='}                 | ${['banana', 'peanut']}          | ${1}
+      ${'!='}                 | ${['banana', 'peanut']}          | ${4}
+      ${'array-contains'}     | ${'banana'}                      | ${2}
+      ${'array-contains'}     | ${'leaf'}                        | ${2}
+      ${'array-contains'}     | ${'bread'}                       | ${1}
+      ${'array-contains-any'} | ${['banana', 'mango', 'peanut']} | ${2}
+    `(
+      // eslint-disable-next-line quotes
+      "it performs '$comp' queries on array values ($count doc(s) where food $comp '$value')",
+      async ({ comp, value, count }) => {
+        const results = await db
+          .collection('animals')
+          .where('food', comp, value)
+          .get();
+        expect(results.size).toBe(count);
+      },
+    );
+
+    test.each`
+      comp                    | value           | count
+      ${'=='}                 | ${[500, 20]}    | ${1}
+      ${'=='}                 | ${[20, 500]}    | ${0}
+      ${'=='}                 | ${[0, 500]}     | ${1}
+      ${'!='}                 | ${[20, 500]}    | ${4}
+      ${'array-contains'}     | ${500}          | ${2}
+      ${'array-contains'}     | ${80}           | ${2}
+      ${'array-contains'}     | ${12}           | ${1}
+      ${'array-contains'}     | ${0}            | ${1}
+      ${'array-contains-any'} | ${[0, 11, 500]} | ${2}
+    `(
+      // eslint-disable-next-line quotes
+      "it performs '$comp' queries on array values that may be zero ($count doc(s) where foodEaten $comp '$value')",
+      async ({ comp, value, count }) => {
+        const results = await db
+          .collection('animals')
+          .where('foodEaten', comp, value)
+          .get();
+        expect(results.size).toBe(count);
+      },
+    );
   });
 });

@@ -11,43 +11,85 @@ const mockQueryOnSnapshot = jest.fn();
 const mockWithConverter = jest.fn();
 
 class Query {
-  constructor(collectionName, firestore) {
+  constructor(collectionName, firestore, isGroupQuery = false) {
     this.collectionName = collectionName;
     this.firestore = firestore;
+    this.filters = [];
+    this.isGroupQuery = isGroupQuery;
   }
 
   get() {
     mockGet(...arguments);
-    // Use DFS to find all records in collections that match collectionName
+    return Promise.resolve(this._get());
+  }
+
+  _get() {
+    // Simulate collectionGroup query
+
+    // Get Firestore collections whose name match `this.collectionName`; return their documents
     const requestedRecords = [];
 
-    const st = [this.firestore.database];
-    // At each collection list node, get collection in collection list whose id
-    // matches this.collectionName
-    while (st.length > 0) {
-      const subcollections = st.pop();
-      const documents = subcollections[this.collectionName];
-      if (documents && Array.isArray(documents)) {
-        requestedRecords.push(...documents);
-      }
+    const queue = [
+      {
+        lastParent: '',
+        collections: this.firestore.database,
+      },
+    ];
 
-      // For each collection in subcollections, get each document's _collections array
-      // and push onto st.
-      Object.values(subcollections).forEach(collection => {
-        const documents = collection.filter(d => !!d._collections);
-        st.push(...documents.map(d => d._collections));
+    while (queue.length > 0) {
+      // Get a collection
+      const { lastParent, collections } = queue.shift();
+
+      Object.entries(collections).forEach(([collectionPath, docs]) => {
+        const prefix = lastParent ? `${lastParent}/` : '';
+
+        const newLastParent = `${prefix}${collectionPath}`;
+        const lastPathComponent = collectionPath.split('/').pop();
+
+        // If this is a matching collection, grep its documents
+        if (lastPathComponent === this.collectionName) {
+          const docHashes = docs.map(doc => {
+            // Fetch the document from the mock db
+            const path = `${newLastParent}/${doc.id}`;
+            return {
+              ...doc,
+              _ref: this.firestore._doc(path),
+            };
+          });
+          requestedRecords.push(...docHashes);
+        }
+
+        // Enqueue adjacent collections for next run
+        docs.forEach(doc => {
+          if (doc._collections) {
+            queue.push({
+              lastParent: `${prefix}${collectionPath}/${doc.id}`,
+              collections: doc._collections,
+            });
+          }
+        });
       });
     }
 
-    // Make sure we have a 'good enough' document reference
-    requestedRecords.forEach(rec => {
-      rec._ref = this.firestore.doc('database/'.concat(rec.id));
-    });
-    return Promise.resolve(buildQuerySnapShot(requestedRecords));
+    // Return the requested documents
+    const isFilteringEnabled = this.firestore.options.simulateQueryFilters;
+    return buildQuerySnapShot(requestedRecords, isFilteringEnabled ? this.filters : undefined);
   }
 
-  where() {
-    return mockWhere(...arguments) || this;
+  where(key, comp, value) {
+    const result = mockWhere(...arguments);
+    if (result) {
+      return result;
+    }
+
+    // Firestore has been tested to throw an error at this point when trying to compare null as a quantity
+    if (value === null && !['==', '!='].includes(comp)) {
+      throw new Error(
+        `FakeFirebaseError: Invalid query. Null only supports '==' and '!=' comparisons.`,
+      );
+    }
+    this.filters.push({ key, comp, value });
+    return result || this;
   }
 
   offset() {
@@ -78,11 +120,13 @@ class Query {
     mockQueryOnSnapshot(...arguments);
     const [callback, errorCallback] = arguments;
     try {
-      this.get().then(result => {
-        callback(result);
-      });
+      callback(this._get());
     } catch (e) {
-      errorCallback(e);
+      if (errorCallback) {
+        errorCallback(e);
+      } else {
+        throw e;
+      }
     }
 
     // Returns an unsubscribe function

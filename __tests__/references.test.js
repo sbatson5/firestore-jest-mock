@@ -49,8 +49,8 @@ describe('Reference Sentinels', () => {
     test('it compares collection references', () => {
       const collectionRef = db.collection('characters');
       expect(collectionRef.firestore).toBe(db);
-      expect(collectionRef.id).toBe('characters');
-      expect(collectionRef.path).toBe('database/characters');
+      expect(collectionRef).toHaveProperty('id', 'characters');
+      expect(collectionRef).toHaveProperty('path', 'characters');
 
       const other = db.collection('characters');
       expect(collectionRef.isEqual(collectionRef)).toBe(true);
@@ -90,7 +90,7 @@ describe('Reference Sentinels', () => {
     test('it returns a document reference', () => {
       const homerRef = db.collection('characters').doc('homer');
       expect(homerRef).toBeInstanceOf(FakeFirestore.DocumentReference);
-      expect(homerRef.parent).toBeInstanceOf(FakeFirestore.CollectionReference);
+      expect(homerRef).toHaveProperty('parent', expect.any(FakeFirestore.CollectionReference));
       expect(mockCollection).toHaveBeenCalledWith('characters');
       expect(mockDoc).toHaveBeenCalledWith('homer');
 
@@ -104,8 +104,8 @@ describe('Reference Sentinels', () => {
     test('it compares document references', () => {
       const docRef = db.collection('characters').doc('homer');
       expect(docRef.firestore).toBe(db);
-      expect(docRef.id).toBe('homer');
-      expect(docRef.path).toBe('database/characters/homer');
+      expect(docRef).toHaveProperty('id', 'homer');
+      expect(docRef).toHaveProperty('path', 'characters/homer');
 
       const other = db.collection('characters').doc('homer');
       expect(docRef.isEqual(docRef)).toBe(true);

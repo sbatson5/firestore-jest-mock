@@ -111,10 +111,10 @@ declare class CollectionReference extends FakeFirestore.Query {
    * the list of database records referenced by this CollectionReference.
    * @returns An array of mocked document records.
    */
-  private records(): Array<MockedDocument>
+  private _records(): Array<MockedDocument>
 }
 
-// Mocks defined here
+// Mocks exported from this module
 export const mockBatch: jest.Mock;
 export const mockRunTransaction: jest.Mock;
 
@@ -126,6 +126,8 @@ export const mockSet: jest.Mock;
 export const mockAdd: jest.Mock;
 export const mockDelete: jest.Mock;
 export const mockSettings: jest.Mock;
+
+// FIXME: We should decide whether this should be exported from auth or firestore
 export const mockUseEmulator: jest.Mock;
 export const mockListDocuments: jest.Mock;
 

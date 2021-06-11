@@ -29,6 +29,7 @@ Small, easy to grok pull requests are welcome, but please note that there is no 
     - [Additional options](#additional-options)
       - [includeIdsInData](#includeidsindata)
       - [mutable](#mutable)
+      - [simulateQueryFilters](#simulateQueryFilters)
     - [Functions you can test](#functions-you-can-test)
       - [Firestore](#firestore)
       - [Firestore.Query](#firestorequery)
@@ -84,7 +85,13 @@ mockFirebase({
 });
 ```
 
-This will populate a fake database with a `users` and `posts` collection.
+If you are using TypeScript, you can import `mockFirebase` using ES module syntax:
+
+```TypeScript
+import { mockFirebase } from 'firestore-jest-mock';
+```
+
+This will populate a fake database with a `users` and `posts` collection. This database is read-only by default, meaning that any Firestore write calls will not actually persist across invocations.
 
 Now you can write queries or requests for data just as you would with Firestore:
 
@@ -106,6 +113,14 @@ test('testing stuff', () => {
     });
 });
 ```
+
+In TypeScript, you would import `mockCollection` using ES module syntax:
+
+```TypeScript
+import { mockCollection } from 'firestore-jest-mock/mocks/firestore';
+```
+
+The other mock functions may be imported similarly.
 
 ### `@google-cloud/firestore` compatibility
 
@@ -145,7 +160,7 @@ The `Auth` module is not available for `@google-cloud/firestore` compatibility._
 
 ### Subcollections
 
-A common case in Firestore is to store data in document [subcollections](https://firebase.google.com/docs/firestore/manage-data/structure-data#subcollections). You can model these in firestore-jest-mock like so:
+A common Firestore use case is to store data in document [subcollections](https://firebase.google.com/docs/firestore/manage-data/structure-data#subcollections). You can model these with firestore-jest-mock like so:
 
 ```js
 const { mockFirebase } = require('firestore-jest-mock');
@@ -175,7 +190,7 @@ mockFirebase({
 });
 ```
 
-Similar to how the `id` key models a document object, the `_collections` key models a subcollection. You model each subcollection key in the same way that `database` is modeled above: an object keyed by collection IDs and populated with document arrays.
+Similar to how the `id` key defines a document object to firestore-jest-mock, the `_collections` key defines a subcollection. You model each subcollection structure in the same way that `database` is modeled above: an object keyed by collection IDs and populated with document arrays.
 
 This lets you model and validate more complex document access:
 
@@ -204,7 +219,8 @@ test('testing stuff', () => {
 
 ### What would you want to test?
 
-The job of the this library is not to test Firestore, but to allow you to test your code without hitting firebase.
+The job of the this library is not to test Firestore, but to allow you to test your code without hitting Firebase servers or booting a local emulator. Since this package simulates most of the Firestore interface in plain JavaScript, unit tests can be quick and easy both to write and to execute.
+
 Take this example:
 
 ```js
@@ -304,30 +320,37 @@ However, you can pass an `options` object to the mock to overwrite some default 
 const options = {
   includeIdsInData: true,
   mutable: true,
+  simulateQueryFilters: true,
 };
 
 mockFirebase(database, options);
 ```
 
-#### includeIdsInData
+#### `includeIdsInData`
 
 By default, id's are not returned with the document's data.
 Although you can declare an id when setting up your fake database, it will not be returned with `data()` as that is not the default behavior of firebase.
 However, a common practice for firestore users is to manually write an `id` property to their documents, allowing them to query `collectionGroup` by id.
 
-#### mutable
+#### `mutable`
 
 _Warning: Thar be dragons_
 
 By default, the mock database you set up is immutable.
 This means it doesn't update, even when you call things like `set` or `add`, as the result isn't typically important for your tests.
-If you need your tests to update the mock database, you can set `mutable` to true when calling `mockFirebase`.
+If you need your tests to update the mock database, you can set `mutable` to `true` when calling `mockFirebase`.
 Calling `.set()` on a document or collection would update the mock database you created.
 This can make your tests less predictable, as they may need to be run in the same order.
 
 Use with caution.
 
-_Note: not all APIs that update the database are supported yet. PR's welcome!_
+_Note: not all APIs that update the database are supported yet. PRs welcome!_
+
+#### `simulateQueryFilters`
+
+By default, query filters (read: `where` clauses) pass through all mock Firestore data without applying the requested filters.
+
+If you need your tests to perform `where` queries on mock database data, you can set `simulateQueryFilters` to `true` when calling `mockFirebase`.
 
 ### Functions you can test
 

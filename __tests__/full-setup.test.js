@@ -1,54 +1,72 @@
-const { mockFirebase } = require('firestore-jest-mock');
-const { mockInitializeApp } = require('../mocks/firebase');
+describe.each`
+  filters
+  ${true}
+  ${false}
+`('we can start a firebase application (query filters: $filters)', ({ filters }) => {
+  // We call `require` inside of a parameterized `describe` so we get
+  // a fresh mocked Firebase to test cases with query filters turned on and off
 
-const flushPromises = () => new Promise(setImmediate);
+  jest.resetModules();
+  const { mockFirebase } = require('firestore-jest-mock');
+  const { mockInitializeApp } = require('../mocks/firebase');
 
-const {
-  mockGet,
-  mockAdd,
-  mockSet,
-  mockUpdate,
-  mockWhere,
-  mockCollectionGroup,
-  mockBatch,
-  mockBatchCommit,
-  mockBatchDelete,
-  mockBatchUpdate,
-  mockBatchSet,
-  mockSettings,
-  mockOnSnapShot,
-  mockUseEmulator,
-  mockDoc,
-  mockCollection,
-  mockWithConverter,
-  FakeFirestore,
-} = require('../mocks/firestore');
+  const flushPromises = () => new Promise(setImmediate);
 
-describe('we can start a firebase application', () => {
-  mockFirebase({
-    database: {
-      users: [
-        { id: 'abc123', first: 'Bob', last: 'builder', born: 1998 },
-        {
-          id: '123abc',
-          first: 'Blues',
-          last: 'builder',
-          born: 1996,
-          _collections: {
-            cities: [{ id: 'LA', name: 'Los Angeles', state: 'CA', country: 'USA', visited: true }],
+  const {
+    mockGet,
+    mockAdd,
+    mockSet,
+    mockUpdate,
+    mockWhere,
+    mockCollectionGroup,
+    mockBatch,
+    mockBatchCommit,
+    mockBatchDelete,
+    mockBatchUpdate,
+    mockBatchSet,
+    mockSettings,
+    mockOnSnapShot,
+    mockUseEmulator,
+    mockDoc,
+    mockCollection,
+    mockWithConverter,
+    FakeFirestore,
+    mockQueryOnSnapshot,
+  } = require('../mocks/firestore');
+
+  mockFirebase(
+    {
+      database: {
+        users: [
+          { id: 'abc123', first: 'Bob', last: 'builder', born: 1998 },
+          {
+            id: '123abc',
+            first: 'Blues',
+            last: 'builder',
+            born: 1996,
+            _collections: {
+              cities: [
+                { id: 'LA', name: 'Los Angeles', state: 'CA', country: 'USA', visited: true },
+                { id: 'Mex', name: 'Mexico City', country: 'Mexico', visited: true },
+              ],
+            },
           },
-        },
-      ],
-      cities: [
-        { id: 'LA', name: 'Los Angeles', state: 'CA', country: 'USA' },
-        { id: 'DC', name: 'Disctric of Columbia', state: 'DC', country: 'USA' },
-      ],
+        ],
+        cities: [
+          { id: 'LA', name: 'Los Angeles', state: 'CA', country: 'USA' },
+          { id: 'DC', name: 'Disctric of Columbia', state: 'DC', country: 'USA' },
+        ],
+      },
     },
-  });
+    { simulateQueryFilters: filters },
+  );
+
+  /** @type {import('firebase').default} */
+  const firebase = require('firebase');
 
   beforeEach(() => {
-    this.firebase = require('firebase');
-    this.firebase.initializeApp({
+    jest.resetAllMocks();
+    firebase.initializeApp({
       apiKey: '### FIREBASE API KEY ###',
       authDomain: '### FIREBASE AUTH DOMAIN ###',
       projectId: '### CLOUD FIRESTORE PROJECT ID ###',
@@ -56,21 +74,21 @@ describe('we can start a firebase application', () => {
   });
 
   test('We can start an application', async () => {
-    const db = this.firebase.firestore();
+    const db = firebase.firestore();
     db.settings({ ignoreUndefinedProperties: true });
     expect(mockInitializeApp).toHaveBeenCalled();
     expect(mockSettings).toHaveBeenCalledWith({ ignoreUndefinedProperties: true });
   });
 
   test('we can use emulator', async () => {
-    const db = this.firebase.firestore();
+    const db = firebase.firestore();
     db.useEmulator('localhost', 9000);
     expect(mockUseEmulator).toHaveBeenCalledWith('localhost', 9000);
   });
 
   describe('Examples from documentation', () => {
     test('add a user', () => {
-      const db = this.firebase.firestore();
+      const db = firebase.firestore();
 
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/quickstart#add_data
@@ -85,11 +103,12 @@ describe('we can start a firebase application', () => {
         .then(function(docRef) {
           expect(mockAdd).toHaveBeenCalled();
           expect(docRef).toHaveProperty('id');
+          expect(docRef).toHaveProperty('path', `users/${docRef.id}`);
         });
     });
 
     test('get all users', () => {
-      const db = this.firebase.firestore();
+      const db = firebase.firestore();
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/quickstart#read_data
 
@@ -101,6 +120,9 @@ describe('we can start a firebase application', () => {
           expect(querySnapshot.docs.length).toBe(2);
           expect(querySnapshot.size).toBe(querySnapshot.docs.length);
 
+          const paths = querySnapshot.docs.map(d => d.ref.path).sort();
+          const expectedPaths = ['users/abc123', 'users/123abc'].sort();
+          expect(paths).toStrictEqual(expectedPaths);
           querySnapshot.forEach(doc => {
             expect(doc.exists).toBe(true);
             expect(doc.data()).toBeTruthy();
@@ -109,18 +131,17 @@ describe('we can start a firebase application', () => {
         });
     });
 
-    test('collectionGroup at root', () => {
-      const db = this.firebase.firestore();
+    test('collectionGroup with collections only at root', () => {
+      const db = firebase.firestore();
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/query-data/queries#collection-group-query
-
       return db
         .collectionGroup('users')
         .where('last', '==', 'builder')
         .get()
         .then(querySnapshot => {
           expect(mockCollectionGroup).toHaveBeenCalledWith('users');
-          expect(mockGet).toHaveBeenCalled();
+          expect(mockGet).toHaveBeenCalledTimes(1);
           expect(mockWhere).toHaveBeenCalledWith('last', '==', 'builder');
 
           expect(querySnapshot.forEach).toBeTruthy();
@@ -134,29 +155,51 @@ describe('we can start a firebase application', () => {
         });
     });
 
-    test('collectionGroup with subcollections', () =>
-      this.firebase
-        .firestore()
+    test('collectionGroup with subcollections', () => {
+      const db = firebase.firestore();
+      return db
         .collectionGroup('cities')
-        .where('type', '==', 'museum')
         .get()
         .then(querySnapshot => {
           expect(mockCollectionGroup).toHaveBeenCalledWith('cities');
-          expect(mockGet).toHaveBeenCalled();
-          expect(mockWhere).toHaveBeenCalledWith('type', '==', 'museum');
+          expect(mockGet).toHaveBeenCalledTimes(1);
+          expect(mockWhere).not.toHaveBeenCalled();
 
           expect(querySnapshot.forEach).toBeTruthy();
-          expect(querySnapshot.docs.length).toBe(3);
+          expect(querySnapshot.docs.length).toBe(4);
           expect(querySnapshot.size).toBe(querySnapshot.docs.length);
 
           querySnapshot.forEach(doc => {
             expect(doc.exists).toBe(true);
             expect(doc.data()).toBeTruthy();
           });
-        }));
+        });
+    });
+
+    test('collectionGroup with queried subcollections', () => {
+      const db = firebase.firestore();
+      return db
+        .collectionGroup('cities')
+        .where('country', '==', 'USA')
+        .get()
+        .then(querySnapshot => {
+          expect(mockCollectionGroup).toHaveBeenCalledWith('cities');
+          expect(mockGet).toHaveBeenCalledTimes(1);
+          expect(mockWhere).toHaveBeenCalledWith('country', '==', 'USA');
+
+          expect(querySnapshot.forEach).toBeTruthy();
+          expect(querySnapshot.docs.length).toBe(filters ? 3 : 4);
+          expect(querySnapshot.size).toBe(querySnapshot.docs.length);
+
+          querySnapshot.forEach(doc => {
+            expect(doc.exists).toBe(true);
+            expect(doc.data()).toBeTruthy();
+          });
+        });
+    });
 
     test('set a city', () => {
-      const db = this.firebase.firestore();
+      const db = firebase.firestore();
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/manage-data/add-data#set_a_document\
 
@@ -178,7 +221,7 @@ describe('we can start a firebase application', () => {
     });
 
     test('updating a city', () => {
-      const db = this.firebase.firestore();
+      const db = firebase.firestore();
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
       const washingtonRef = db.collection('cities').doc('DC');
@@ -194,7 +237,7 @@ describe('we can start a firebase application', () => {
     });
 
     test('batch writes', () => {
-      const db = this.firebase.firestore();
+      const db = firebase.firestore();
       // Example from documentation:
       // https://cloud.google.com/firestore/docs/manage-data/transactions
 
@@ -225,7 +268,7 @@ describe('we can start a firebase application', () => {
     });
 
     test('onSnapshot single doc', async () => {
-      const db = this.firebase.firestore();
+      const db = firebase.firestore();
 
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/query-data/listen
@@ -241,10 +284,11 @@ describe('we can start a firebase application', () => {
       await flushPromises();
 
       expect(mockOnSnapShot).toHaveBeenCalled();
+      expect(mockQueryOnSnapshot).not.toHaveBeenCalled();
     });
 
     test('onSnapshot can work with options', async () => {
-      const db = this.firebase.firestore();
+      const db = firebase.firestore();
 
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/query-data/listen
@@ -266,10 +310,11 @@ describe('we can start a firebase application', () => {
       await flushPromises();
 
       expect(mockOnSnapShot).toHaveBeenCalled();
+      expect(mockQueryOnSnapshot).not.toHaveBeenCalled();
     });
 
     test('onSnapshot with query', async () => {
-      const db = this.firebase.firestore();
+      const db = firebase.firestore();
 
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/query-data/listen
@@ -278,9 +323,9 @@ describe('we can start a firebase application', () => {
         .collection('cities')
         .where('state', '==', 'CA')
         .onSnapshot(querySnapshot => {
-          expect(querySnapshot).toHaveProperty('forEach');
+          expect(querySnapshot).toHaveProperty('forEach', expect.any(Function));
           expect(querySnapshot).toHaveProperty('docChanges');
-          expect(querySnapshot).toHaveProperty('docs');
+          expect(querySnapshot).toHaveProperty('docs', expect.any(Array));
 
           expect(querySnapshot.forEach).toBeInstanceOf(Function);
           expect(querySnapshot.docChanges).toBeInstanceOf(Function);
@@ -293,7 +338,8 @@ describe('we can start a firebase application', () => {
 
       expect(unsubscribe).toBeInstanceOf(Function);
       expect(mockWhere).toHaveBeenCalled();
-      expect(mockOnSnapShot).toHaveBeenCalled();
+      expect(mockOnSnapShot).not.toHaveBeenCalled();
+      expect(mockQueryOnSnapshot).toHaveBeenCalled();
     });
 
     describe('withConverter', () => {
@@ -303,7 +349,7 @@ describe('we can start a firebase application', () => {
       };
 
       test('single document', async () => {
-        const db = this.firebase.firestore();
+        const db = firebase.firestore();
 
         const recordDoc = db.doc('cities/la').withConverter(converter);
 
@@ -318,7 +364,7 @@ describe('we can start a firebase application', () => {
       });
 
       test('single undefined document', async () => {
-        const db = this.firebase.firestore();
+        const db = firebase.firestore();
 
         const recordDoc = db
           .collection('cities')
@@ -327,7 +373,7 @@ describe('we can start a firebase application', () => {
 
         expect(mockCollection).toHaveBeenCalledWith('cities');
         expect(mockWithConverter).toHaveBeenCalledWith(converter);
-        expect(mockDoc).toHaveBeenCalledWith('abc123');
+        expect(mockDoc).toHaveBeenCalled();
         expect(recordDoc).toBeInstanceOf(FakeFirestore.DocumentReference);
 
         const record = await recordDoc.get();
@@ -337,7 +383,7 @@ describe('we can start a firebase application', () => {
       });
 
       test('multiple documents', async () => {
-        const db = this.firebase.firestore();
+        const db = firebase.firestore();
 
         const recordsCol = db.collection('cities').withConverter(converter);
 
