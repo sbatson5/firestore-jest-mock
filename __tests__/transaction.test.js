@@ -63,8 +63,8 @@ describe('Transactions', () => {
       expect(result).toBeInstanceOf(Promise);
       const doc = await result;
 
-      // Calling `get` on transaction also calls `get` on `ref`
-      expect(mockGet).toHaveBeenCalled();
+      // Calling `get` on transaction no longer calls `get` on `ref`
+      expect(mockGet).not.toHaveBeenCalled();
       expect(doc).toHaveProperty('id', 'body');
       expect(doc).toHaveProperty('exists', false);
       expect(doc.data()).toBeUndefined();

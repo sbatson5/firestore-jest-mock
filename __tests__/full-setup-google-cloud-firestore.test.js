@@ -109,16 +109,17 @@ describe('we can start a firestore application', () => {
     });
 
     test('collectionGroup with subcollections', () => {
+      jest.clearAllMocks();
       const firestore = new this.Firestore();
 
       return firestore
         .collectionGroup('cities')
-        .where('type', '==', 'museum')
+        .where('country', '==', 'USA')
         .get()
         .then(querySnapshot => {
           expect(mockCollectionGroup).toHaveBeenCalledWith('cities');
-          expect(mockGet).toHaveBeenCalled();
-          expect(mockWhere).toHaveBeenCalledWith('type', '==', 'museum');
+          expect(mockGet).toHaveBeenCalledTimes(1);
+          expect(mockWhere).toHaveBeenCalledWith('country', '==', 'USA');
 
           expect(querySnapshot.forEach).toBeTruthy();
           expect(querySnapshot.docs.length).toBe(3);
@@ -240,9 +241,9 @@ describe('we can start a firestore application', () => {
         .collection('cities')
         .where('state', '==', 'CA')
         .onSnapshot(querySnapshot => {
-          expect(querySnapshot).toHaveProperty('forEach');
+          expect(querySnapshot).toHaveProperty('forEach', expect.any(Function));
           expect(querySnapshot).toHaveProperty('docChanges');
-          expect(querySnapshot).toHaveProperty('docs');
+          expect(querySnapshot).toHaveProperty('docs', expect.any(Array));
 
           expect(querySnapshot.forEach).toBeInstanceOf(Function);
           expect(querySnapshot.docChanges).toBeInstanceOf(Function);

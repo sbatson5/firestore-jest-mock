@@ -9,7 +9,6 @@
     "rootDir": ".",
     "strict": true,
     "alwaysStrict": true,
-    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "declarationMap": true,

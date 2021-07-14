@@ -17,6 +17,7 @@ const firebaseStub = (overrides, options = defaultOptions) => {
   firestoreConstructor.FieldValue = FakeFirestore.FieldValue;
   firestoreConstructor.Timestamp = FakeFirestore.Timestamp;
   firestoreConstructor.Transaction = FakeFirestore.Transaction;
+  firestoreConstructor.FieldPath = FakeFirestore.FieldPath;
 
   // The Firebase mock
   return {

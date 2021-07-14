@@ -10,6 +10,7 @@ const mockUpdate = jest.fn();
 const mockSet = jest.fn();
 const mockAdd = jest.fn();
 const mockDelete = jest.fn();
+const mockListDocuments = jest.fn();
 
 const mockBatchDelete = jest.fn();
 const mockBatchCommit = jest.fn();
@@ -22,6 +23,7 @@ const timestamp = require('./timestamp');
 const fieldValue = require('./fieldValue');
 const query = require('./query');
 const transaction = require('./transaction');
+const path = require('./path');
 
 const buildDocFromHash = require('./helpers/buildDocFromHash');
 const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
@@ -84,37 +86,89 @@ class FakeFirestore {
     mockUseEmulator(...arguments);
   }
 
-  collection(collectionName) {
+  collection(path) {
+    // Accept any collection path
+    // See https://firebase.google.com/docs/reference/js/firebase.firestore.Firestore#collection
     mockCollection(...arguments);
-    return new FakeFirestore.CollectionReference(collectionName, null, this);
+
+    if (path === undefined) {
+      throw new Error(
+        `FakeFirebaseError: Function Firestore.collection() requires 1 argument, but was called with 0 arguments.`,
+      );
+    } else if (!path || typeof path !== 'string') {
+      throw new Error(
+        `FakeFirebaseError: Function Firestore.collection() requires its first argument to be of type non-empty string, but it was: ${JSON.stringify(
+          path,
+        )}`,
+      );
+    }
+
+    // Ignore leading slash
+    const pathArray = path.replace(/^\/+/, '').split('/');
+    // Must be collection-level, so odd-numbered elements
+    if (pathArray.length % 2 !== 1) {
+      throw new Error(
+        `FakeFirebaseError: Invalid collection reference. Collection references must have an odd number of segments, but ${path} has ${pathArray.length}`,
+      );
+    }
+
+    const { coll } = this._docAndColForPathArray(pathArray);
+    return coll;
   }
 
-  collectionGroup(collectionName) {
+  collectionGroup(collectionId) {
     mockCollectionGroup(...arguments);
-    return new FakeFirestore.Query(collectionName, this);
+    return new FakeFirestore.Query(collectionId, this, true);
   }
 
   doc(path) {
     mockDoc(path);
+    return this._doc(path);
+  }
+
+  _doc(path) {
+    // Accept any document path
+    // See https://firebase.google.com/docs/reference/js/firebase.firestore.Firestore#doc
+
+    if (path === undefined) {
+      throw new Error(
+        `FakeFirebaseError: Function Firestore.doc() requires 1 argument, but was called with 0 arguments.`,
+      );
+    } else if (!path || typeof path !== 'string') {
+      throw new Error(
+        `FakeFirebaseError: Function Firestore.doc() requires its first argument to be of type non-empty string, but it was: ${JSON.stringify(
+          path,
+        )}`,
+      );
+    }
 
     // Ignore leading slash
     const pathArray = path.replace(/^\/+/, '').split('/');
     // Must be document-level, so even-numbered elements
-    if (pathArray.length % 2) {
-      throw new Error('The path array must be document-level');
+    if (pathArray.length % 2 !== 0) {
+      throw new Error(`FakeFirebaseError: Invalid document reference. Document references must have an even number of segments, but ${path} has ${pathArray.length}
+      `);
     }
 
-    let doc = null;
-    for (let index = 0; index < pathArray.length; index++) {
-      const collectionId = pathArray[index];
-      const documentId = pathArray[index + 1];
-
-      const collection = new FakeFirestore.CollectionReference(collectionId, doc, this);
-      doc = new FakeFirestore.DocumentReference(documentId, collection);
-
-      index++; // skip to next collection
-    }
+    const { doc } = this._docAndColForPathArray(pathArray);
     return doc;
+  }
+
+  _docAndColForPathArray(pathArray) {
+    let doc = null;
+    let coll = null;
+    for (let index = 0; index < pathArray.length; index += 2) {
+      const collectionId = pathArray[index] || '';
+      const documentId = pathArray[index + 1] || '';
+
+      coll = new FakeFirestore.CollectionReference(collectionId, doc, this);
+      if (!documentId) {
+        break;
+      }
+      doc = new FakeFirestore.DocumentReference(documentId, coll);
+    }
+
+    return { doc, coll };
   }
 
   runTransaction(updateFunction) {
@@ -129,13 +183,13 @@ class FakeFirestore {
     }
 
     // note: this logic could be deduplicated
-    const pathArray = path
-      .replace(/^\/+/, '')
-      .split('/')
-      .slice(1);
+    const pathArray = path.replace(/^\/+/, '').split('/');
+
     // Must be document-level, so even-numbered elements
-    if (pathArray.length % 2) {
-      throw new Error('The path array must be document-level');
+    if (pathArray.length % 2 !== 0) {
+      throw new Error(
+        `FakeFirebaseError: Invalid document reference. Document references must have an even number of segments, but ${path} has ${pathArray.length}`,
+      );
     }
 
     // The parent entry is the id of the document
@@ -173,6 +227,7 @@ FakeFirestore.Query = query.Query;
 FakeFirestore.FieldValue = fieldValue.FieldValue;
 FakeFirestore.Timestamp = timestamp.Timestamp;
 FakeFirestore.Transaction = transaction.Transaction;
+FakeFirestore.FieldPath = path.FieldPath;
 
 /*
  * ============
@@ -185,7 +240,10 @@ FakeFirestore.DocumentReference = class {
     this.id = id;
     this.parent = parent;
     this.firestore = parent.firestore;
-    this.path = parent.path.concat(`/${id}`);
+    this.path = parent.path
+      .split('/')
+      .concat(id)
+      .join('/');
   }
 
   collection(collectionName) {
@@ -209,19 +267,17 @@ FakeFirestore.DocumentReference = class {
       if (typeof arguments[0] === 'function') {
         [callback, errorCallback] = arguments;
       } else {
-        // eslint-disable-next-line
+        // eslint-disable-next-line no-unused-vars
         [options, callback, errorCallback] = arguments;
       }
 
-      this.get()
-        .then(result => {
-          callback(result);
-        })
-        .catch(e => {
-          throw e;
-        });
+      callback(this._get());
     } catch (e) {
-      errorCallback(e);
+      if (errorCallback) {
+        errorCallback(e);
+      } else {
+        throw e;
+      }
     }
 
     // Returns an unsubscribe function
@@ -280,14 +336,17 @@ FakeFirestore.DocumentReference = class {
     // Ignore leading slash
     const pathArray = this.path.replace(/^\/+/, '').split('/');
 
-    pathArray.shift(); // drop 'database'; it's always first
+    if (pathArray[0] === 'database') {
+      pathArray.shift(); // drop 'database'; it was included in legacy paths, but we don't need it now
+    }
+
     let requestedRecords = this.firestore.database[pathArray.shift()];
     let document = null;
     if (requestedRecords) {
       const documentId = pathArray.shift();
       document = requestedRecords.find(record => record.id === documentId);
     } else {
-      return { exists: false, data: () => undefined, id: this.id };
+      return { exists: false, data: () => undefined, id: this.id, ref: this };
     }
 
     for (let index = 0; index < pathArray.length; index += 2) {
@@ -295,16 +354,16 @@ FakeFirestore.DocumentReference = class {
       const documentId = pathArray[index + 1];
 
       if (!document || !document._collections) {
-        return { exists: false, data: () => undefined, id: this.id };
+        return { exists: false, data: () => undefined, id: this.id, ref: this };
       }
       requestedRecords = document._collections[collectionId] || [];
       if (requestedRecords.length === 0) {
-        return { exists: false, data: () => undefined, id: this.id };
+        return { exists: false, data: () => undefined, id: this.id, ref: this };
       }
 
       document = requestedRecords.find(record => record.id === documentId);
       if (!document) {
-        return { exists: false, data: () => undefined, id: this.id };
+        return { exists: false, data: () => undefined, id: this.id, ref: this };
       }
 
       // +2 skips to next document
@@ -338,7 +397,7 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
     if (parent) {
       this.path = parent.path.concat(`/${id}`);
     } else {
-      this.path = `database/${id}`;
+      this.path = id;
     }
   }
 
@@ -355,16 +414,14 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
   }
 
   /**
-   * @function records
    * A private method, meant mainly to be used by `get` and other internal objects to retrieve
    * the list of database records referenced by this CollectionReference.
    * @returns {Object[]} An array of mocked document records.
    */
-  records() {
+  _records() {
     // Ignore leading slash
     const pathArray = this.path.replace(/^\/+/, '').split('/');
 
-    pathArray.shift(); // drop 'database'; it's always first
     let requestedRecords = this.firestore.database[pathArray.shift()];
     if (pathArray.length === 0) {
       return requestedRecords || [];
@@ -395,14 +452,24 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
     return requestedRecords;
   }
 
+  listDocuments() {
+    mockListDocuments();
+    return Promise.resolve([new FakeFirestore.DocumentReference(_randomId(), this)]);
+  }
+
   get() {
     query.mocks.mockGet(...arguments);
+    return Promise.resolve(this._get());
+  }
+
+  _get() {
     // Make sure we have a 'good enough' document reference
-    const records = this.records();
+    const records = this._records();
     records.forEach(rec => {
-      rec._ref = this.doc(rec.id);
+      rec._ref = new FakeFirestore.DocumentReference(rec.id, this, this.firestore);
     });
-    return Promise.resolve(buildQuerySnapShot(records));
+    const isFilteringEnabled = this.firestore.options.simulateQueryFilters;
+    return buildQuerySnapShot(records, isFilteringEnabled ? this.filters : undefined);
   }
 
   isEqual(other) {
@@ -432,6 +499,7 @@ module.exports = {
   mockBatchUpdate,
   mockBatchSet,
   mockOnSnapShot,
+  mockListDocuments,
   ...query.mocks,
   ...transaction.mocks,
   ...fieldValue.mocks,
