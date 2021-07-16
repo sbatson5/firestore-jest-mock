@@ -16,6 +16,13 @@ describe('Queries', () => {
             name: 'Homer',
             occupation: 'technician',
             address: { street: '742 Evergreen Terrace' },
+            // May 12, 1956.  Conveniently, a negative number
+            birthdate: {
+              seconds: -430444800,
+              nanoseconds: 0,
+            },
+            // Test a pre-constructed Timestamp
+            timestamp: new FakeFirestore.Timestamp(123, 456),
           },
           { id: 'krusty', name: 'Krusty', occupation: 'clown' },
           {
@@ -340,4 +347,14 @@ describe('Queries', () => {
     expect(otherIds).not.toContainEqual(newDoc.id);
     expect(newDoc).toHaveProperty('path', `foo/${newDoc.id}`);
   });
+
+  test('it properly converts timestamps', () =>
+    db()
+      .doc('characters/homer')
+      .get()
+      .then(record => {
+        expect(record.id).toEqual('homer');
+        const data = record.data();
+        expect(typeof data.birthdate.toDate).toEqual('function');
+      }));
 });

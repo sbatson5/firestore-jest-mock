@@ -32,7 +32,7 @@ const _randomId = () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toSt
 
 class FakeFirestore {
   constructor(stubbedDatabase = {}, options = {}) {
-    this.database = stubbedDatabase;
+    this.database = timestamp.convertTimestamps(stubbedDatabase);
     this.query = new query.Query('', this);
     this.options = options;
   }
