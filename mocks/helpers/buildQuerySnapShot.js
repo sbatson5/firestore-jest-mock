@@ -123,7 +123,7 @@ function _recordsLessThanValue(records, key, value) {
     if (_shouldCompareNumerically(record[key], value)) {
       return record[key] < value;
     }
-	if (_shouldCompareTimestamp(record[key], value)) {
+	  if (_shouldCompareTimestamp(record[key], value)) {
       return record[key].toMillis() < value;
     }
     return String(record[key]) < String(value);
@@ -141,7 +141,7 @@ function _recordsLessThanOrEqualToValue(records, key, value) {
     if (_shouldCompareNumerically(record[key], value)) {
       return record[key] <= value;
     }
-	if (_shouldCompareTimestamp(record[key], value)) {
+	  if (_shouldCompareTimestamp(record[key], value)) {
       return record[key].toMillis() <= value;
     }
     return String(record[key]) <= String(value);
@@ -156,10 +156,10 @@ function _recordsLessThanOrEqualToValue(records, key, value) {
  */
 function _recordsEqualToValue(records, key, value) {
   return _recordsWithKey(records, key).filter(record => {
-	if (_shouldCompareTimestamp(record[key], value)) {
+    if (_shouldCompareTimestamp(record[key], value)) {
       return record[key].toMillis() == value;
     }
-	return String(record[key]) === String(value);
+    return String(record[key]) === String(value);
   });
 }
 
@@ -171,10 +171,10 @@ function _recordsEqualToValue(records, key, value) {
  */
 function _recordsNotEqualToValue(records, key, value) {
   return _recordsWithKey(records, key).filter(record => {
-	 if (_shouldCompareTimestamp(record[key], value)) {
+    if (_shouldCompareTimestamp(record[key], value)) {
       return record[key].toMillis() != value;
     }
-	String(record[key]) !== String(value)
+    String(record[key]) !== String(value)
   });
 }
 
@@ -189,7 +189,7 @@ function _recordsGreaterThanOrEqualToValue(records, key, value) {
     if (_shouldCompareNumerically(record[key], value)) {
       return record[key] >= value;
     }
-	if (_shouldCompareTimestamp(record[key], value)) {
+	  if (_shouldCompareTimestamp(record[key], value)) {
       return record[key].toMillis() >= value;
     }
     return String(record[key]) >= String(value);
@@ -207,7 +207,7 @@ function _recordsGreaterThanValue(records, key, value) {
     if (_shouldCompareNumerically(record[key], value)) {
       return record[key] > value;
     }
-	if (_shouldCompareTimestamp(record[key], value)) {
+	 if (_shouldCompareTimestamp(record[key], value)) {
       return record[key].toMillis() > value;
     }
     return String(record[key]) > String(value);
