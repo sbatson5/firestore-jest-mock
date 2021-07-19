@@ -1,4 +1,5 @@
 const buildDocFromHash = require('./buildDocFromHash');
+const timestamp = require('../timestamp');
 
 module.exports = function buildQuerySnapShot(requestedRecords, filters) {
   const definiteRecords = requestedRecords.filter(rec => !!rec);
@@ -106,6 +107,12 @@ function _shouldCompareNumerically(a, b) {
   return typeof a === 'number' && typeof b === 'number';
 }
 
+function _shouldCompareTimestamp(a, b) {
+  //We check whether toMillis method exists to support both Timestamp mock and Firestore Timestamp object
+  //B is expected to be Date, not Timestamp, just like Firestore does
+  return typeof a === 'object' && a !== null && typeof a.toMillis === 'function' && b instanceof Date;
+}
+
 /**
  * @param {Array<DocumentHash>} records
  * @param {string} key
@@ -116,6 +123,9 @@ function _recordsLessThanValue(records, key, value) {
   return _recordsWithNonNullKey(records, key).filter(record => {
     if (_shouldCompareNumerically(record[key], value)) {
       return record[key] < value;
+    }
+	if (_shouldCompareTimestamp(record[key], value)) {
+      return record[key].toMillis() < value;
     }
     return String(record[key]) < String(value);
   });
@@ -128,9 +138,12 @@ function _recordsLessThanValue(records, key, value) {
  * @returns {Array<DocumentHash>}
  */
 function _recordsLessThanOrEqualToValue(records, key, value) {
-  return _recordsWithNonNullKey(records, key).filter(record => {
+  return _recordsWithNonNullKey(records, key).filter(record => {	  
     if (_shouldCompareNumerically(record[key], value)) {
       return record[key] <= value;
+    }
+	if (_shouldCompareTimestamp(record[key], value)) {
+      return record[key].toMillis() <= value;
     }
     return String(record[key]) <= String(value);
   });
@@ -143,7 +156,12 @@ function _recordsLessThanOrEqualToValue(records, key, value) {
  * @returns {Array<DocumentHash>}
  */
 function _recordsEqualToValue(records, key, value) {
-  return _recordsWithKey(records, key).filter(record => String(record[key]) === String(value));
+  return _recordsWithKey(records, key).filter(record => {
+	if (_shouldCompareTimestamp(record[key], value)) {
+      return record[key].toMillis() == value;
+    }
+	return String(record[key]) === String(value);
+  });
 }
 
 /**
@@ -153,7 +171,12 @@ function _recordsEqualToValue(records, key, value) {
  * @returns {Array<DocumentHash>}
  */
 function _recordsNotEqualToValue(records, key, value) {
-  return _recordsWithKey(records, key).filter(record => String(record[key]) !== String(value));
+  return _recordsWithKey(records, key).filter(record => {
+	 if (_shouldCompareTimestamp(record[key], value)) {
+      return record[key].toMillis() != value;
+    }
+	String(record[key]) !== String(value)
+  });
 }
 
 /**
@@ -166,6 +189,9 @@ function _recordsGreaterThanOrEqualToValue(records, key, value) {
   return _recordsWithNonNullKey(records, key).filter(record => {
     if (_shouldCompareNumerically(record[key], value)) {
       return record[key] >= value;
+    }
+	if (_shouldCompareTimestamp(record[key], value)) {
+      return record[key].toMillis() >= value;
     }
     return String(record[key]) >= String(value);
   });
@@ -181,6 +207,9 @@ function _recordsGreaterThanValue(records, key, value) {
   return _recordsWithNonNullKey(records, key).filter(record => {
     if (_shouldCompareNumerically(record[key], value)) {
       return record[key] > value;
+    }
+	if (_shouldCompareTimestamp(record[key], value)) {
+      return record[key].toMillis() > value;
     }
     return String(record[key]) > String(value);
   });
