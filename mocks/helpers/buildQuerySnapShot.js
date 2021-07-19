@@ -207,7 +207,7 @@ function _recordsGreaterThanValue(records, key, value) {
     if (_shouldCompareNumerically(record[key], value)) {
       return record[key] > value;
     }
-	 if (_shouldCompareTimestamp(record[key], value)) {
+	  if (_shouldCompareTimestamp(record[key], value)) {
       return record[key].toMillis() > value;
     }
     return String(record[key]) > String(value);
