@@ -1,5 +1,4 @@
 const buildDocFromHash = require('./buildDocFromHash');
-const timestamp = require('../timestamp');
 
 module.exports = function buildQuerySnapShot(requestedRecords, filters) {
   const definiteRecords = requestedRecords.filter(rec => !!rec);
