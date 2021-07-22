@@ -32,6 +32,7 @@ describe('we can start a firebase application', () => {
         { id: 'DC', name: 'Disctric of Columbia', state: 'DC', country: 'USA' },
       ],
     },
+    currentUser: { uid: 'abc123', displayName: 'Bob' },
   });
 
   beforeEach(() => {
@@ -101,6 +102,13 @@ describe('we can start a firebase application', () => {
         expect.assertions(1);
         await this.admin.auth().getUser('some-uid');
         expect(mockGetUser).toHaveBeenCalledWith('some-uid');
+      });
+
+      test('get currentUser object', async () => {
+        expect.assertions(2);
+        const currentUser = await this.admin.auth().currentUser;
+        expect(currentUser.uid).toEqual('abc123');
+        expect(currentUser.data.displayName).toBe('Bob');
       });
 
       test('set custom user claims', async () => {
