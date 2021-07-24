@@ -174,7 +174,7 @@ function _recordsNotEqualToValue(records, key, value) {
     if (_shouldCompareTimestamp(record[key], value)) {
       return record[key].toMillis() != value;
     }
-    String(record[key]) !== String(value)
+    return String(record[key]) !== String(value);
   });
 }
 
