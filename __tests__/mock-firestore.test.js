@@ -39,6 +39,20 @@ describe('Queries', () => {
             },
           },
         ],
+        checkEmpty: [
+          {
+            id: 'emptyDocument',
+            _collections: {
+              validChildren: {
+                family: [
+                  { id: '1', name: 'One' },
+                  { id: '2', name: 'Two' },
+                  { id: '3', name: 'Three' },
+                ],
+              },
+            },
+          },
+        ],
       },
       { simulateQueryFilters },
     );
@@ -335,6 +349,25 @@ describe('Queries', () => {
       expect(Array.isArray(nope.docs)).toBe(true);
       expect(nope.forEach).toBeTruthy();
     });
+  });
+
+  test('it returns all results from listDocuments', async () => {
+    const [emptyDoc] = await db()
+      .collection('checkEmpty')
+      .listDocuments();
+    expect(emptyDoc).toBeDefined();
+    const data = await emptyDoc.get();
+    expect(data.exists).toBeTruthy();
+    // Contains no data
+    expect(Object.keys(data.data())).toHaveLength(0);
+  });
+
+  test('it not to return empty results from get', async () => {
+    const check = await db()
+      .collection('checkEmpty')
+      .get();
+
+    expect(check).toHaveProperty('empty', true);
   });
 
   test('New documents with random ID', async () => {
