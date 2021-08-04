@@ -8,6 +8,7 @@ const {
   mockDeleteUser,
   mockVerifyIdToken,
   mockGetUser,
+  mockCreateCustomToken,
   mockSetCustomUserClaims,
   mockUseEmulator,
 } = require('../mocks/auth');
@@ -109,6 +110,16 @@ describe('we can start a firebase application', () => {
         const currentUser = await this.admin.auth().currentUser;
         expect(currentUser.uid).toEqual('abc123');
         expect(currentUser.data.displayName).toBe('Bob');
+      });
+
+      test('create custom token', async () => {
+        expect.assertions(2);
+        const claims = {
+          custom: true,
+        };
+        const token = await this.admin.auth().createCustomToken('some-uid', claims);
+        expect(mockCreateCustomToken).toHaveBeenCalledWith('some-uid', claims);
+        expect(token).toEqual('');
       });
 
       test('set custom user claims', async () => {
