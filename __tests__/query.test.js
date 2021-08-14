@@ -21,6 +21,7 @@ describe('Queries', () => {
             food: ['banana', 'mango'],
             foodCount: 1,
             foodEaten: [500, 20],
+            createdAt: new FakeFirestore.Timestamp(1628939119, 0),
           },
           {
             id: 'elephant',
@@ -30,6 +31,7 @@ describe('Queries', () => {
             food: ['banana', 'peanut'],
             foodCount: 0,
             foodEaten: [0, 500],
+            createdAt: new FakeFirestore.Timestamp(1628939129, 0),
           },
           {
             id: 'chicken',
@@ -39,6 +41,7 @@ describe('Queries', () => {
             food: ['leaf', 'nut', 'ant'],
             foodCount: 4,
             foodEaten: [80, 20, 16],
+            createdAt: new FakeFirestore.Timestamp(1628939139, 0),
             _collections: {
               foodSchedule: [
                 {
@@ -60,6 +63,7 @@ describe('Queries', () => {
             food: ['leaf', 'bread'],
             foodCount: 2,
             foodEaten: [80, 12],
+            createdAt: new FakeFirestore.Timestamp(1628939149, 0),
             _collections: {
               foodSchedule: [
                 {
@@ -168,6 +172,27 @@ describe('Queries', () => {
     const pogoStick = noFood.docs[0];
     expect(pogoStick).toBeDefined();
     expect(pogoStick).toHaveProperty('id', 'pogo-stick');
+  });
+
+  test('it can query date values for equality', async () => {
+    const elephant = await db
+      .collection('animals')
+      .where('createdAt', '==', new Date(1628939129 * 1000))
+      .get();
+
+    expect(elephant).toHaveProperty('size', 1);
+    expect(elephant.docs[0].id).toEqual('elephant');
+  });
+
+  test('it can query date values for greater than condition', async () => {
+    const res = await db
+      .collection('animals')
+      .where('createdAt', '>', new Date(1628939129 * 1000))
+      .get();
+
+    expect(res).toHaveProperty('size', 2);
+    expect(res.docs[0].id).toEqual('chicken');
+    expect(res.docs[1].id).toEqual('ant');
   });
 
   test('it can query multiple documents', async () => {
