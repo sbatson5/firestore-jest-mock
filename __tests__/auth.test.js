@@ -157,6 +157,17 @@ describe('we can start a firebase application', () => {
         expect(mockGetUser).toHaveBeenCalledWith(uid);
         expect(result).toStrictEqual(userRecord);
       });
+
+      test('mocking verify ID token to throw Error', async () => {
+        const error = new Error('test');
+        expect.assertions(1);
+        mockVerifyIdToken.mockRejectedValueOnce(error);
+        const result = await this.admin
+          .auth()
+          .verifyIdToken('token_string', true)
+          .catch(err => err);
+        expect(result).toStrictEqual(error);
+      });
     });
   });
 });
