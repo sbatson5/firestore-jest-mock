@@ -49,7 +49,7 @@ class FakeFirestore {
   getAll(...params) {
     //Strip ReadOptions object
     params = params.filter(arg => arg instanceof FakeFirestore.DocumentReference);
-
+    
     return Promise.all(
       transaction.mocks.mockGetAll(...params) || [...params].map(r => r.get()),
     );
