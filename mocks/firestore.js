@@ -49,10 +49,8 @@ class FakeFirestore {
   getAll(...params) {
     //Strip ReadOptions object
     params = params.filter(arg => arg instanceof FakeFirestore.DocumentReference);
-    
-    return Promise.all(
-      transaction.mocks.mockGetAll(...params) || [...params].map(r => r.get()),
-    );
+
+    return Promise.all(transaction.mocks.mockGetAll(...params) || [...params].map(r => r.get()));
   }
 
   batch() {
@@ -254,6 +252,20 @@ FakeFirestore.DocumentReference = class {
     return new FakeFirestore.CollectionReference(collectionName, this);
   }
 
+  listCollections() {
+    const document = this._getRawObject();
+    if (!document._collections) {
+      return Promise.resolve([]);
+    }
+
+    const collectionRefs = [];
+    for (const collectionId of Object.keys(document._collections)) {
+      collectionRefs.push(new FakeFirestore.CollectionReference(collectionId, this));
+    }
+
+    return Promise.resolve(collectionRefs);
+  }
+
   delete() {
     mockDelete(...arguments);
     return Promise.resolve();
@@ -335,7 +347,11 @@ FakeFirestore.DocumentReference = class {
     return this.query.startAt(...arguments);
   }
 
-  _get() {
+  /**
+   * A private method for internal use.
+   * @returns {Object|null} The raw object of the document or null.
+   */
+  _getRawObject() {
     // Ignore leading slash
     const pathArray = this.path.replace(/^\/+/, '').split('/');
 
@@ -349,7 +365,7 @@ FakeFirestore.DocumentReference = class {
       const documentId = pathArray.shift();
       document = requestedRecords.find(record => record.id === documentId);
     } else {
-      return { exists: false, data: () => undefined, id: this.id, ref: this };
+      return null;
     }
 
     for (let index = 0; index < pathArray.length; index += 2) {
@@ -357,26 +373,36 @@ FakeFirestore.DocumentReference = class {
       const documentId = pathArray[index + 1];
 
       if (!document || !document._collections) {
-        return { exists: false, data: () => undefined, id: this.id, ref: this };
+        return null;
       }
       requestedRecords = document._collections[collectionId] || [];
       if (requestedRecords.length === 0) {
-        return { exists: false, data: () => undefined, id: this.id, ref: this };
+        return null;
       }
 
       document = requestedRecords.find(record => record.id === documentId);
       if (!document) {
-        return { exists: false, data: () => undefined, id: this.id, ref: this };
+        return null;
       }
 
       // +2 skips to next document
     }
 
     if (!!document || false) {
+      return document;
+    }
+    return null;
+  }
+
+  _get() {
+    const document = this._getRawObject();
+
+    if (document) {
       document._ref = this;
       return buildDocFromHash(document);
+    } else {
+      return { exists: false, data: () => undefined, id: this.id, ref: this };
     }
-    return { exists: false, data: () => undefined, id: this.id, ref: this };
   }
 
   withConverter() {
