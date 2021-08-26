@@ -41,8 +41,7 @@ class FakeAuth {
   }
 
   verifyIdToken() {
-    mockVerifyIdToken(...arguments);
-    return Promise.resolve(this.currentUserRecord);
+    return Promise.resolve(mockVerifyIdToken(...arguments) || this.currentUserRecord);
   }
 
   getUser() {
