@@ -11,6 +11,7 @@ const mockSet = jest.fn();
 const mockAdd = jest.fn();
 const mockDelete = jest.fn();
 const mockListDocuments = jest.fn();
+const mockListCollections = jest.fn();
 
 const mockBatchDelete = jest.fn();
 const mockBatchCommit = jest.fn();
@@ -49,10 +50,8 @@ class FakeFirestore {
   getAll(...params) {
     //Strip ReadOptions object
     params = params.filter(arg => arg instanceof FakeFirestore.DocumentReference);
-    
-    return Promise.all(
-      transaction.mocks.mockGetAll(...params) || [...params].map(r => r.get()),
-    );
+
+    return Promise.all(transaction.mocks.mockGetAll(...params) || [...params].map(r => r.get()));
   }
 
   batch() {
@@ -255,6 +254,8 @@ FakeFirestore.DocumentReference = class {
   }
 
   listCollections() {
+    mockListCollections();
+
     const document = this._getRawObject();
     if (!document._collections) {
       return Promise.resolve([]);
@@ -531,6 +532,7 @@ module.exports = {
   mockBatchSet,
   mockOnSnapShot,
   mockListDocuments,
+  mockListCollections,
   ...query.mocks,
   ...transaction.mocks,
   ...fieldValue.mocks,

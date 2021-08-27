@@ -16,6 +16,7 @@ const {
   mockBatchSet,
   mockSettings,
   mockOnSnapShot,
+  mockListCollections,
 } = require('../mocks/firestore');
 
 describe('we can start a firestore application', () => {
@@ -229,6 +230,17 @@ describe('we can start a firestore application', () => {
 
       expect(result).toEqual(expect.any(Array));
       expect(result).toHaveLength(0);
+    });
+
+    test('listCollections calls mockListCollections', async () => {
+      const firestore = new this.Firestore();
+
+      await firestore
+        .collection('users')
+        .doc('abc123')
+        .listCollections();
+
+      expect(mockListCollections).toHaveBeenCalled();
     });
 
     test('onSnapshot single doc', async () => {
