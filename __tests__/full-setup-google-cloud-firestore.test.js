@@ -250,9 +250,12 @@ describe('we can start a firestore application', () => {
         .collection('cities')
         .doc('LA')
         .onSnapshot(doc => {
+          expect(doc).toHaveProperty('createTime');
           expect(doc).toHaveProperty('data');
           expect(doc.data).toBeInstanceOf(Function);
           expect(doc).toHaveProperty('metadata');
+          expect(doc).toHaveProperty('readTime');
+          expect(doc).toHaveProperty('updateTime');
         });
 
       await flushPromises();
@@ -272,9 +275,12 @@ describe('we can start a firestore application', () => {
             includeMetadataChanges: true,
           },
           doc => {
+            expect(doc).toHaveProperty('createTime');
             expect(doc).toHaveProperty('data');
             expect(doc.data).toBeInstanceOf(Function);
             expect(doc).toHaveProperty('metadata');
+            expect(doc).toHaveProperty('readTime');
+            expect(doc).toHaveProperty('updateTime');
           },
         );
 

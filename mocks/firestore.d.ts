@@ -2,7 +2,7 @@ import type { FieldValue } from './fieldValue';
 import type { Query } from './query';
 import type { Timestamp } from './timestamp';
 import type { Transaction } from './transaction';
-import type { FieldPath } from './path'
+import type { FieldPath } from './path';
 
 import type { MockedDocument, DocumentData } from './helpers/buildDocFromHash';
 import type { MockedQuerySnapshot } from './helpers/buildQuerySnapShot';
