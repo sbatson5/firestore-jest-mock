@@ -16,6 +16,7 @@ const {
   mockBatchSet,
   mockSettings,
   mockOnSnapShot,
+  mockListCollections,
 } = require('../mocks/firestore');
 
 describe('we can start a firestore application', () => {
@@ -192,6 +193,54 @@ describe('we can start a firestore application', () => {
         expect(mockBatchSet).toHaveBeenCalledWith(nycRef, { name: 'New York City' });
         expect(mockBatchCommit).toHaveBeenCalled();
       });
+    });
+
+    test('listCollections returns a promise', async () => {
+      const firestore = new this.Firestore();
+
+      const listCollectionsPromise = firestore
+        .collection('cities')
+        .doc('LA')
+        .listCollections();
+
+      expect(listCollectionsPromise).toEqual(expect.any(Promise));
+    });
+
+    test('listCollections resolves with child collections', async () => {
+      const firestore = new this.Firestore();
+
+      const result = await firestore
+        .collection('users')
+        .doc('123abc')
+        .listCollections();
+
+      expect(result).toEqual(expect.any(Array));
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual(expect.any(this.Firestore.CollectionReference));
+      expect(result[0].id).toBe('cities');
+    });
+
+    test('listCollections resolves with empty array if there are no collections in document', async () => {
+      const firestore = new this.Firestore();
+
+      const result = await firestore
+        .collection('users')
+        .doc('abc123')
+        .listCollections();
+
+      expect(result).toEqual(expect.any(Array));
+      expect(result).toHaveLength(0);
+    });
+
+    test('listCollections calls mockListCollections', async () => {
+      const firestore = new this.Firestore();
+
+      await firestore
+        .collection('users')
+        .doc('abc123')
+        .listCollections();
+
+      expect(mockListCollections).toHaveBeenCalled();
     });
 
     test('onSnapshot single doc', async () => {

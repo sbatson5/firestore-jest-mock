@@ -267,6 +267,16 @@ describe.each`
       });
     });
 
+    test('listCollections method does not exist', async () => {
+      const db = firebase.firestore();
+
+      expect(() => {
+        db.collection('cities')
+          .doc('LA')
+          .listCollections();
+      }).toThrow(TypeError);
+    });
+
     test('onSnapshot single doc', async () => {
       const db = firebase.firestore();
 
