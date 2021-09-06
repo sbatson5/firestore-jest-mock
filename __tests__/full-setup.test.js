@@ -11,7 +11,7 @@ describe.each`
   const { mockInitializeApp } = require('../mocks/firebase');
 
   const flushPromises = () => new Promise(setImmediate);
-
+  const { Timestamp } = require('../mocks/timestamp');
   const {
     mockGet,
     mockAdd,
@@ -32,6 +32,7 @@ describe.each`
     mockWithConverter,
     FakeFirestore,
     mockQueryOnSnapshot,
+    mockTimestampNow,
   } = require('../mocks/firestore');
 
   mockFirebase(
@@ -72,6 +73,8 @@ describe.each`
       projectId: '### CLOUD FIRESTORE PROJECT ID ###',
     });
   });
+
+  afterEach(() => mockTimestampNow.mockClear());
 
   test('We can start an application', async () => {
     const db = firebase.firestore();
@@ -225,13 +228,17 @@ describe.each`
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/manage-data/add-data#update-data
       const washingtonRef = db.collection('cities').doc('DC');
+      const now = Timestamp._fromMillis(new Date().getTime());
+
+      mockTimestampNow.mockReturnValue(now);
 
       // Set the "capital" field of the city 'DC'
       return washingtonRef
         .update({
           capital: true,
         })
-        .then(function() {
+        .then(function(value) {
+          expect(value.updateTime).toStrictEqual(now);
           expect(mockUpdate).toHaveBeenCalledWith({ capital: true });
         });
     });
@@ -279,6 +286,9 @@ describe.each`
 
     test('onSnapshot single doc', async () => {
       const db = firebase.firestore();
+      const now = Timestamp._fromMillis(new Date().getTime());
+
+      mockTimestampNow.mockReturnValue(now);
 
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/query-data/listen
@@ -292,6 +302,7 @@ describe.each`
           expect(doc).toHaveProperty('metadata');
           expect(doc).toHaveProperty('readTime');
           expect(doc).toHaveProperty('updateTime');
+          expect(doc.readTime).toStrictEqual(now);
         });
 
       await flushPromises();
@@ -302,6 +313,9 @@ describe.each`
 
     test('onSnapshot can work with options', async () => {
       const db = firebase.firestore();
+      const now = Timestamp._fromMillis(new Date().getTime());
+
+      mockTimestampNow.mockReturnValue(now);
 
       // Example from documentation:
       // https://firebase.google.com/docs/firestore/query-data/listen
@@ -320,6 +334,7 @@ describe.each`
             expect(doc).toHaveProperty('metadata');
             expect(doc).toHaveProperty('readTime');
             expect(doc).toHaveProperty('updateTime');
+            expect(doc.readTime).toStrictEqual(now);
           },
         );
 

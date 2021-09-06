@@ -1,7 +1,7 @@
 const { mockGoogleCloudFirestore } = require('firestore-jest-mock');
 
 const flushPromises = () => new Promise(setImmediate);
-
+const { Timestamp } = require('../mocks/timestamp');
 const {
   mockGet,
   mockAdd,
@@ -17,6 +17,7 @@ const {
   mockSettings,
   mockOnSnapShot,
   mockListCollections,
+  mockTimestampNow,
 } = require('../mocks/firestore');
 
 describe('we can start a firestore application', () => {
@@ -44,6 +45,8 @@ describe('we can start a firestore application', () => {
   beforeEach(() => {
     this.Firestore = require('@google-cloud/firestore').Firestore;
   });
+
+  afterEach(() => mockTimestampNow.mockClear());
 
   test('We can start an application', async () => {
     const firestore = new this.Firestore();
@@ -155,14 +158,17 @@ describe('we can start a firestore application', () => {
 
     test('updating a city', () => {
       const firestore = new this.Firestore();
-
+      const now = Timestamp._fromMillis(new Date().getTime());
       const washingtonRef = firestore.collection('cities').doc('DC');
+
+      mockTimestampNow.mockReturnValue(now);
 
       return washingtonRef
         .update({
           capital: true,
         })
-        .then(function() {
+        .then(function(value) {
+          expect(value.updateTime).toStrictEqual(now);
           expect(mockUpdate).toHaveBeenCalledWith({ capital: true });
         });
     });
@@ -245,6 +251,9 @@ describe('we can start a firestore application', () => {
 
     test('onSnapshot single doc', async () => {
       const firestore = new this.Firestore();
+      const now = Timestamp._fromMillis(new Date().getTime());
+
+      mockTimestampNow.mockReturnValue(now);
 
       firestore
         .collection('cities')
@@ -256,6 +265,7 @@ describe('we can start a firestore application', () => {
           expect(doc).toHaveProperty('metadata');
           expect(doc).toHaveProperty('readTime');
           expect(doc).toHaveProperty('updateTime');
+          expect(doc.readTime).toStrictEqual(now);
         });
 
       await flushPromises();
@@ -265,6 +275,9 @@ describe('we can start a firestore application', () => {
 
     test('onSnapshot can work with options', async () => {
       const firestore = new this.Firestore();
+      const now = Timestamp._fromMillis(new Date().getTime());
+
+      mockTimestampNow.mockReturnValue(now);
 
       firestore
         .collection('cities')
@@ -281,6 +294,7 @@ describe('we can start a firestore application', () => {
             expect(doc).toHaveProperty('metadata');
             expect(doc).toHaveProperty('readTime');
             expect(doc).toHaveProperty('updateTime');
+            expect(doc.readTime).toStrictEqual(now);
           },
         );
 
