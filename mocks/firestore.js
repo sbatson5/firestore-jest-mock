@@ -313,13 +313,17 @@ FakeFirestore.DocumentReference = class {
     if (this._get().exists) {
       this.firestore._updateData(this.path, object, true);
     }
-    return Promise.resolve(buildDocFromHash({ ...object, _ref: this }));
+    return Promise.resolve(
+      buildDocFromHash({ ...object, _ref: this, _updateTime: timestamp.Timestamp.now() }),
+    );
   }
 
   set(object, setOptions = {}) {
     mockSet(...arguments);
     this.firestore._updateData(this.path, object, setOptions.merge);
-    return Promise.resolve(buildDocFromHash({ ...object, _ref: this }));
+    return Promise.resolve(
+      buildDocFromHash({ ...object, _ref: this, _updateTime: timestamp.Timestamp.now() }),
+    );
   }
 
   isEqual(other) {
@@ -402,9 +406,18 @@ FakeFirestore.DocumentReference = class {
 
     if (document) {
       document._ref = this;
+      document._readTime = timestamp.Timestamp.now();
       return buildDocFromHash(document);
     } else {
-      return { exists: false, data: () => undefined, id: this.id, ref: this };
+      return {
+        createTime: undefined,
+        exists: false,
+        data: () => undefined,
+        id: this.id,
+        readTime: undefined,
+        ref: this,
+        updateTime: undefined,
+      };
     }
   }
 

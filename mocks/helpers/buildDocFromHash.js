@@ -1,12 +1,17 @@
+const timestamp = require('../timestamp');
+
 module.exports = function buildDocFromHash(hash = {}, id = 'abc123') {
   const exists = !!hash || false;
   return {
+    createTime: (hash && hash._createTime) || timestamp.Timestamp.now(),
     exists,
     id: (hash && hash.id) || id,
+    readTime: hash && hash._readTime,
     ref: hash && hash._ref,
     metadata: {
       hasPendingWrites: 'Server',
     },
+    updateTime: hash && hash._updateTime,
     data() {
       if (!exists) {
         // From Firestore docs: "Returns 'undefined' if the document doesn't exist."
@@ -18,7 +23,10 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123') {
         delete copy.id;
       }
       delete copy._collections;
+      delete copy._createTime;
+      delete copy._readTime;
       delete copy._ref;
+      delete copy._updateTime;
       return copy;
     },
     get(fieldPath) {
