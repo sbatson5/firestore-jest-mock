@@ -1,6 +1,7 @@
 const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
 
 const mockGet = jest.fn();
+const mockSelect = jest.fn();
 const mockWhere = jest.fn();
 const mockLimit = jest.fn();
 const mockOrderBy = jest.fn();
@@ -15,6 +16,7 @@ class Query {
     this.collectionName = collectionName;
     this.firestore = firestore;
     this.filters = [];
+    this.selectFields = undefined;
     this.isGroupQuery = isGroupQuery;
   }
 
@@ -73,7 +75,16 @@ class Query {
 
     // Return the requested documents
     const isFilteringEnabled = this.firestore.options.simulateQueryFilters;
-    return buildQuerySnapShot(requestedRecords, isFilteringEnabled ? this.filters : undefined);
+    return buildQuerySnapShot(
+      requestedRecords,
+      isFilteringEnabled ? this.filters : undefined,
+      this.selectFields,
+    );
+  }
+
+  select(...fieldPaths) {
+    this.selectFields = fieldPaths;
+    return mockSelect(...fieldPaths) || this;
   }
 
   where(key, comp, value) {
@@ -138,6 +149,7 @@ module.exports = {
   Query,
   mocks: {
     mockGet,
+    mockSelect,
     mockWhere,
     mockLimit,
     mockOrderBy,

@@ -25,4 +25,4 @@ export interface MockedDocument<T = DocumentData> {
   get(fieldPath: string): unknown;
 }
 
-export default function buildDocFromHash(hash?: DocumentHash, id?: string): MockedDocument;
+export default function buildDocFromHash(hash?: DocumentHash, id?: string, selectFields?: string[]): MockedDocument;

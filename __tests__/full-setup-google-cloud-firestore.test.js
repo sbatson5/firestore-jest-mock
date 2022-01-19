@@ -4,6 +4,7 @@ const flushPromises = () => new Promise(setImmediate);
 const { Timestamp } = require('../mocks/timestamp');
 const {
   mockGet,
+  mockSelect,
   mockAdd,
   mockSet,
   mockUpdate,
@@ -86,6 +87,38 @@ describe('we can start a firestore application', () => {
             expect(doc.exists).toBe(true);
             expect(doc.data()).toBeTruthy();
           });
+        });
+    });
+
+    test('select specific fields only', () => {
+      const firestore = new this.Firestore();
+
+      return firestore
+        .collection('users')
+        .select('first', 'last')
+        .get()
+        .then(querySnapshot => {
+          expect(mockSelect).toHaveBeenCalledWith('first', 'last');
+
+          const data = querySnapshot.docs[0].data();
+          expect(Object.keys(data).length).toBe(2);
+          expect(data.first).toBe('Bob');
+          expect(data.last).toBe('builder');
+        });
+    });
+
+    test('select refs only', () => {
+      const firestore = new this.Firestore();
+
+      return firestore
+        .collection('users')
+        .select()
+        .get()
+        .then(querySnapshot => {
+          expect(mockSelect).toHaveBeenCalledWith();
+
+          const data = querySnapshot.docs[0].data();
+          expect(Object.keys(data).length).toBe(0);
         });
     });
 

@@ -1,6 +1,6 @@
 const timestamp = require('../timestamp');
 
-module.exports = function buildDocFromHash(hash = {}, id = 'abc123') {
+module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectFields = undefined) {
   const exists = !!hash || false;
   return {
     createTime: (hash && hash._createTime) || timestamp.Timestamp.now(),
@@ -18,7 +18,7 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123') {
         // See https://firebase.google.com/docs/reference/js/firebase.firestore.DocumentSnapshot#data
         return undefined;
       }
-      const copy = { ...hash };
+      let copy = { ...hash };
       if (!hash._ref.parent.firestore.options.includeIdsInData) {
         delete copy.id;
       }
@@ -27,6 +27,13 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123') {
       delete copy._readTime;
       delete copy._ref;
       delete copy._updateTime;
+
+      if (selectFields !== undefined) {
+        copy = Object.keys(copy)
+          .filter(key => key === 'id' || selectFields.includes(key))
+          .reduce((res, key) => ((res[key] = copy[key]), res), {});
+      }
+
       return copy;
     },
     get(fieldPath) {
