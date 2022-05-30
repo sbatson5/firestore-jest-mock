@@ -15,6 +15,7 @@ class Query {
     this.collectionName = collectionName;
     this.firestore = firestore;
     this.filters = [];
+    this._orderBy = {};
     this.isGroupQuery = isGroupQuery;
   }
 
@@ -73,7 +74,12 @@ class Query {
 
     // Return the requested documents
     const isFilteringEnabled = this.firestore.options.simulateQueryFilters;
-    return buildQuerySnapShot(requestedRecords, isFilteringEnabled ? this.filters : undefined);
+    const isOrderByEnabled = this.firestore.options.simulateOrderBy;
+    return buildQuerySnapShot(
+      requestedRecords,
+      isFilteringEnabled ? this.filters : undefined,
+      isOrderByEnabled ? this._orderBy : undefined,
+    );
   }
 
   where(key, comp, value) {
@@ -100,7 +106,11 @@ class Query {
     return mockLimit(...arguments) || this;
   }
 
-  orderBy() {
+  orderBy(key, direction = 'asc') {
+    this._orderBy = {
+      key,
+      direction,
+    };
     return mockOrderBy(...arguments) || this;
   }
 

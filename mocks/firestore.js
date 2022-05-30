@@ -242,10 +242,7 @@ FakeFirestore.DocumentReference = class {
     this.id = id;
     this.parent = parent;
     this.firestore = parent.firestore;
-    this.path = parent.path
-      .split('/')
-      .concat(id)
-      .join('/');
+    this.path = parent.path.split('/').concat(id).join('/');
   }
 
   collection(collectionName) {
@@ -514,7 +511,12 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
       rec._ref = new FakeFirestore.DocumentReference(rec.id, this, this.firestore);
     });
     const isFilteringEnabled = this.firestore.options.simulateQueryFilters;
-    return buildQuerySnapShot(records, isFilteringEnabled ? this.filters : undefined);
+    const isOrderByEnabled = this.firestore.options.simulateOrderBy;
+    return buildQuerySnapShot(
+      records,
+      isFilteringEnabled ? this.filters : undefined,
+      isOrderByEnabled ? this._orderBy : undefined,
+    );
   }
 
   isEqual(other) {

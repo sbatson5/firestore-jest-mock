@@ -1,9 +1,21 @@
 const buildDocFromHash = require('./buildDocFromHash');
 
-module.exports = function buildQuerySnapShot(requestedRecords, filters) {
+module.exports = function buildQuerySnapShot(requestedRecords, filters, orderBy) {
   const definiteRecords = requestedRecords.filter(rec => !!rec);
   const results = _filteredDocuments(definiteRecords, filters);
-  const docs = results.map(buildDocFromHash);
+  const _docs = results.map(buildDocFromHash);
+  const cmp = {
+    asc: (a, b) => (a < b ? -1 : 1),
+    desc: (a, b) => (a < b ? 1 : -1),
+  };
+  const docs =
+    orderBy && orderBy.key
+      ? _docs
+        .sort((a, b) =>
+          cmp[orderBy.direction || 'asc'](a.data()[orderBy.key], b.data()[orderBy.key]),
+        )
+        .filter(doc => typeof doc.data()[orderBy.key] !== 'undefined')
+      : _docs;
 
   return {
     empty: results.length < 1,

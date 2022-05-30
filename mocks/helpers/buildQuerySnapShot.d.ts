@@ -8,6 +8,11 @@ export interface QueryFilter {
   value: string;
 }
 
+export interface QueryOrderBy {
+  key: string;
+  direction: 'asc' | 'desc';
+}
+
 export interface MockedQuerySnapshot<Doc = MockedDocument> {
   empty: boolean;
   size: number;
@@ -24,5 +29,6 @@ export interface MockedQuerySnapshot<Doc = MockedDocument> {
  */
 export default function buildQuerySnapShot(
   requestedRecords: Array<DocumentHash>,
-  filters?: Array<QueryFilter>
+  filters?: Array<QueryFilter>,
+  orderBy? : QueryOrderBy
 ): MockedQuerySnapshot;
