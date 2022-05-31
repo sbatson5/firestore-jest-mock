@@ -24,6 +24,8 @@ export const mocks: {
   mockOffset: jest.Mock,
   mockStartAfter: jest.Mock,
   mockStartAt: jest.Mock,
+  mockEndBefore: jest.Mock,
+  mockEndAt: jest.Mock,
   mockQueryOnSnapshot: jest.Mock,
   mockWithConverter: jest.Mock,
 };

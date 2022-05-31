@@ -7,6 +7,8 @@ const mockOrderBy = jest.fn();
 const mockOffset = jest.fn();
 const mockStartAfter = jest.fn();
 const mockStartAt = jest.fn();
+const mockEndBefore = jest.fn();
+const mockEndAt = jest.fn();
 const mockQueryOnSnapshot = jest.fn();
 const mockWithConverter = jest.fn();
 
@@ -114,12 +116,24 @@ class Query {
     return mockOrderBy(...arguments) || this;
   }
 
-  startAfter() {
+  startAfter(value) {
+    this.filters.push({ key: this._orderBy.key, comp: '>', value });
     return mockStartAfter(...arguments) || this;
   }
 
-  startAt() {
+  startAt(value) {
+    this.filters.push({ key: this._orderBy.key, comp: '>=', value });
     return mockStartAt(...arguments) || this;
+  }
+
+  endBefore(value) {
+    this.filters.push({ key: this._orderBy.key, comp: '<', value });
+    return mockEndBefore(...arguments) || this;
+  }
+
+  endAt(value) {
+    this.filters.push({ key: this._orderBy.key, comp: '<=', value });
+    return mockEndAt(...arguments) || this;
   }
 
   withConverter() {
@@ -154,6 +168,8 @@ module.exports = {
     mockOffset,
     mockStartAfter,
     mockStartAt,
+    mockEndBefore,
+    mockEndAt,
     mockQueryOnSnapshot,
     mockWithConverter,
   },

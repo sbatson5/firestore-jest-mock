@@ -153,6 +153,8 @@ export const mockOrderBy: jest.Mock;
 export const mockOffset: jest.Mock;
 export const mockStartAfter: jest.Mock;
 export const mockStartAt: jest.Mock;
+export const mockEndBefore: jest.Mock;
+export const mockEndAt: jest.Mock;
 export const mockQueryOnSnapshot: jest.Mock;
 export const mockWithConverter: jest.Mock;
 

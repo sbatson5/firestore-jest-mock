@@ -532,5 +532,30 @@ describe('Queries', () => {
         expect(results.docs.map(d => d.data()[key])).toStrictEqual(sorted.map(d => d[key]));
       },
     );
+
+    test.each`
+      key           | fn              | value
+      ${'legCount'} | ${'startAt'}    | ${2}
+      ${'legCount'} | ${'startAfter'} | ${2}
+      ${'legCount'} | ${'endAt'}      | ${4}
+      ${'legCount'} | ${'endBefore'}  | ${4}
+    `(
+      // eslint-disable-next-line quotes
+      "it performs orderBy on '$key' with cursor '$fn' by '$value'",
+      async ({ key, fn, value }) => {
+        const filter = {
+          startAt: (v, cmp) => v >= cmp,
+          startAfter: (v, cmp) => v > cmp,
+          endAt: (v, cmp) => v <= cmp,
+          endBefore: (v, cmp) => v < cmp,
+        };
+        let query = db.collection('animals').orderBy(key);
+        query = query[fn](value);
+        const results = await query.get();
+        expect(results.docs.map(d => d.data()[key])).toStrictEqual(
+          [...results.docs].filter(d => filter[fn](d.data()[key], value)).map(d => d.data()[key]),
+        );
+      },
+    );
   });
 });
