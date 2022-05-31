@@ -1,6 +1,6 @@
 const buildDocFromHash = require('./buildDocFromHash');
 
-module.exports = function buildQuerySnapShot(requestedRecords, filters, orderBy) {
+module.exports = function buildQuerySnapShot(requestedRecords, filters, orderBy, limit) {
   const definiteRecords = requestedRecords.filter(rec => !!rec);
   const results = _filteredDocuments(definiteRecords, filters);
   const _docs = results.map(buildDocFromHash);
@@ -8,14 +8,15 @@ module.exports = function buildQuerySnapShot(requestedRecords, filters, orderBy)
     asc: (a, b) => (a < b ? -1 : 1),
     desc: (a, b) => (a < b ? 1 : -1),
   };
-  const docs =
+  const docs = (
     orderBy && orderBy.key
       ? _docs
         .sort((a, b) =>
           cmp[orderBy.direction || 'asc'](a.data()[orderBy.key], b.data()[orderBy.key]),
         )
         .filter(doc => typeof doc.data()[orderBy.key] !== 'undefined')
-      : _docs;
+      : _docs
+  ).slice(0, limit > 0 ? limit : undefined);
 
   return {
     empty: results.length < 1,

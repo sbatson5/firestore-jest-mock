@@ -557,5 +557,19 @@ describe('Queries', () => {
         );
       },
     );
+
+    test.each`
+      limit
+      ${1}
+      ${2}
+      ${3}
+    `(
+      // eslint-disable-next-line quotes
+      "it performs limit '$limit'",
+      async ({ limit }) => {
+        const results = await db.collection('animals').limit(limit).get();
+        expect(results.docs.length).toBe(limit);
+      },
+    );
   });
 });

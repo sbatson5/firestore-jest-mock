@@ -18,6 +18,7 @@ class Query {
     this.firestore = firestore;
     this.filters = [];
     this._orderBy = {};
+    this._limit = -1;
     this.isGroupQuery = isGroupQuery;
   }
 
@@ -81,6 +82,7 @@ class Query {
       requestedRecords,
       isFilteringEnabled ? this.filters : undefined,
       isOrderByEnabled ? this._orderBy : undefined,
+      this._limit,
     );
   }
 
@@ -104,7 +106,8 @@ class Query {
     return mockOffset(...arguments) || this;
   }
 
-  limit() {
+  limit(limit = -1) {
+    this._limit = limit;
     return mockLimit(...arguments) || this;
   }
 
