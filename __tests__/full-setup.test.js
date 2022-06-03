@@ -14,6 +14,7 @@ describe.each`
   const { Timestamp } = require('../mocks/timestamp');
   const {
     mockGet,
+    mockSelect,
     mockAdd,
     mockSet,
     mockUpdate,
@@ -131,6 +132,42 @@ describe.each`
             expect(doc.data()).toBeTruthy();
             expect(doc.data().id).toBeFalsy();
           });
+        });
+    });
+
+    test('select specific fields only', () => {
+      const db = firebase.firestore();
+      // Example from documentation:
+      // https://firebase.google.com/docs/firestore/quickstart#read_data
+
+      return db
+        .collection('users')
+        .select('first', 'last')
+        .get()
+        .then(querySnapshot => {
+          expect(mockSelect).toHaveBeenCalledWith('first', 'last');
+
+          const data = querySnapshot.docs[0].data();
+          expect(Object.keys(data).length).toBe(2);
+          expect(data.first).toBe('Bob');
+          expect(data.last).toBe('builder');
+        });
+    });
+
+    test('select refs only', () => {
+      const db = firebase.firestore();
+      // Example from documentation:
+      // https://firebase.google.com/docs/firestore/quickstart#read_data
+
+      return db
+        .collection('users')
+        .select()
+        .get()
+        .then(querySnapshot => {
+          expect(mockSelect).toHaveBeenCalledWith();
+
+          const data = querySnapshot.docs[0].data();
+          expect(Object.keys(data).length).toBe(0);
         });
     });
 

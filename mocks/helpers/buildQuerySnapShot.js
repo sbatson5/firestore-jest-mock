@@ -1,9 +1,9 @@
 const buildDocFromHash = require('./buildDocFromHash');
 
-module.exports = function buildQuerySnapShot(requestedRecords, filters) {
+module.exports = function buildQuerySnapShot(requestedRecords, filters, selectFields) {
   const definiteRecords = requestedRecords.filter(rec => !!rec);
   const results = _filteredDocuments(definiteRecords, filters);
-  const docs = results.map(buildDocFromHash);
+  const docs = results.map(doc => buildDocFromHash(doc, 'abc123', selectFields));
 
   return {
     empty: results.length < 1,

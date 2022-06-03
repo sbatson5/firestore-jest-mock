@@ -514,7 +514,11 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
       rec._ref = new FakeFirestore.DocumentReference(rec.id, this, this.firestore);
     });
     const isFilteringEnabled = this.firestore.options.simulateQueryFilters;
-    return buildQuerySnapShot(records, isFilteringEnabled ? this.filters : undefined);
+    return buildQuerySnapShot(
+      records,
+      isFilteringEnabled ? this.filters : undefined,
+      this.selectFields,
+    );
   }
 
   isEqual(other) {

@@ -5,7 +5,7 @@ export class Query {
   constructor(collectionName: string, firestore: typeof FakeFirestore);
 
   get(): Promise<MockedQuerySnapshot>;
-
+  select(): Query;
   where(): Query;
   offset(): Query;
   limit(): Query;
@@ -18,6 +18,7 @@ export class Query {
 
 export const mocks: {
   mockGet: jest.Mock,
+  mockSelect: jest.Mock,
   mockWhere: jest.Mock,
   mockLimit: jest.Mock,
   mockOrderBy: jest.Mock,

@@ -24,5 +24,6 @@ export interface MockedQuerySnapshot<Doc = MockedDocument> {
  */
 export default function buildQuerySnapShot(
   requestedRecords: Array<DocumentHash>,
-  filters?: Array<QueryFilter>
+  filters?: Array<QueryFilter>,
+  selectFields?: string[],
 ): MockedQuerySnapshot;
