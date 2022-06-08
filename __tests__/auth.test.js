@@ -11,6 +11,7 @@ const {
   mockCreateCustomToken,
   mockSetCustomUserClaims,
   mockUseEmulator,
+  mockGetUsers,
 } = require('../mocks/auth');
 
 describe('we can start a firebase application', () => {
@@ -156,6 +157,31 @@ describe('we can start a firebase application', () => {
         const result = await this.admin.auth().getUser(uid);
         expect(mockGetUser).toHaveBeenCalledWith(uid);
         expect(result).toStrictEqual(userRecord);
+      });
+
+      test('mocking the list of user objects', async () => {
+        const email = 'bob@example.com';
+        const userRecord = {
+          customClaims: undefined,
+          disabled: false,
+          email: 'bob@example.com',
+          emailVerified: false,
+          metadata: {},
+          multiFactor: undefined,
+          passwordHash: undefined,
+          passwordSalt: undefined,
+          phoneNumber: '928-555-4321',
+          photoURL: undefined,
+          providerData: [],
+          tenantId: null,
+          tokensValidAfterTime: undefined,
+          uid: 'some-uid',
+        };
+        mockGetUsers.mockReturnValueOnce({ users: [userRecord], notFound: [] });
+        expect.assertions(2);
+        const result = await this.admin.auth().getUsers([{ email }]);
+        expect(mockGetUsers).toHaveBeenCalledWith([{ email }]);
+        expect(result).toMatchObject({ users: [userRecord], notFound: [] });
       });
 
       test('mocking verify ID token to throw Error', async () => {

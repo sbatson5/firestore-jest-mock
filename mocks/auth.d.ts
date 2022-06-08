@@ -5,6 +5,7 @@ export const mockSignInWithEmailAndPassword: jest.Mock;
 export const mockSendPasswordResetEmail: jest.Mock;
 export const mockVerifyIdToken: jest.Mock;
 export const mockGetUser: jest.Mock;
+export const mockGetUsers: jest.Mock;
 export const mockCreateCustomToken: jest.Mock;
 export const mockSetCustomUserClaims: jest.Mock;
 export const mockSignOut: jest.Mock;
@@ -26,6 +27,7 @@ export class FakeAuth {
   sendPasswordResetEmail(): void;
   verifyIdToken(): Promise<FirebaseUser>;
   getUser(): Promise<Record<string, never>>;
+  getUsers(): Promise<{ users: FirebaseUser[]; notFound: any[] }>;
   createCustomToken(): Promise<string>;
   setCustomUserClaims(): Promise<Record<string, never>>;
   useEmulator(): void;
