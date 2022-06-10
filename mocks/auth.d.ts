@@ -9,6 +9,7 @@ export const mockGetUsers: jest.Mock;
 export const mockCreateCustomToken: jest.Mock;
 export const mockSetCustomUserClaims: jest.Mock;
 export const mockSignOut: jest.Mock;
+export const mockGeneratePasswordResetLink: jest.Mock;
 
 // FIXME: We should decide whether this should be exported from auth or firestore
 export const mockUseEmulator: jest.Mock;
@@ -31,4 +32,5 @@ export class FakeAuth {
   createCustomToken(): Promise<string>;
   setCustomUserClaims(): Promise<Record<string, never>>;
   useEmulator(): void;
+  generatePasswordResetLink: Promise<string>;
 }

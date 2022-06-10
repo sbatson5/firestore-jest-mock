@@ -12,6 +12,7 @@ const {
   mockSetCustomUserClaims,
   mockUseEmulator,
   mockGetUsers,
+  mockGeneratePasswordResetLink,
 } = require('../mocks/auth');
 
 describe('we can start a firebase application', () => {
@@ -130,6 +131,12 @@ describe('we can start a firebase application', () => {
         };
         await this.admin.auth().setCustomUserClaims('some-uid', claims);
         expect(mockSetCustomUserClaims).toHaveBeenCalledWith('some-uid', claims);
+      });
+
+      test('generate password reset link', async () => {
+        expect.assertions(1);
+        await this.admin.auth().generatePasswordResetLink('test@email.com');
+        expect(mockGeneratePasswordResetLink).toHaveBeenCalledWith('test@email.com');
       });
     });
 
