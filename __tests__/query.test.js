@@ -87,6 +87,12 @@ describe('Queries', () => {
             name: 'pogo-stick',
             food: false,
           },
+          {
+            id: 'nested',
+            extra: {
+              test: true,
+            },
+          },
         ],
         foodSchedule: [
           { id: 'ants', interval: 'daily' },
@@ -206,6 +212,15 @@ describe('Queries', () => {
     expect(mockWhere).toHaveBeenCalledWith('type', '==', 'mammal');
     expect(mockGet).toHaveBeenCalled();
     expect(animals).toHaveProperty('size', 2); // Returns 2 of 4 documents
+  });
+
+  test('it can query nested field', async () => {
+    const animals = await db.collection('animals').where('extra.test', '==', true).get();
+
+    expect(animals).toHaveProperty('size', 1);
+    expect(animals).toHaveProperty('docs', expect.any(Array));
+    expect(animals.docs.length).toBe(1);
+    expect(animals.docs[0].id).toEqual('nested');
   });
 
   test('it can filter firestore equality queries in subcollections', async () => {

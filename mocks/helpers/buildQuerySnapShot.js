@@ -31,6 +31,18 @@ module.exports = function buildQuerySnapShot(requestedRecords, filters, orderBy,
   };
 };
 
+function _getValueByKey(obj, key) {
+  if (!obj) {
+    return undefined;
+  }
+
+  const keys = key.split('.');
+  if (keys.length === 1) {
+    return obj[key];
+  }
+  return _getValueByKey(obj[keys[0]], keys.slice(1).join(''));
+}
+
 /**
  * @typedef DocumentHash
  * @type {import('./buildDocFromHash').DocumentHash}
@@ -108,11 +120,14 @@ function _filteredDocuments(records, filters) {
 }
 
 function _recordsWithKey(records, key) {
-  return records.filter(record => record && record[key] !== undefined);
+  return records.filter(record => record && typeof _getValueByKey(record, key) !== 'undefined');
 }
 
 function _recordsWithNonNullKey(records, key) {
-  return records.filter(record => record && record[key] !== undefined && record[key] !== null);
+  return records.filter(record => {
+    const v = _getValueByKey(record, key);
+    return v !== undefined && v !== null;
+  });
 }
 
 function _shouldCompareNumerically(a, b) {
@@ -135,13 +150,14 @@ function _shouldCompareTimestamp(a, b) {
  */
 function _recordsLessThanValue(records, key, value) {
   return _recordsWithNonNullKey(records, key).filter(record => {
-    if (_shouldCompareNumerically(record[key], value)) {
-      return record[key] < value;
+    const v = _getValueByKey(record, key);
+    if (_shouldCompareNumerically(v, value)) {
+      return v < value;
     }
-    if (_shouldCompareTimestamp(record[key], value)) {
-      return record[key].toMillis() < value;
+    if (_shouldCompareTimestamp(v, value)) {
+      return v.toMillis() < value;
     }
-    return String(record[key]) < String(value);
+    return String(v) < String(value);
   });
 }
 
@@ -153,13 +169,14 @@ function _recordsLessThanValue(records, key, value) {
  */
 function _recordsLessThanOrEqualToValue(records, key, value) {
   return _recordsWithNonNullKey(records, key).filter(record => {
-    if (_shouldCompareNumerically(record[key], value)) {
-      return record[key] <= value;
+    const v = _getValueByKey(record, key);
+    if (_shouldCompareNumerically(v, value)) {
+      return v <= value;
     }
-    if (_shouldCompareTimestamp(record[key], value)) {
-      return record[key].toMillis() <= value;
+    if (_shouldCompareTimestamp(v, value)) {
+      return v.toMillis() <= value;
     }
-    return String(record[key]) <= String(value);
+    return String(v) <= String(value);
   });
 }
 
@@ -171,11 +188,12 @@ function _recordsLessThanOrEqualToValue(records, key, value) {
  */
 function _recordsEqualToValue(records, key, value) {
   return _recordsWithKey(records, key).filter(record => {
-    if (_shouldCompareTimestamp(record[key], value)) {
+    const v = _getValueByKey(record, key);
+    if (_shouldCompareTimestamp(v, value)) {
       //NOTE: for equality, we must compare numbers!
-      return record[key].toMillis() === value.getTime();
+      return v.toMillis() === value.getTime();
     }
-    return String(record[key]) === String(value);
+    return String(v) === String(value);
   });
 }
 
@@ -187,11 +205,12 @@ function _recordsEqualToValue(records, key, value) {
  */
 function _recordsNotEqualToValue(records, key, value) {
   return _recordsWithKey(records, key).filter(record => {
-    if (_shouldCompareTimestamp(record[key], value)) {
+    const v = _getValueByKey(record, key);
+    if (_shouldCompareTimestamp(v, value)) {
       //NOTE: for equality, we must compare numbers!
-      return record[key].toMillis() !== value.getTime();
+      return v.toMillis() !== value.getTime();
     }
-    return String(record[key]) !== String(value);
+    return String(v) !== String(value);
   });
 }
 
@@ -203,13 +222,14 @@ function _recordsNotEqualToValue(records, key, value) {
  */
 function _recordsGreaterThanOrEqualToValue(records, key, value) {
   return _recordsWithNonNullKey(records, key).filter(record => {
-    if (_shouldCompareNumerically(record[key], value)) {
-      return record[key] >= value;
+    const v = _getValueByKey(record, key);
+    if (_shouldCompareNumerically(v, value)) {
+      return v >= value;
     }
-    if (_shouldCompareTimestamp(record[key], value)) {
-      return record[key].toMillis() >= value;
+    if (_shouldCompareTimestamp(v, value)) {
+      return v.toMillis() >= value;
     }
-    return String(record[key]) >= String(value);
+    return String(v) >= String(value);
   });
 }
 
@@ -221,13 +241,14 @@ function _recordsGreaterThanOrEqualToValue(records, key, value) {
  */
 function _recordsGreaterThanValue(records, key, value) {
   return _recordsWithNonNullKey(records, key).filter(record => {
-    if (_shouldCompareNumerically(record[key], value)) {
-      return record[key] > value;
+    const v = _getValueByKey(record, key);
+    if (_shouldCompareNumerically(v, value)) {
+      return v > value;
     }
-    if (_shouldCompareTimestamp(record[key], value)) {
-      return record[key].toMillis() > value;
+    if (_shouldCompareTimestamp(v, value)) {
+      return v.toMillis() > value;
     }
-    return String(record[key]) > String(value);
+    return String(v) > String(value);
   });
 }
 
@@ -240,9 +261,10 @@ function _recordsGreaterThanValue(records, key, value) {
  * @returns {Array<DocumentHash>}
  */
 function _recordsArrayContainsValue(records, key, value) {
-  return records.filter(
-    record => record && record[key] && Array.isArray(record[key]) && record[key].includes(value),
-  );
+  return records.filter(record => {
+    const v = _getValueByKey(record, key);
+    return Array.isArray(v) && v.includes(value);
+  });
 }
 
 /**
@@ -256,10 +278,11 @@ function _recordsArrayContainsValue(records, key, value) {
 function _recordsWithValueInList(records, key, value) {
   // TODO: Throw an error when a value is passed that contains more than 10 values
   return records.filter(record => {
-    if (!record || record[key] === undefined) {
+    const v = _getValueByKey(record, key);
+    if (!record || v === undefined) {
       return false;
     }
-    return value && Array.isArray(value) && value.includes(record[key]);
+    return value && Array.isArray(value) && value.includes(v);
   });
 }
 
@@ -274,7 +297,7 @@ function _recordsWithValueInList(records, key, value) {
 function _recordsWithValueNotInList(records, key, value) {
   // TODO: Throw an error when a value is passed that contains more than 10 values
   return _recordsWithKey(records, key).filter(
-    record => value && Array.isArray(value) && !value.includes(record[key]),
+    record => value && Array.isArray(value) && !value.includes(_getValueByKey(record, key)),
   );
 }
 
@@ -288,13 +311,15 @@ function _recordsWithValueNotInList(records, key, value) {
  */
 function _recordsWithOneOfValues(records, key, value) {
   // TODO: Throw an error when a value is passed that contains more than 10 values
-  return records.filter(
-    record =>
+  return records.filter(record => {
+    const v = _getValueByKey(record, key);
+    return (
       record &&
-      record[key] &&
-      Array.isArray(record[key]) &&
+      v &&
+      Array.isArray(v) &&
       value &&
       Array.isArray(value) &&
-      record[key].some(v => value.includes(v)),
-  );
+      v.some(_v => value.includes(_v))
+    );
+  });
 }
