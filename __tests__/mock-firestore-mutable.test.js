@@ -111,4 +111,12 @@ describe('database mutations', () => {
     });
     expect(newDoc2.id).not.toEqual(newDoc1.id);
   });
+
+  test('it can set nested object', async () => {
+    const mdb = db();
+    const homer = mdb.collection('characters').doc('homer');
+    await homer.set({ 'address.test': 'test' }, { merge: true });
+    const doc = await homer.get();
+    expect(doc.data().address.test).toBe('test');
+  });
 });

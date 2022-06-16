@@ -178,6 +178,22 @@ class FakeFirestore {
     return updateFunction(new FakeFirestore.Transaction());
   }
 
+  _mergeObject(target, data) {
+    for (const key of Object.keys(data)) {
+      const keys = key.split('.');
+      if (keys.length === 1) {
+        target[key] = data[key];
+      } else {
+        if (!target[keys[0]]) {
+          target[keys[0]] = {};
+        }
+        this._mergeObject(target[keys[0]], {
+          [keys.slice(1).join('.')]: data[key],
+        });
+      }
+    }
+  }
+
   _updateData(path, object, merge) {
     // Do not update unless explicity set to mutable.
     if (!this.options.mutable) {
@@ -217,9 +233,13 @@ class FakeFirestore {
     // parent should now be an array of documents
     // Replace existing data, if it's there, or add to the end of the array
     const oldIndex = parent.findIndex(doc => doc.id === docId);
-    parent[oldIndex >= 0 ? oldIndex : parent.length] = {
+
+    const _obj = {
       ...(merge ? parent[oldIndex] : undefined),
-      ...object,
+    };
+    this._mergeObject(_obj, object);
+    parent[oldIndex >= 0 ? oldIndex : parent.length] = {
+      ..._obj,
       id: docId,
     };
   }
