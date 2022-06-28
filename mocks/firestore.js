@@ -16,6 +16,7 @@ const mockListCollections = jest.fn();
 const mockBatchDelete = jest.fn();
 const mockBatchCommit = jest.fn();
 const mockBatchUpdate = jest.fn();
+const mockBatchCreate = jest.fn();
 const mockBatchSet = jest.fn();
 
 const mockOnSnapShot = jest.fn();
@@ -72,6 +73,12 @@ class FakeFirestore {
         this._ref._updateData(doc.path, data, true);
         return this;
       },
+      create(doc, data) {
+        mockBatchCreate(...arguments);
+        this._ref._updateData(doc.path, data, false, true);
+        return this;
+      },
+
       commit() {
         mockBatchCommit(...arguments);
         return Promise.resolve([]);
@@ -194,7 +201,7 @@ class FakeFirestore {
     }
   }
 
-  _updateData(path, object, merge) {
+  _updateData(path, object, merge, create = false) {
     // Do not update unless explicity set to mutable.
     if (!this.options.mutable) {
       return;
@@ -233,6 +240,10 @@ class FakeFirestore {
     // parent should now be an array of documents
     // Replace existing data, if it's there, or add to the end of the array
     const oldIndex = parent.findIndex(doc => doc.id === docId);
+
+    if (create && oldIndex > -1) {
+      throw new Error(`FakeFiresbaseError: Cannot create on exists ref`);
+    }
 
     const _obj = {
       ...(merge ? parent[oldIndex] : undefined),
@@ -569,6 +580,7 @@ module.exports = {
   mockOnSnapShot,
   mockListDocuments,
   mockListCollections,
+  mockBatchCreate,
   ...query.mocks,
   ...transaction.mocks,
   ...fieldValue.mocks,

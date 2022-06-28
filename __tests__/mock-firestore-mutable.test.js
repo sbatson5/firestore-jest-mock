@@ -93,6 +93,22 @@ describe('database mutations', () => {
     expect(krustyData.causeOfDeath).toEqual('Simian homicide');
   });
 
+  test('it can batch create appropriately', async () => {
+    const mdb = db();
+    const newhomer = mdb.collection('characters').doc('newhomer');
+    await mdb.batch().create(newhomer, { test: 1 }).commit();
+    expect((await newhomer.get()).data()).toMatchObject({ test: 1 });
+
+    let err = null;
+    try {
+      const homer = mdb.collection('characters').doc('homer');
+      await mdb.batch().create(homer, { test: 2 }).commit();
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toMatchObject({ message: 'FakeFiresbaseError: Cannot create on exists ref' });
+  });
+
   test('it can add to collection', async () => {
     const col = db().collection('characters');
     const newDoc1 = await col.add({
