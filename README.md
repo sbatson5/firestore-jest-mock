@@ -22,14 +22,15 @@ Small, easy to grok pull requests are welcome, but please note that there is no 
   - [Usage](#usage)
     - [`mockFirebase`](#mockfirebase)
     - [`@google-cloud/firestore` compatibility](#google-cloudfirestore-compatibility)
+    - [`@react-native-firebase/firestore` compatibility](#react-native-firebasefirestore-compatibility)
     - [Subcollections](#subcollections)
     - [What would you want to test?](#what-would-you-want-to-test)
     - [Don't forget to reset your mocks](#dont-forget-to-reset-your-mocks)
       - [I wrote a where clause, but all the records were returned!](#i-wrote-a-where-clause-but-all-the-records-were-returned)
     - [Additional options](#additional-options)
-      - [includeIdsInData](#includeidsindata)
-      - [mutable](#mutable)
-      - [simulateQueryFilters](#simulateQueryFilters)
+      - [`includeIdsInData`](#includeidsindata)
+      - [`mutable`](#mutable)
+      - [`simulateQueryFilters`](#simulatequeryfilters)
     - [Functions you can test](#functions-you-can-test)
       - [Firestore](#firestore)
       - [Firestore.Query](#firestorequery)
@@ -157,6 +158,42 @@ test('testing stuff', () => {
 
 _Note: Authentication with `@google-cloud/firestore` is not handled in the same way as with `firebase`.
 The `Auth` module is not available for `@google-cloud/firestore` compatibility._
+
+### `@react-native-firebase/firestore` compatibility
+
+If you use `@react-native-firebase/firestore`, use `mockGoogleCloudFirestore` instead of `mockFirebase` in all the documentation.
+
+```js
+const { mockGoogleCloudFirestore } = require('firestore-jest-mock');
+
+mockGoogleCloudFirestore({
+  database: {
+    users: [
+      { id: 'abc123', name: 'Homer Simpson' },
+      { id: 'abc456', name: 'Lisa Simpson' },
+    ],
+    posts: [{ id: '123abc', title: 'Really cool title' }],
+  },
+});
+
+const { mockCollection } = require('firestore-jest-mock/mocks/firestore');
+
+test('testing stuff', () => {
+  const { Firestore } = require('@react-native-firebase/firestore');
+  const firestore = new Firestore();
+
+  return firestore
+    .collection('users')
+    .get()
+    .then(userDocs => {
+      expect(mockCollection).toHaveBeenCalledWith('users');
+      expect(userDocs[0].name).toEqual('Homer Simpson');
+    });
+});
+```
+
+_Note: Authentication with `@react-native-firebase/firestore` is not handled in the same way as with `firebase`.
+The `Auth` module is not available for `@react-native-firebase/firestore` compatibility._
 
 ### Subcollections
 
