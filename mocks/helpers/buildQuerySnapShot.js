@@ -8,13 +8,23 @@ module.exports = function buildQuerySnapShot(requestedRecords, filters, orderBy,
     asc: (a, b) => (a < b ? -1 : 1),
     desc: (a, b) => (a < b ? 1 : -1),
   };
+  const getPropertyByKey = (obj, key) => {
+    const list = key.split('.');
+    if (list.length > 1) {
+      return getPropertyByKey(obj[list[0]], list.slice(1).join('.'));
+    }
+    return obj[key];
+  };
   const docs = (
     orderBy && orderBy.key
       ? _docs
         .sort((a, b) =>
-          cmp[orderBy.direction || 'asc'](a.data()[orderBy.key], b.data()[orderBy.key]),
+          cmp[orderBy.direction || 'asc'](
+            getPropertyByKey(a.data(), orderBy.key),
+            getPropertyByKey(b.data(), orderBy.key),
+          ),
         )
-        .filter(doc => typeof doc.data()[orderBy.key] !== 'undefined')
+        .filter(doc => typeof getPropertyByKey(doc.data(), orderBy.key) !== 'undefined')
       : _docs
   ).slice(0, limit > 0 ? limit : undefined);
 
