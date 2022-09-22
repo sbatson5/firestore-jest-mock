@@ -53,6 +53,7 @@ export class FakeFirestore {
   collection(collectionName: string): CollectionReference;
   collectionGroup(collectionName: string): Query;
   doc(path: string): DocumentReference;
+  recursiveDelete(ref:CollectionReference | DocumentReference): void;
   runTransaction<T>(updateFunction: (transaction: Transaction) => Promise<T>): Promise<T>;
 }
 
@@ -65,6 +66,7 @@ declare class DocumentReference {
   constructor(id: string, parent: CollectionReference);
 
   collection(collectionName: string): CollectionReference;
+  listCollections(): Promise<CollectionReference[]>;
   delete(): Promise<void>;
   get(): Promise<MockedDocument>;
 
@@ -117,6 +119,7 @@ declare class CollectionReference extends FakeFirestore.Query {
 // Mocks exported from this module
 export const mockBatch: jest.Mock;
 export const mockRunTransaction: jest.Mock;
+export const mockRecursiveDelete: jest.Mock;
 
 export const mockCollection: jest.Mock;
 export const mockCollectionGroup: jest.Mock;
@@ -130,6 +133,7 @@ export const mockSettings: jest.Mock;
 // FIXME: We should decide whether this should be exported from auth or firestore
 export const mockUseEmulator: jest.Mock;
 export const mockListDocuments: jest.Mock;
+export const mockListCollections: jest.Mock;
 
 export const mockBatchDelete: jest.Mock;
 export const mockBatchCommit: jest.Mock;

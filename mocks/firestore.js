@@ -1,6 +1,7 @@
 const mockCollectionGroup = jest.fn();
 const mockBatch = jest.fn();
 const mockRunTransaction = jest.fn();
+const mockRecursiveDelete = jest.fn();
 
 const mockSettings = jest.fn();
 const mockUseEmulator = jest.fn();
@@ -178,6 +179,11 @@ class FakeFirestore {
     }
 
     return { doc, coll };
+  }
+
+  recursiveDelete(ref) {
+    mockRecursiveDelete(ref);
+    return;
   }
 
   runTransaction(updateFunction) {
@@ -563,6 +569,7 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
 module.exports = {
   FakeFirestore,
   mockBatch,
+  mockRecursiveDelete,
   mockRunTransaction,
   mockCollection,
   mockCollectionGroup,

@@ -19,9 +19,6 @@ const firebaseStub = (overrides, options = defaultOptions) => {
   firestoreConstructor.Transaction = FakeFirestore.Transaction;
   firestoreConstructor.FieldPath = FakeFirestore.FieldPath;
 
-  //Remove methods which do not exist in Firebase
-  delete firestoreConstructor.DocumentReference.prototype.listCollections;
-
   // The Firebase mock
   return {
     initializeApp: mockInitializeApp,
