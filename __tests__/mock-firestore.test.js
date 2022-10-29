@@ -362,14 +362,6 @@ describe('Queries', () => {
     expect(Object.keys(data.data())).toHaveLength(0);
   });
 
-  test('it not to return empty results from get', async () => {
-    const check = await db()
-      .collection('checkEmpty')
-      .get();
-
-    expect(check).toHaveProperty('empty', true);
-  });
-
   test('New documents with random ID', async () => {
     expect.assertions(2);
     // See https://firebase.google.com/docs/reference/js/firebase.firestore.CollectionReference#doc

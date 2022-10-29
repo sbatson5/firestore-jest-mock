@@ -472,9 +472,8 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
       _ref: new FakeFirestore.DocumentReference(rec.id, this, this.firestore),
     }));
     // Firestore does not return documents with no local data
-    const onlyLocal = records.filter(r => Object.keys(r._ref._get().data()).length > 0);
     const isFilteringEnabled = this.firestore.options.simulateQueryFilters;
-    return buildQuerySnapShot(onlyLocal, isFilteringEnabled ? this.filters : undefined);
+    return buildQuerySnapShot(records, isFilteringEnabled ? this.filters : undefined);
   }
 
   isEqual(other) {
