@@ -120,22 +120,22 @@ class Query {
   }
 
   startAfter(value) {
-    this.filters.push({ key: this._orderBy.key, comp: '>', value });
+    this.filters.push({ key: this._orderBy.key, comp: this._orderBy.direction === "asc" ? '>' : '<', value });
     return mockStartAfter(...arguments) || this;
   }
 
   startAt(value) {
-    this.filters.push({ key: this._orderBy.key, comp: '>=', value });
+    this.filters.push({ key: this._orderBy.key, comp: this._orderBy.direction === "asc" ? '>=' : '<=', value });
     return mockStartAt(...arguments) || this;
   }
 
   endBefore(value) {
-    this.filters.push({ key: this._orderBy.key, comp: '<', value });
+    this.filters.push({ key: this._orderBy.key, comp: this._orderBy.direction === "asc" ? '<' : '>', value });
     return mockEndBefore(...arguments) || this;
   }
 
   endAt(value) {
-    this.filters.push({ key: this._orderBy.key, comp: '<=', value });
+    this.filters.push({ key: this._orderBy.key, comp: this._orderBy.direction === "asc" ? '<=' : '>=', value });
     return mockEndAt(...arguments) || this;
   }
 
