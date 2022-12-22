@@ -493,13 +493,16 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
 
       // +2 skips to next collection
     }
-
     return requestedRecords;
   }
 
   listDocuments() {
     mockListDocuments();
-    return Promise.resolve([new FakeFirestore.DocumentReference(_randomId(), this)]);
+    // Returns all documents, including documents with no data but with
+    // subcollections: see https://googleapis.dev/nodejs/firestore/latest/CollectionReference.html#listDocuments
+    return Promise.resolve(
+      this._records().map(rec => new FakeFirestore.DocumentReference(rec.id, this, this.firestore)),
+    );
   }
 
   get() {
@@ -509,10 +512,11 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
 
   _get() {
     // Make sure we have a 'good enough' document reference
-    const records = this._records();
-    records.forEach(rec => {
-      rec._ref = new FakeFirestore.DocumentReference(rec.id, this, this.firestore);
-    });
+    const records = this._records().map(rec => ({
+      ...rec,
+      _ref: new FakeFirestore.DocumentReference(rec.id, this, this.firestore),
+    }));
+    // Firestore does not return documents with no local data
     const isFilteringEnabled = this.firestore.options.simulateQueryFilters;
     return buildQuerySnapShot(
       records,
