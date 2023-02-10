@@ -151,7 +151,7 @@ test('testing stuff', () => {
     .get()
     .then(userDocs => {
       expect(mockCollection).toHaveBeenCalledWith('users');
-      expect(userDocs[0].name).toEqual('Homer Simpson');
+      expect(userDocs.docs[0].data().name).toEqual('Homer Simpson');
     });
 });
 ```
