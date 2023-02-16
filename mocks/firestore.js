@@ -90,7 +90,7 @@ class FakeFirestore {
 
   collection(path) {
     // Accept any collection path
-    // See https://firebase.google.com/docs/reference/js/firebase.firestore.Firestore#collection
+    // See https://firebase.google.com/docs/reference/js/firestore_#collection
     mockCollection(...arguments);
 
     if (path === undefined) {
@@ -130,7 +130,7 @@ class FakeFirestore {
 
   _doc(path) {
     // Accept any document path
-    // See https://firebase.google.com/docs/reference/js/firebase.firestore.Firestore#doc
+    // See https://firebase.google.com/docs/reference/js/firestore_#doc
 
     if (path === undefined) {
       throw new Error(
