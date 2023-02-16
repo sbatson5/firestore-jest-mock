@@ -406,7 +406,7 @@ If you need your tests to perform `where` queries on mock database data, you can
 | `mockAdd`             | Assert correct params are passed to add. Returns a promise resolving to the doc with new id       | [add](https://googleapis.dev/nodejs/firestore/latest/CollectionReference.html#add)                    |
 | `mockSet`             | Assert correct params are passed to set. Returns a promise                                        | [set](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#set)                      |
 | `mockDelete`          | Assert delete is called on ref. Returns a promise                                                 | [delete](https://googleapis.dev/nodejs/firestore/latest/DocumentReference.html#delete)                |
-| `mockUseEmulator`     | Assert correct host and port are passed                                                           | [useEmulator](https://firebase.google.com/docs/reference/js/firebase.firestore.Firestore#useemulator) |
+| `mockUseEmulator`     | Assert correct host and port are passed                                                           | [useEmulator](https://firebase.google.com/docs/reference/js/v8/firebase.firestore.Firestore#useemulator) |
 
 #### [Firestore.Query](https://googleapis.dev/nodejs/firestore/latest/Query.html)
 
@@ -419,7 +419,7 @@ If you need your tests to perform `where` queries on mock database data, you can
 | `mockOffset`        | Assert offset is set properly                                                             | [offset](https://googleapis.dev/nodejs/firestore/latest/Query.html#offset)                            |
 | `mockStartAfter`    | Assert startAfter is called                                                               | [startAfter](https://googleapis.dev/nodejs/firestore/latest/Query.html#startAfter)                    |
 | `mockStartAt`       | Assert startAt is called                                                                  | [startAt](https://googleapis.dev/nodejs/firestore/latest/Query.html#startAt)                          |
-| `mockWithConverter` | Assert withConverter is called                                                            | [withConverter](https://firebase.google.com/docs/reference/js/firebase.firestore.Query#withconverter) |
+| `mockWithConverter` | Assert withConverter is called                                                            | [withConverter](https://firebase.google.com/docs/reference/js/v8/firebase.firestore.Query#withconverter) |
 
 #### [Firestore.FieldValue](https://googleapis.dev/nodejs/firestore/latest/FieldValue.html)
 
@@ -451,21 +451,21 @@ If you need your tests to perform `where` queries on mock database data, you can
 | `mockUpdateTransaction` | Assert transaction.update is called with correct params. Returns the transaction object | [update](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#update) |
 | `mockDeleteTransaction` | Assert transaction.delete is called with correct params. Returns the transaction object | [delete](https://googleapis.dev/nodejs/firestore/latest/Transaction.html#delete) |
 
-#### [Auth](https://firebase.google.com/docs/reference/js/firebase.auth.Auth)
+#### [Auth](https://firebase.google.com/docs/reference/js/auth.auth)
 
 | Method                               | Use                                                                        | Method in Firebase                                                                                                                     |
 | ------------------------------------ | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `mockCreateUserWithEmailAndPassword` | Assert correct email and password are passed. Returns a promise            | [createUserWithEmailAndPassword](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#createuserwithemailandpassword) |
-| `mockGetUser`                        | Assert correct user IDs are passed. Returns a promise                      | [getUser](https://firebase.google.com/docs/reference/admin/node/admin.auth.Auth-1#getuser)                                             |
-| `mockDeleteUser`                     | Assert correct ID is passed to delete method. Returns a promise            | [deleteUser](https://firebase.google.com/docs/reference/admin/node/admin.auth.Auth-1#deleteuser)                                       |
-| `mockSendVerificationEmail`          | Assert request for verification email was sent. Lives on the `currentUser` | [sendVerificationEmail](https://firebase.google.com/docs/reference/js/firebase.User#send-email-verification)                           |
-| `mockCreateCustomToken`              | Assert correct user ID and claims are passed. Returns a promise            | [createCustomToken](https://firebase.google.com/docs/reference/admin/node/admin.auth.Auth-1#createcustomtoken)                         |
-| `mockSetCustomUserClaims`            | Assert correct user ID and claims are set.                                 | [setCustomUserClaims](https://firebase.google.com/docs/reference/admin/node/admin.auth.Auth-1#setcustomuserclaims)                     |
-| `mockSignInWithEmailAndPassword`     | Assert correct email and password were passed. Returns a promise           | [signInWithEmailAndPassword](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#signinwithemailandpassword)         |
-| `mockSendPasswordResetEmail`         | Assert correct email was passed.                                           | [sendPasswordResetEmail](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#send-password-reset-email)              |
-| `mockVerifyIdToken`                  | Assert correct token is passed. Returns a promise                          | [verifyIdToken](https://firebase.google.com/docs/reference/admin/node/admin.auth.Auth-1#verifyidtoken)                                 |
-| `mockUseEmulator`                    | Assert correct emulator url is passed                                      | [useEmulator](https://firebase.google.com/docs/reference/js/firebase.auth.Auth#useemulator)                                            |
-| `mockSignOut`                        | Assert sign out is called. Returns a promise                               | [signOut](https://firebase.google.com/docs/reference/js/firebase.auth.Auth.html#signout)                                               |
+| `mockCreateUserWithEmailAndPassword` | Assert correct email and password are passed. Returns a promise            | [createUserWithEmailAndPassword](https://firebase.google.com/docs/reference/js/v8/firebase.auth.Auth#createuserwithemailandpassword) |
+| `mockGetUser`                        | Assert correct user IDs are passed. Returns a promise                      | [getUser](https://firebase.google.com/docs/auth/admin/manage-users#retrieve_user_data)                                             |
+| `mockDeleteUser`                     | Assert correct ID is passed to delete method. Returns a promise            | [deleteUser](https://firebase.google.com/docs/auth/admin/manage-users#delete_a_user)                                       |
+| `mockSendVerificationEmail`          | Assert request for verification email was sent. Lives on the `currentUser` | [sendVerificationEmail](https://firebase.google.com/docs/reference/js/auth.md#sendemailverification)                           |
+| `mockCreateCustomToken`              | Assert correct user ID and claims are passed. Returns a promise            | [createCustomToken](https://firebase.google.com/docs/auth/admin/create-custom-tokens)                         |
+| `mockSetCustomUserClaims`            | Assert correct user ID and claims are set.                                 | [setCustomUserClaims](https://firebase.google.com/docs/auth/admin/custom-claims)                     |
+| `mockSignInWithEmailAndPassword`     | Assert correct email and password were passed. Returns a promise           | [signInWithEmailAndPassword](https://firebase.google.com/docs/reference/js/v8/firebase.auth.Auth#signinwithemailandpassword)         |
+| `mockSendPasswordResetEmail`         | Assert correct email was passed.                                           | [sendPasswordResetEmail](https://firebase.google.com/docs/reference/js/v8/firebase.auth.Auth#sendpasswordresetemail)              |
+| `mockVerifyIdToken`                  | Assert correct token is passed. Returns a promise                          | [verifyIdToken](https://firebase.google.com/docs/auth/admin/verify-id-tokens)                                 |
+| `mockUseEmulator`                    | Assert correct emulator url is passed                                      | [useEmulator](https://firebase.google.com/docs/reference/js/v8/firebase.auth.Auth#useemulator)                                            |
+| `mockSignOut`                        | Assert sign out is called. Returns a promise                               | [signOut](https://firebase.google.com/docs/reference/js/auth.auth.md#authsignout)                                               |
 
 ## Contributing
 
