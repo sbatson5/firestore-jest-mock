@@ -161,12 +161,12 @@ The `Auth` module is not available for `@google-cloud/firestore` compatibility._
 
 ### `@react-native-firebase/firestore` compatibility
 
-If you use `@react-native-firebase/firestore`, use `mockGoogleCloudFirestore` instead of `mockFirebase` in all the documentation.
+If you use `@react-native-firebase/firestore`, use `mockReactNativeFirestore` instead of `mockFirebase` in all the documentation.
 
 ```js
-const { mockGoogleCloudFirestore } = require('firestore-jest-mock');
+const { mockReactNativeFirestore } = require('firestore-jest-mock');
 
-mockGoogleCloudFirestore({
+mockReactNativeFirestore({
   database: {
     users: [
       { id: 'abc123', name: 'Homer Simpson' },
@@ -187,7 +187,7 @@ test('testing stuff', () => {
     .get()
     .then(userDocs => {
       expect(mockCollection).toHaveBeenCalledWith('users');
-      expect(userDocs[0].name).toEqual('Homer Simpson');
+      expect(userDocs.docs[0].data().name).toEqual('Homer Simpson');
     });
 });
 ```
