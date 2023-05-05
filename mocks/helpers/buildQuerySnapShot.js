@@ -301,5 +301,5 @@ function _recordsWithOneOfValues(records, key, value) {
 
 function getValueByPath(record, path) {
   const keys = path.split('.');
-  return keys.reduce((nestedObject, key) => nestedObject?.[key], record);
+  return keys.reduce((nestedObject = {}, key) => nestedObject[key], record);
 }
