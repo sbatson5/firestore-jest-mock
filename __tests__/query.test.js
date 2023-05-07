@@ -87,6 +87,14 @@ describe('Queries', () => {
             name: 'pogo-stick',
             food: false,
           },
+          {
+            id: 'cow',
+            name: 'cow',
+            appearance: {
+              color: 'brown',
+              size: 'large',
+            },
+          },
         ],
         foodSchedule: [
           { id: 'ants', interval: 'daily' },
@@ -172,6 +180,18 @@ describe('Queries', () => {
     const pogoStick = noFood.docs[0];
     expect(pogoStick).toBeDefined();
     expect(pogoStick).toHaveProperty('id', 'pogo-stick');
+  });
+
+  test('it can query nested values', async () => {
+    const brownColor = await db
+      .collection('animals')
+      .where('appearance.color', '==', 'brown')
+      .get();
+
+    expect(brownColor).toHaveProperty('size', 1);
+    const cow = brownColor.docs[0];
+    expect(cow).toBeDefined();
+    expect(cow).toHaveProperty('id', 'cow');
   });
 
   test('it can query date values for equality', async () => {
