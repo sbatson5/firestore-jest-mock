@@ -38,11 +38,9 @@ describe('we can start a firebase application', () => {
   });
 
   beforeEach(async () => {
-    const firebaseLibrary = await import('firebase');
-    const adminLibrary = await import('firebase-admin');
     jest.clearAllMocks();
-    firebase = firebaseLibrary;
-    admin = adminLibrary;
+    firebase = await import('firebase');
+    admin = await import('firebase-admin');
     firebase.initializeApp({
       apiKey: '### FIREBASE API KEY ###',
       authDomain: '### FIREBASE AUTH DOMAIN ###',

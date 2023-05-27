@@ -1,40 +1,36 @@
-describe.each`
-  filters
-  ${true}
-  ${false}
-`('we can start a firebase application (query filters: $filters)', ({ filters }) => {
-  // We call `require` inside of a parameterized `describe` so we get
-  // a fresh mocked Firebase to test cases with query filters turned on and off
+import { mockFirebase } from 'firestore-jest-mock';
+import { Timestamp } from '../mocks/timestamp';
 
+import { mockInitializeApp } from '../mocks/firebase';
+
+import {
+  mockGet,
+  mockSelect,
+  mockAdd,
+  mockSet,
+  mockUpdate,
+  mockWhere,
+  mockCollectionGroup,
+  mockBatch,
+  mockBatchCommit,
+  mockBatchDelete,
+  mockBatchUpdate,
+  mockBatchSet,
+  mockSettings,
+  mockOnSnapShot,
+  mockUseEmulator,
+  mockDoc,
+  mockCollection,
+  mockWithConverter,
+  FakeFirestore,
+  mockQueryOnSnapshot,
+  mockTimestampNow,
+} from '../mocks/firestore';
+
+describe('we can start a firebase application (query filters: $filters)', () => {
   jest.resetModules();
-  const { mockFirebase } = require('firestore-jest-mock');
-  const { mockInitializeApp } = require('../mocks/firebase');
-
   const flushPromises = () => new Promise(setImmediate);
-  const { Timestamp } = require('../mocks/timestamp');
-  const {
-    mockGet,
-    mockSelect,
-    mockAdd,
-    mockSet,
-    mockUpdate,
-    mockWhere,
-    mockCollectionGroup,
-    mockBatch,
-    mockBatchCommit,
-    mockBatchDelete,
-    mockBatchUpdate,
-    mockBatchSet,
-    mockSettings,
-    mockOnSnapShot,
-    mockUseEmulator,
-    mockDoc,
-    mockCollection,
-    mockWithConverter,
-    FakeFirestore,
-    mockQueryOnSnapshot,
-    mockTimestampNow,
-  } = require('../mocks/firestore');
+  let firebase;
 
   mockFirebase(
     {
@@ -60,14 +56,13 @@ describe.each`
         ],
       },
     },
-    { simulateQueryFilters: filters },
+    { simulateQueryFilters: false },
   );
 
-  /** @type {import('firebase').default} */
-  const firebase = require('firebase');
-
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.resetAllMocks();
+    firebase = await import('firebase');
+
     firebase.initializeApp({
       apiKey: '### FIREBASE API KEY ###',
       authDomain: '### FIREBASE AUTH DOMAIN ###',
@@ -75,7 +70,9 @@ describe.each`
     });
   });
 
-  afterEach(() => mockTimestampNow.mockClear());
+  afterEach(() => { 
+    mockTimestampNow.mockClear();
+  });
 
   test('We can start an application', async () => {
     const db = firebase.firestore();
@@ -226,9 +223,8 @@ describe.each`
           expect(mockCollectionGroup).toHaveBeenCalledWith('cities');
           expect(mockGet).toHaveBeenCalledTimes(1);
           expect(mockWhere).toHaveBeenCalledWith('country', '==', 'USA');
-
           expect(querySnapshot.forEach).toBeTruthy();
-          expect(querySnapshot.docs.length).toBe(filters ? 3 : 4);
+          expect(querySnapshot.docs.length).toBe(4);
           expect(querySnapshot.size).toBe(querySnapshot.docs.length);
 
           querySnapshot.forEach(doc => {

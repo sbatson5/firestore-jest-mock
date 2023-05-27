@@ -1,9 +1,7 @@
 import * as FirestoreMock from 'firestore-jest-mock';
 import { Timestamp } from '../mocks/timestamp';
 
-import { mocks } from '../mocks/firestore';
-
-const {
+import {
   mockGet,
   mockSelect,
   mockAdd,
@@ -20,7 +18,7 @@ const {
   mockOnSnapShot,
   mockListCollections,
   mockTimestampNow,
-} = mocks;
+} from '../mocks/firestore';
 
 describe.each([
   { library: '@google-cloud/firestore', mockFunction: 'mockGoogleCloudFirestore' },

@@ -1,17 +1,18 @@
-const { mockFirebase } = require('firestore-jest-mock');
+import { mockFirebase } from 'firestore-jest-mock';
 mockFirebase({ database: {} });
-const firebase = require('firebase');
 
-const {
+import {
   mockArrayRemoveFieldValue,
   mockArrayUnionFieldValue,
   mockDeleteFieldValue,
   mockIncrementFieldValue,
   mockServerTimestampFieldValue,
-} = require('../mocks/firestore');
+} from '../mocks/firestore';
 
 describe('Single values transformed by field sentinels', () => {
-  beforeEach(() => {
+  let firebase;
+  beforeEach(async () => {
+    firebase = await import('firebase');
     jest.resetModules();
     jest.clearAllMocks();
   });

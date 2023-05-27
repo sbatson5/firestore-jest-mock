@@ -1,5 +1,5 @@
-const { FakeFirestore } = require('firestore-jest-mock');
-const { mockCollection, mockDoc } = require('firestore-jest-mock/mocks/firestore');
+import { FakeFirestore } from 'firestore-jest-mock';
+import { mockCollection, mockDoc } from 'firestore-jest-mock/mocks/firestore';
 
 describe('Firestore options', () => {
   beforeEach(() => {

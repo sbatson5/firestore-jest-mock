@@ -1,14 +1,16 @@
-const {
+import {
   mockCollection,
   mockDoc,
   mockGet,
   mockWhere,
   mockOffset,
   FakeFirestore,
-} = require('../mocks/firestore');
-const { mockFirebase } = require('firestore-jest-mock');
+} from '../mocks/firestore';
+import { mockFirebase } from 'firestore-jest-mock';
 
 describe('Queries', () => {
+  let firebase, db;
+
   mockFirebase(
     {
       database: {
@@ -137,14 +139,16 @@ describe('Queries', () => {
     { simulateQueryFilters: true },
   );
 
-  const firebase = require('firebase');
-  firebase.initializeApp({
-    apiKey: '### FIREBASE API KEY ###',
-    authDomain: '### FIREBASE AUTH DOMAIN ###',
-    projectId: '### CLOUD FIRESTORE PROJECT ID ###',
+  beforeEach(async () => {
+    firebase = await import('firebase');
+    firebase.initializeApp({
+      apiKey: '### FIREBASE API KEY ###',
+      authDomain: '### FIREBASE AUTH DOMAIN ###',
+      projectId: '### CLOUD FIRESTORE PROJECT ID ###',
+    });
+  
+    db = firebase.firestore();
   });
-
-  const db = firebase.firestore();
 
   test('it can query a single document', async () => {
     const monkey = await db
