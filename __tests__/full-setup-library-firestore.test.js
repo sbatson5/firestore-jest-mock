@@ -1,31 +1,35 @@
+import * as FirestoreMock from 'firestore-jest-mock';
+import { Timestamp } from '../mocks/timestamp';
+
+import { mocks } from '../mocks/firestore';
+
+const {
+  mockGet,
+  mockSelect,
+  mockAdd,
+  mockSet,
+  mockUpdate,
+  mockWhere,
+  mockCollectionGroup,
+  mockBatch,
+  mockBatchCommit,
+  mockBatchDelete,
+  mockBatchUpdate,
+  mockBatchSet,
+  mockSettings,
+  mockOnSnapShot,
+  mockListCollections,
+  mockTimestampNow,
+} = mocks;
+
 describe.each([
   { library: '@google-cloud/firestore', mockFunction: 'mockGoogleCloudFirestore' },
   { library: '@react-native-firebase/firestore', mockFunction: 'mockReactNativeFirestore' },
 ])('mocking %i with %i', ({ library, mockFunction }) => {
-  const FirestoreMock = require('firestore-jest-mock');
-
   const flushPromises = () => new Promise(setImmediate);
-  const { Timestamp } = require('../mocks/timestamp');
-  const {
-    mockGet,
-    mockSelect,
-    mockAdd,
-    mockSet,
-    mockUpdate,
-    mockWhere,
-    mockCollectionGroup,
-    mockBatch,
-    mockBatchCommit,
-    mockBatchDelete,
-    mockBatchUpdate,
-    mockBatchSet,
-    mockSettings,
-    mockOnSnapShot,
-    mockListCollections,
-    mockTimestampNow,
-  } = require('../mocks/firestore');
 
   describe('we can start a firestore application', () => {
+    let Firestore;
     FirestoreMock[mockFunction]({
       database: {
         users: [
@@ -49,21 +53,22 @@ describe.each([
       },
     });
 
-    beforeEach(() => {
-      this.Firestore = require(library).Firestore;
+    beforeEach(async () => {
+      const lib = await import(library);
+      Firestore = lib.Firestore;
     });
 
     afterEach(() => mockTimestampNow.mockClear());
 
     test('We can start an application', async () => {
-      const firestore = new this.Firestore();
+      const firestore = new Firestore();
       firestore.settings({ ignoreUndefinedProperties: true });
       expect(mockSettings).toHaveBeenCalledWith({ ignoreUndefinedProperties: true });
     });
 
     describe('Examples from documentation', () => {
       test('add a user', () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         return firestore
           .collection('users')
@@ -79,7 +84,7 @@ describe.each([
       });
 
       test('get all users', () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         return firestore
           .collection('users')
@@ -97,7 +102,7 @@ describe.each([
       });
 
       test('select specific fields only', () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         return firestore
           .collection('users')
@@ -114,7 +119,7 @@ describe.each([
       });
 
       test('select refs only', () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         return firestore
           .collection('users')
@@ -129,7 +134,7 @@ describe.each([
       });
 
       test('collectionGroup at root', () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         return firestore
           .collectionGroup('users')
@@ -153,7 +158,7 @@ describe.each([
 
       test('collectionGroup with subcollections', () => {
         jest.clearAllMocks();
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         return firestore
           .collectionGroup('cities')
@@ -176,7 +181,7 @@ describe.each([
       });
 
       test('set a city', () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         return firestore
           .collection('cities')
@@ -196,7 +201,7 @@ describe.each([
       });
 
       test('updating a city', () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
         const now = Timestamp._fromMillis(new Date().getTime());
         const washingtonRef = firestore.collection('cities').doc('DC');
 
@@ -213,7 +218,7 @@ describe.each([
       });
 
       test('batch writes', () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         // Get a new write batch
         const batch = firestore.batch();
@@ -241,7 +246,7 @@ describe.each([
       });
 
       test('listCollections returns a promise', async () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         const listCollectionsPromise = firestore
           .collection('cities')
@@ -252,7 +257,7 @@ describe.each([
       });
 
       test('listCollections resolves with child collections', async () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         const result = await firestore
           .collection('users')
@@ -261,12 +266,12 @@ describe.each([
 
         expect(result).toEqual(expect.any(Array));
         expect(result).toHaveLength(1);
-        expect(result[0]).toEqual(expect.any(this.Firestore.CollectionReference));
+        expect(result[0]).toEqual(expect.any(Firestore.CollectionReference));
         expect(result[0].id).toBe('cities');
       });
 
       test('listCollections resolves with empty array if there are no collections in document', async () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         const result = await firestore
           .collection('users')
@@ -278,7 +283,7 @@ describe.each([
       });
 
       test('listCollections calls mockListCollections', async () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         await firestore
           .collection('users')
@@ -289,7 +294,7 @@ describe.each([
       });
 
       test('onSnapshot single doc', async () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
         const now = Timestamp._fromMillis(new Date().getTime());
 
         mockTimestampNow.mockReturnValue(now);
@@ -313,7 +318,7 @@ describe.each([
       });
 
       test('onSnapshot can work with options', async () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
         const now = Timestamp._fromMillis(new Date().getTime());
 
         mockTimestampNow.mockReturnValue(now);
@@ -343,7 +348,7 @@ describe.each([
       });
 
       test('onSnapshot with query', async () => {
-        const firestore = new this.Firestore();
+        const firestore = new Firestore();
 
         const unsubscribe = firestore
           .collection('cities')

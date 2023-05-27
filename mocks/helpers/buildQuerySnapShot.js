@@ -1,6 +1,6 @@
-const buildDocFromHash = require('./buildDocFromHash');
+import buildDocFromHash  from './buildDocFromHash';
 
-module.exports = function buildQuerySnapShot(requestedRecords, filters, selectFields) {
+export default function buildQuerySnapShot(requestedRecords, filters, selectFields) {
   const definiteRecords = requestedRecords.filter(rec => !!rec);
   const results = _filteredDocuments(definiteRecords, filters);
   const docs = results.map(doc => buildDocFromHash(doc, 'abc123', selectFields));

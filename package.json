@@ -11,7 +11,9 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
+    "build": "rm -fr dist/* && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && ./fixup",
     "lint": "eslint . --ext .js,.ts",
+    "prepare": "npm run build",
     "test": "jest",
     "test:watch": "npm run test -- --watch",
     "test:coverage": "npm run test -- --coverage"
@@ -24,37 +26,31 @@
       "eslint --fix"
     ]
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Upstatement/firestore-jest-mock.git"
   },
   "devDependencies": {
-    "@babel/core": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
+    "@babel/core": "^7.22.1",
+    "@babel/preset-env": "^7.22.2",
     "@react-native-firebase/firestore": "^15.1.1",
-    "@types/jest": "^26.0.20",
-    "@typescript-eslint/eslint-plugin": "^4.17.0",
-    "@typescript-eslint/parser": "^4.17.0",
-    "@upstatement/eslint-config": "^0.4.3",
+    "@types/jest": "^29.5.1",
+    "@typescript-eslint/eslint-plugin": "^5.59.7",
+    "@typescript-eslint/parser": "^5.59.7",
+    "@upstatement/eslint-config": "^1.0.0",
     "@upstatement/prettier-config": "^0.3.0",
     "babel-eslint": "^10.0.3",
-    "babel-jest": "^26.6.3",
+    "babel-jest": "^29.5.0",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^8.1.0",
-    "eslint-plugin-jest": "^24.1.5",
+    "eslint-plugin-jest": "^27.2.1",
     "firebase": "^8.1.2",
     "firebase-admin": "^9.4.1",
-    "husky": "^4.2.1",
-    "jest": "^26.6.3",
-    "jest-watch-typeahead": "^0.3.1",
+    "jest": "^29.5.0",
+    "jest-watch-typeahead": "^2.2.2",
     "lint-staged": "^10.0.2",
-    "prettier": "^1.19.1",
-    "ts-jest": "^26.5.1",
-    "typescript": "^4.1.5"
+    "prettier": "^2.x.x",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.4"
   }
 }

@@ -1,10 +1,12 @@
-const mockInitializeApp = jest.fn();
-const mockCert = jest.fn();
+import { FakeFirestore } from './firestore';
+import { FakeAuth } from './auth';
 
-const defaultOptions = require('./helpers/defaultMockOptions');
+export const mockInitializeApp = jest.fn();
+export const mockCert = jest.fn();
 
-const firebaseStub = (overrides, options = defaultOptions) => {
-  const { FakeFirestore, FakeAuth } = require('firestore-jest-mock');
+import defaultOptions from './helpers/defaultMockOptions';
+
+export const firebaseStub = (overrides, options = defaultOptions) => {
 
   // Prepare namespaced classes
   function firestoreConstructor() {
@@ -38,11 +40,6 @@ const firebaseStub = (overrides, options = defaultOptions) => {
   };
 };
 
-const mockFirebase = (overrides = {}, options = defaultOptions) => {
-  mockModuleIfFound('firebase', overrides, options);
-  mockModuleIfFound('firebase-admin', overrides, options);
-};
-
 function mockModuleIfFound(moduleName, overrides, options) {
   try {
     require.resolve(moduleName);
@@ -53,9 +50,7 @@ function mockModuleIfFound(moduleName, overrides, options) {
   }
 }
 
-module.exports = {
-  firebaseStub,
-  mockFirebase,
-  mockInitializeApp,
-  mockCert,
+export const mockFirebase = (overrides = {}, options = defaultOptions) => {
+  mockModuleIfFound('firebase', overrides, options);
+  mockModuleIfFound('firebase-admin', overrides, options);
 };

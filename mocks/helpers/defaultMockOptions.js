@@ -1,5 +1,3 @@
-module.exports = {
-  includeIdsInData: false,
-  mutable: false,
-  simulateQueryFilters: false,
-};
+export const includeIdsInData = false;
+export const mutable = false;
+export const simulateQueryFilters = false;

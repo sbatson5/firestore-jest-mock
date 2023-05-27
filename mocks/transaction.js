@@ -6,7 +6,7 @@ const mockUpdateTransaction = jest.fn();
 const mockDeleteTransaction = jest.fn();
 const mockCreateTransaction = jest.fn();
 
-class Transaction {
+export class Transaction {
   getAll(...refsOrReadOptions) {
     mockGetAll(...arguments);
     mockGetAllTransaction(...arguments);
@@ -49,15 +49,12 @@ class Transaction {
   }
 }
 
-module.exports = {
-  Transaction,
-  mocks: {
-    mockGetAll,
-    mockGetAllTransaction,
-    mockGetTransaction,
-    mockSetTransaction,
-    mockUpdateTransaction,
-    mockDeleteTransaction,
-    mockCreateTransaction,
-  },
+export const mocks = {
+  mockGetAll,
+  mockGetAllTransaction,
+  mockGetTransaction,
+  mockSetTransaction,
+  mockUpdateTransaction,
+  mockDeleteTransaction,
+  mockCreateTransaction,
 };

@@ -20,18 +20,18 @@ const mockBatchSet = jest.fn();
 
 const mockOnSnapShot = jest.fn();
 
-const timestamp = require('./timestamp');
-const fieldValue = require('./fieldValue');
-const query = require('./query');
-const transaction = require('./transaction');
-const path = require('./path');
+import * as timestamp from './timestamp';
+import * as fieldValue from './fieldValue';
+import * as query from './query';
+import * as transaction from './transaction';
+import * as path from './path';
 
-const buildDocFromHash = require('./helpers/buildDocFromHash');
-const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
+import buildDocFromHash from './helpers/buildDocFromHash';
+import buildQuerySnapShot from './helpers/buildQuerySnapShot';
 
 const _randomId = () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
 
-class FakeFirestore {
+export class FakeFirestore {
   constructor(stubbedDatabase = {}, options = {}) {
     this.database = timestamp.convertTimestamps(stubbedDatabase);
     this.query = new query.Query('', this);
@@ -534,8 +534,7 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
   }
 };
 
-module.exports = {
-  FakeFirestore,
+export const mocks = {
   mockBatch,
   mockRunTransaction,
   mockCollection,

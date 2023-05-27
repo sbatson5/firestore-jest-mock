@@ -1,7 +1,7 @@
-const defaultOptions = require('./helpers/defaultMockOptions');
+import defaultOptions from './helpers/defaultMockOptions';
+import { FakeFirestore } from 'firestore-jest-mock';
 
-const firestoreStub = (overrides, options = defaultOptions) => {
-  const { FakeFirestore } = require('firestore-jest-mock');
+export const firestoreStub = (overrides, options = defaultOptions) => {
 
   class Firestore extends FakeFirestore {
     constructor() {
@@ -21,10 +21,6 @@ const firestoreStub = (overrides, options = defaultOptions) => {
   };
 };
 
-const mockReactNativeFirestore = (overrides = {}, options = defaultOptions) => {
-  mockModuleIfFound('@react-native-firebase/firestore', overrides, options);
-};
-
 function mockModuleIfFound(moduleName, overrides, options) {
   try {
     require.resolve(moduleName);
@@ -35,7 +31,6 @@ function mockModuleIfFound(moduleName, overrides, options) {
   }
 }
 
-module.exports = {
-  firestoreStub,
-  mockReactNativeFirestore,
+export const mockReactNativeFirestore = (overrides = {}, options = defaultOptions) => {
+  mockModuleIfFound('@react-native-firebase/firestore', overrides, options);
 };

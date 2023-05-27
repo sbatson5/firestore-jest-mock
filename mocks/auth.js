@@ -1,16 +1,16 @@
-const mockCreateUserWithEmailAndPassword = jest.fn();
-const mockDeleteUser = jest.fn();
-const mockSendVerificationEmail = jest.fn();
-const mockSignInWithEmailAndPassword = jest.fn();
-const mockSendPasswordResetEmail = jest.fn();
-const mockVerifyIdToken = jest.fn();
-const mockGetUser = jest.fn();
-const mockCreateCustomToken = jest.fn();
-const mockSetCustomUserClaims = jest.fn();
-const mockSignOut = jest.fn();
-const mockUseEmulator = jest.fn();
+export const mockCreateUserWithEmailAndPassword = jest.fn();
+export const mockDeleteUser = jest.fn();
+export const mockSendVerificationEmail = jest.fn();
+export const mockSignInWithEmailAndPassword = jest.fn();
+export const mockSendPasswordResetEmail = jest.fn();
+export const mockVerifyIdToken = jest.fn();
+export const mockGetUser = jest.fn();
+export const mockCreateCustomToken = jest.fn();
+export const mockSetCustomUserClaims = jest.fn();
+export const mockSignOut = jest.fn();
+export const mockUseEmulator = jest.fn();
 
-class FakeAuth {
+export class FakeAuth {
   constructor(currentUser = {}) {
     currentUser.sendEmailVerification = mockSendVerificationEmail;
     this.currentUserRecord = currentUser;
@@ -65,18 +65,3 @@ class FakeAuth {
     return { uid, data };
   }
 }
-
-module.exports = {
-  FakeAuth,
-  mockCreateUserWithEmailAndPassword,
-  mockDeleteUser,
-  mockSendPasswordResetEmail,
-  mockSendVerificationEmail,
-  mockSignInWithEmailAndPassword,
-  mockSignOut,
-  mockVerifyIdToken,
-  mockGetUser,
-  mockCreateCustomToken,
-  mockSetCustomUserClaims,
-  mockUseEmulator,
-};
