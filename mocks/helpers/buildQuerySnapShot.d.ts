@@ -27,4 +27,6 @@ export default function buildQuerySnapShot(
   filters?: Array<QueryFilter>,
   selectFields?: string[],
   limit?: number,
+  orderBy?: string,
+  orderDirection?: 'asc' | 'desc',
 ): MockedQuerySnapshot;

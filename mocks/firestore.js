@@ -523,6 +523,8 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
       isFilteringEnabled ? this.filters : undefined,
       this.selectFields,
       this.limitCount,
+      this.orderByField,
+      this.orderDirection,
     );
   }
 

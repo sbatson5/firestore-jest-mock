@@ -577,4 +577,49 @@ describe('Queries', () => {
     const animals = db.collection('animals');
     expect(() => animals.limit('3')).toThrow(TypeError);
   });
+
+  test('it orders animals by name', async () => {
+    const animals = db.collection('animals');
+    const q = animals.orderBy('name');
+    const animalSnaps = await q.get();
+    const animalIds = animalSnaps.docs.map(doc => doc.id);
+    expect(animalIds).toMatchObject([
+      'ant',
+      'chicken',
+      'cow',
+      'elephant',
+      'monkey',
+      'pogo-stick',
+      'worm',
+    ]);
+  });
+
+  test('it orders animals by name descending', async () => {
+    const animals = db.collection('animals');
+    const q = animals.orderBy('name', 'desc');
+    const animalSnaps = await q.get();
+    const animalIds = animalSnaps.docs.map(doc => doc.id);
+    expect(animalIds).toMatchObject([
+      'worm',
+      'pogo-stick',
+      'monkey',
+      'elephant',
+      'cow',
+      'chicken',
+      'ant',
+    ]);
+  });
+
+  test('it should throw when using invalid direction', async () => {
+    const animals = db.collection('animals');
+    expect(() => animals.orderBy('name', 'invalidDirection')).toThrow();
+  });
+
+  test('it orders animals by legCount', async () => {
+    const animals = db.collection('animals');
+    const q = animals.orderBy('legCount');
+    const animalSnaps = await q.get();
+    const animalIds = animalSnaps.docs.map(doc => doc.id);
+    expect(animalIds).toMatchObject(['monkey', 'chicken', 'elephant', 'ant']);
+  });
 });

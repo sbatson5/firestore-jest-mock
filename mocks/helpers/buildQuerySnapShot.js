@@ -1,9 +1,19 @@
 const buildDocFromHash = require('./buildDocFromHash');
 
-module.exports = function buildQuerySnapShot(requestedRecords, filters, selectFields, limit) {
+module.exports = function buildQuerySnapShot(
+  requestedRecords,
+  filters,
+  selectFields,
+  limit,
+  orderBy,
+  orderDirection,
+) {
   const definiteRecords = requestedRecords.filter(rec => !!rec);
   const filteredRecords = _filteredDocuments(definiteRecords, filters);
-  const results = _limitDocuments(filteredRecords, limit);
+  const orderedRecords = orderBy
+    ? _orderedDocuments(filteredRecords, orderBy, orderDirection)
+    : filteredRecords;
+  const results = _limitDocuments(orderedRecords, limit);
   const docs = results.map(doc => buildDocFromHash(doc, 'abc123', selectFields));
 
   return {
@@ -108,6 +118,10 @@ function _recordsWithNonNullKey(records, key) {
 
 function _shouldCompareNumerically(a, b) {
   return typeof a === 'number' && typeof b === 'number';
+}
+
+function _shouldCompareStrings(a, b) {
+  return typeof a === 'string' && typeof b === 'string';
 }
 
 function _shouldCompareTimestamp(a, b) {
@@ -298,6 +312,42 @@ function _recordsWithOneOfValues(records, key, value) {
       Array.isArray(value) &&
       getValueByPath(record, key).some(v => value.includes(v)),
   );
+}
+
+function _orderedDocuments(records, orderBy, direction = 'asc') {
+  const ordered = [
+    ...records.filter(record => {
+      // When using the orderBy query, we must filter away the documents that do not have the order-by field defined.
+      const value = getValueByPath(record, orderBy);
+      return value !== null && typeof value !== 'undefined';
+    }),
+  ].sort((a, b) => {
+    const aVal = getValueByPath(a, orderBy);
+    const bVal = getValueByPath(b, orderBy);
+    if (!aVal || !bVal) {
+      return 0;
+    }
+    if (_shouldCompareNumerically(aVal, bVal)) {
+      return aVal - bVal;
+    }
+    if (_shouldCompareStrings(aVal, bVal)) {
+      return aVal.localeCompare(bVal);
+    }
+
+    const cmpTimestamps =
+      typeof aVal === 'object' &&
+      typeof bVal === 'object' &&
+      aVal !== null &&
+      bVal !== null &&
+      typeof aVal.toMillis === 'function' &&
+      typeof bVal.toMillis === 'function';
+    if (cmpTimestamps) {
+      return aVal.toMillis() - bVal.toMillis();
+    }
+    return 0;
+  });
+
+  return direction === 'asc' ? ordered : ordered.reverse();
 }
 
 function _limitDocuments(records, limit) {

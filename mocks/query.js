@@ -19,6 +19,9 @@ class Query {
     this.selectFields = undefined;
     this.isGroupQuery = isGroupQuery;
     this.limitCount = undefined;
+    // TODO: By default, Firestore orders by ID.
+    this.orderByField = undefined;
+    this.orderDirection = undefined;
   }
 
   get() {
@@ -81,6 +84,8 @@ class Query {
       isFilteringEnabled ? this.filters : undefined,
       this.selectFields,
       this.limitCount,
+      this.orderByField,
+      this.orderDirection,
     );
   }
 
@@ -117,7 +122,14 @@ class Query {
     return mockLimit(...arguments) || this;
   }
 
-  orderBy() {
+  orderBy(field, direction = 'asc') {
+    if (direction !== 'asc' && direction !== 'desc') {
+      throw new Error(
+        `Query's orderBy received invalid direction: ${direction}. Must be 'asc' or 'desc'.`,
+      );
+    }
+    this.orderByField = field;
+    this.orderDirection = direction;
     return mockOrderBy(...arguments) || this;
   }
 
