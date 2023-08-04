@@ -319,6 +319,15 @@ function _recordsWithOneOfValues(records, key, value) {
   );
 }
 
+/**
+ * Orders an array of mock document data by a specified field.
+ *
+ * @param {Array<DocumentHash>} records The array of records to order.
+ * @param {string} orderBy The field to order the records after.
+ * @param {'asc' | 'desc'} direction The direction to order the records. Deafault `'asc'`.
+ *
+ * @returns {Array<import('./buildDocFromHash').DocumentHash>} The ordered documents.
+ */
 function _orderedDocuments(records, orderBy, direction = 'asc') {
   const ordered = [
     ...records.filter(record => {
@@ -355,6 +364,16 @@ function _orderedDocuments(records, orderBy, direction = 'asc') {
   return direction === 'asc' ? ordered : ordered.reverse();
 }
 
+/**
+ * Returns a subsection of records, starting from a cursor, set to a field value.
+ *
+ * @param {Array<DocumentHash>} records The array of records to get a subsection of. The array should be ordered by the same field specified in the `orderBy` parameter.
+ * @param {unknown} cursor The cursor. Either a field value or a document snapshot.
+ * @param {string} orderBy The field the records are ordered by.
+ * @param {boolean} inclusive Should the record at the cursor be included.
+ *
+ * @returns {Array<import('./buildDocFromHash').DocumentHash>} The subsection of documents, starting at the `cursor`.
+ */
 function _cursoredDocuments(records, cursor, orderBy, inclusive) {
   if (_isSnapshot(cursor)) {
     // Place the cursor at a document, based on a snapshot.
