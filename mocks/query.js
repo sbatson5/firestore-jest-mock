@@ -18,6 +18,7 @@ class Query {
     this.filters = [];
     this.selectFields = undefined;
     this.isGroupQuery = isGroupQuery;
+    this.limitCount = undefined;
   }
 
   get() {
@@ -79,6 +80,7 @@ class Query {
       requestedRecords,
       isFilteringEnabled ? this.filters : undefined,
       this.selectFields,
+      this.limitCount,
     );
   }
 
@@ -107,7 +109,11 @@ class Query {
     return mockOffset(...arguments) || this;
   }
 
-  limit() {
+  limit(count) {
+    if (typeof count !== 'number') {
+      throw new TypeError('Query\'s limit was not set to a number.');
+    }
+    this.limitCount = count;
     return mockLimit(...arguments) || this;
   }
 

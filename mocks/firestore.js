@@ -522,6 +522,7 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
       records,
       isFilteringEnabled ? this.filters : undefined,
       this.selectFields,
+      this.limitCount,
     );
   }
 

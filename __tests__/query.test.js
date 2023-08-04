@@ -558,4 +558,23 @@ describe('Queries', () => {
       },
     );
   });
+
+  test('it limits response to 1 document', async () => {
+    const animals = db.collection('animals');
+    const q = animals.limit(1);
+    const animalsSnaps = await q.get();
+    expect(animalsSnaps.size).toBe(1);
+  });
+
+  test('it limits response to 3 document', async () => {
+    const animals = db.collection('animals');
+    const q = animals.limit(3);
+    const animalsSnaps = await q.get();
+    expect(animalsSnaps.size).toBe(3);
+  });
+
+  test('it should throw when limit is not a number', async () => {
+    const animals = db.collection('animals');
+    expect(() => animals.limit('3')).toThrow(TypeError);
+  });
 });

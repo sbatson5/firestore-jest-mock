@@ -1,8 +1,9 @@
 const buildDocFromHash = require('./buildDocFromHash');
 
-module.exports = function buildQuerySnapShot(requestedRecords, filters, selectFields) {
+module.exports = function buildQuerySnapShot(requestedRecords, filters, selectFields, limit) {
   const definiteRecords = requestedRecords.filter(rec => !!rec);
-  const results = _filteredDocuments(definiteRecords, filters);
+  const filteredRecords = _filteredDocuments(definiteRecords, filters);
+  const results = _limitDocuments(filteredRecords, limit);
   const docs = results.map(doc => buildDocFromHash(doc, 'abc123', selectFields));
 
   return {
@@ -297,6 +298,10 @@ function _recordsWithOneOfValues(records, key, value) {
       Array.isArray(value) &&
       getValueByPath(record, key).some(v => value.includes(v)),
   );
+}
+
+function _limitDocuments(records, limit) {
+  return records.slice(0, limit);
 }
 
 function getValueByPath(record, path) {

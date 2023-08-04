@@ -26,4 +26,5 @@ export default function buildQuerySnapShot(
   requestedRecords: Array<DocumentHash>,
   filters?: Array<QueryFilter>,
   selectFields?: string[],
+  limit?: number,
 ): MockedQuerySnapshot;
