@@ -379,7 +379,7 @@ function _cursoredDocuments(records, cursor, orderBy, inclusive) {
     // Place the cursor at a document, based on a snapshot.
     const cursorIndex = records.findIndex(record => record.id === cursor.id);
     if (cursorIndex < 0) {
-      return records;
+      return [];
     }
     return records.slice(cursorIndex + (inclusive ? 0 : 1));
   } else {

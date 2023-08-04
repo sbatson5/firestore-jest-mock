@@ -610,6 +610,14 @@ describe('Queries', () => {
     ]);
   });
 
+  test('it orders by nested fields', async () => {
+    const animals = db.collection('animals');
+    const q = animals.orderBy('appearance.color');
+    const animalSnaps = await q.get();
+    const animalIds = animalSnaps.docs.map(doc => doc.id);
+    expect(animalIds).toMatchObject(['cow']);
+  });
+
   test('it should throw when using invalid direction', async () => {
     const animals = db.collection('animals');
     expect(() => animals.orderBy('name', 'invalidDirection')).toThrow();
@@ -683,7 +691,7 @@ describe('Queries', () => {
     expect(animalIds).toMatchObject(['elephant', 'monkey', 'pogo-stick', 'worm']);
   });
 
-  test('it returns all documents when snapshot given to startAt does not exist', async () => {
+  test('it returns no documents when snapshot given to startAt does not exist', async () => {
     const invalid = db.doc('animals/invalid');
     const invalidSnap = await invalid.get();
     expect(invalidSnap.exists).toBe(false);
@@ -692,14 +700,18 @@ describe('Queries', () => {
     const q = animals.orderBy('name').startAt(invalidSnap);
     const animalSnaps = await q.get();
     const animalIds = animalSnaps.docs.map(doc => doc.id);
-    expect(animalIds).toMatchObject([
-      'ant',
-      'chicken',
-      'cow',
-      'elephant',
-      'monkey',
-      'pogo-stick',
-      'worm',
-    ]);
+    expect(animalIds).toMatchObject([]);
+  });
+
+  test('it returns no documents when snapshot given is the last document', async () => {
+    const worm = db.doc('animals/worm');
+    const wormSnap = await worm.get();
+    expect(wormSnap.exists).toBe(true);
+
+    const animals = db.collection('animals');
+    const q = animals.orderBy('name').startAfter(wormSnap);
+    const animalSnaps = await q.get();
+    const animalIds = animalSnaps.docs.map(doc => doc.id);
+    expect(animalIds).toMatchObject([]);
   });
 });
