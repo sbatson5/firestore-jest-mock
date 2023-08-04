@@ -29,4 +29,6 @@ export default function buildQuerySnapShot(
   limit?: number,
   orderBy?: string,
   orderDirection?: 'asc' | 'desc',
+  cursor?: unknown,
+  inclusive?: boolean,
 ): MockedQuerySnapshot;

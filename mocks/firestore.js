@@ -525,6 +525,8 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
       this.limitCount,
       this.orderByField,
       this.orderDirection,
+      this.cursor,
+      this.inclusive,
     );
   }
 

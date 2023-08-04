@@ -7,13 +7,18 @@ module.exports = function buildQuerySnapShot(
   limit,
   orderBy,
   orderDirection,
+  cursor,
+  inclusive,
 ) {
   const definiteRecords = requestedRecords.filter(rec => !!rec);
   const filteredRecords = _filteredDocuments(definiteRecords, filters);
   const orderedRecords = orderBy
     ? _orderedDocuments(filteredRecords, orderBy, orderDirection)
     : filteredRecords;
-  const results = _limitDocuments(orderedRecords, limit);
+  const cursoredRecords = cursor
+    ? _cursoredDocuments(orderedRecords, cursor, orderBy, inclusive)
+    : orderedRecords;
+  const results = _limitDocuments(cursoredRecords, limit);
   const docs = results.map(doc => buildDocFromHash(doc, 'abc123', selectFields));
 
   return {
@@ -350,8 +355,52 @@ function _orderedDocuments(records, orderBy, direction = 'asc') {
   return direction === 'asc' ? ordered : ordered.reverse();
 }
 
+function _cursoredDocuments(records, cursor, orderBy, inclusive) {
+  if (_isSnapshot(cursor)) {
+    // Place the cursor at a document, based on a snapshot.
+    const cursorIndex = records.findIndex(record => record.id === cursor.id);
+    if (cursorIndex < 0) {
+      return records;
+    }
+    return records.slice(cursorIndex + (inclusive ? 0 : 1));
+  } else {
+    // Place the cursor at a field, based on a value.
+    const cmpAt = (a, b) => a >= b;
+    const cmpAfter = (a, b) => a > b;
+
+    const cmp = inclusive ? cmpAt : cmpAfter;
+    return records.filter(record => {
+      const v = getValueByPath(record, orderBy);
+      if (_shouldCompareNumerically(v, cursor)) {
+        return cmp(v, cursor);
+      }
+      if (_shouldCompareTimestamp(v, cursor)) {
+        return cmp(v.toMillis(), cursor.getTime());
+      }
+      if (typeof v.toMillis === 'function' && typeof cursor.toMillis === 'function') {
+        return cmp(v.toMillis(), cursor.toMillis());
+      }
+      if (_shouldCompareStrings(v, cursor)) {
+        return v.localeCompare(cursor);
+      }
+      // TODO: Compare other values as well.
+      return true;
+    });
+  }
+}
+
 function _limitDocuments(records, limit) {
   return records.slice(0, limit);
+}
+
+function _isSnapshot(data) {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    typeof data.ref === 'object' &&
+    typeof data.ref.firestore === 'object' &&
+    typeof data.id === 'string'
+  );
 }
 
 function getValueByPath(record, path) {

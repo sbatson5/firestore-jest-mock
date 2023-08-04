@@ -22,6 +22,8 @@ class Query {
     // TODO: By default, Firestore orders by ID.
     this.orderByField = undefined;
     this.orderDirection = undefined;
+    this.cursor = undefined;
+    this.inclusive = undefined;
   }
 
   get() {
@@ -86,6 +88,8 @@ class Query {
       this.limitCount,
       this.orderByField,
       this.orderDirection,
+      this.cursor,
+      this.inclusive,
     );
   }
 
@@ -133,11 +137,15 @@ class Query {
     return mockOrderBy(...arguments) || this;
   }
 
-  startAfter() {
+  startAfter(snapshotOrField) {
+    this.cursor = snapshotOrField;
+    this.inclusive = false;
     return mockStartAfter(...arguments) || this;
   }
 
-  startAt() {
+  startAt(snapshotOrField) {
+    this.cursor = snapshotOrField;
+    this.inclusive = true;
     return mockStartAt(...arguments) || this;
   }
 

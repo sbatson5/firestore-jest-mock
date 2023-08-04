@@ -622,4 +622,84 @@ describe('Queries', () => {
     const animalIds = animalSnaps.docs.map(doc => doc.id);
     expect(animalIds).toMatchObject(['monkey', 'chicken', 'elephant', 'ant']);
   });
+
+  test('it returns ordered animals, with more than 2 legs', async () => {
+    const animals = db.collection('animals');
+    const q = animals.orderBy('legCount').startAfter(2);
+    const animalSnaps = await q.get();
+    const animalIds = animalSnaps.docs.map(doc => doc.id);
+    expect(animalIds).toMatchObject(['elephant', 'ant']);
+  });
+
+  test('it returns animals ordered by legCount, after elephant', async () => {
+    const elephant = db.doc('animals/elephant');
+    const elephantSnap = await elephant.get();
+
+    const animals = db.collection('animals');
+    const q = animals.orderBy('legCount').startAfter(elephantSnap);
+    const animalSnaps = await q.get();
+    const animalIds = animalSnaps.docs.map(doc => doc.id);
+    expect(animalIds).toMatchObject(['ant']);
+  });
+
+  test('it returns ordered animals, with 4 or more legs', async () => {
+    const animals = db.collection('animals');
+    const q = animals.orderBy('legCount').startAt(4);
+    const animalSnaps = await q.get();
+    const animalIds = animalSnaps.docs.map(doc => doc.id);
+    expect(animalIds).toMatchObject(['elephant', 'ant']);
+  });
+
+  test('it returns animals ordered by legCount, starting at elephant', async () => {
+    const elephant = db.doc('animals/elephant');
+    const elephantSnap = await elephant.get();
+
+    const animals = db.collection('animals');
+    const q = animals.orderBy('legCount').startAt(elephantSnap);
+    const animalSnaps = await q.get();
+    const animalIds = animalSnaps.docs.map(doc => doc.id);
+    expect(animalIds).toMatchObject(['elephant', 'ant']);
+  });
+
+  test('it returns animals ordered by legCount, starting at chicken', async () => {
+    const chicken = db.doc('animals/chicken');
+    const chickenSnap = await chicken.get();
+
+    const animals = db.collection('animals');
+    const q = animals.orderBy('legCount').startAt(chickenSnap);
+    const animalSnaps = await q.get();
+    const animalIds = animalSnaps.docs.map(doc => doc.id);
+    expect(animalIds).toMatchObject(['chicken', 'elephant', 'ant']);
+  });
+
+  test('it returns animals ordered by name, starting after cow', async () => {
+    const cow = db.doc('animals/cow');
+    const cowSnap = await cow.get();
+
+    const animals = db.collection('animals');
+    const q = animals.orderBy('name').startAfter(cowSnap);
+    const animalSnaps = await q.get();
+    const animalIds = animalSnaps.docs.map(doc => doc.id);
+    expect(animalIds).toMatchObject(['elephant', 'monkey', 'pogo-stick', 'worm']);
+  });
+
+  test('it returns all documents when snapshot given to startAt does not exist', async () => {
+    const invalid = db.doc('animals/invalid');
+    const invalidSnap = await invalid.get();
+    expect(invalidSnap.exists).toBe(false);
+
+    const animals = db.collection('animals');
+    const q = animals.orderBy('name').startAt(invalidSnap);
+    const animalSnaps = await q.get();
+    const animalIds = animalSnaps.docs.map(doc => doc.id);
+    expect(animalIds).toMatchObject([
+      'ant',
+      'chicken',
+      'cow',
+      'elephant',
+      'monkey',
+      'pogo-stick',
+      'worm',
+    ]);
+  });
 });
