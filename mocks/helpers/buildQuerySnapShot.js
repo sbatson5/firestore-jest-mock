@@ -11,14 +11,14 @@ module.exports = function buildQuerySnapShot(
   inclusive,
 ) {
   const definiteRecords = requestedRecords.filter(rec => !!rec);
-  const filteredRecords = _filteredDocuments(definiteRecords, filters);
   const orderedRecords = orderBy
-    ? _orderedDocuments(filteredRecords, orderBy, orderDirection)
-    : filteredRecords;
+    ? _orderedDocuments(definiteRecords, orderBy, orderDirection)
+    : definiteRecords;
   const cursoredRecords = cursor
     ? _cursoredDocuments(orderedRecords, cursor, orderBy, inclusive)
     : orderedRecords;
-  const results = _limitDocuments(cursoredRecords, limit);
+  const filteredRecords = _filteredDocuments(cursoredRecords, filters);
+  const results = _limitDocuments(filteredRecords, limit);
   const docs = results.map(doc => buildDocFromHash(doc, 'abc123', selectFields));
 
   return {
