@@ -3,6 +3,10 @@
   "compilerOptions": {
     "module": "esnext",
     "outDir": "dist/mjs",
-    "target": "esnext"
+    "target": "esnext",
+    "types": [
+      "jest",
+      "node"
+    ]
   }
 }
