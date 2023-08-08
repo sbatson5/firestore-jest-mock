@@ -1,6 +1,6 @@
-const timestamp = require('../timestamp');
+import * as timestamp from '../timestamp';
 
-module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectFields = undefined) {
+export default function buildDocFromHash(hash = {}, id = 'abc123', selectFields = undefined) {
   const exists = !!hash || false;
   return {
     createTime: (hash && hash._createTime) || timestamp.Timestamp.now(),

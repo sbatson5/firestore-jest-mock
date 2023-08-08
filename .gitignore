@@ -1,7 +1,7 @@
 .DS_Store
 .vscode/launch.json
 node_modules
-/dist
+dist
 
 # Log files
 npm-debug.log*

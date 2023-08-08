@@ -1,7 +1,7 @@
-const defaultOptions = require('./helpers/defaultMockOptions');
+import defaultOptions from './helpers/defaultMockOptions';
+import { FakeFirestore } from 'firestore-jest-mock';
 
-const firestoreStub = (overrides, options = defaultOptions) => {
-  const { FakeFirestore } = require('firestore-jest-mock');
+export const firestoreStub = (overrides, options = defaultOptions) => {
 
   class Firestore extends FakeFirestore {
     constructor() {
@@ -21,7 +21,7 @@ const firestoreStub = (overrides, options = defaultOptions) => {
   };
 };
 
-const mockGoogleCloudFirestore = (overrides = {}, options = defaultOptions) => {
+export const mockGoogleCloudFirestore = (overrides = {}, options = defaultOptions) => {
   mockModuleIfFound('@google-cloud/firestore', overrides, options);
 };
 
@@ -34,8 +34,3 @@ function mockModuleIfFound(moduleName, overrides, options) {
     console.info(`Module ${moduleName} not found, mocking skipped.`);
   }
 }
-
-module.exports = {
-  firestoreStub,
-  mockGoogleCloudFirestore,
-};

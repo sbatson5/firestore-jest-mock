@@ -1,5 +1,5 @@
-const { FakeFirestore } = require('firestore-jest-mock');
-const {
+import { FakeFirestore } from 'firestore-jest-mock';
+import {
   mockCollection,
   mockDoc,
   mockDelete,
@@ -8,7 +8,7 @@ const {
   mockOrderBy,
   mockStartAfter,
   mockStartAt,
-} = require('firestore-jest-mock/mocks/firestore');
+} from 'firestore-jest-mock/mocks/firestore';
 
 describe('Reference Sentinels', () => {
   beforeEach(() => {

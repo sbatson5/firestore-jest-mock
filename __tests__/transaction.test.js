@@ -1,5 +1,5 @@
-const { mockFirebase, FakeFirestore } = require('firestore-jest-mock');
-const {
+import { mockFirebase, FakeFirestore } from 'firestore-jest-mock';
+import {
   mockRunTransaction,
   mockDelete,
   mockDeleteTransaction,
@@ -12,23 +12,24 @@ const {
   mockGetAll,
   mockGetAllTransaction,
   mockCreateTransaction,
-} = require('firestore-jest-mock/mocks/firestore');
+} from 'firestore-jest-mock/mocks/firestore';
 
 describe('Transactions', () => {
+  let firebase, db;
   mockFirebase({
     database: {},
   });
-  const firebase = require('firebase');
-  firebase.initializeApp({
-    apiKey: '### FIREBASE API KEY ###',
-    authDomain: '### FIREBASE AUTH DOMAIN ###',
-    projectId: '### CLOUD FIRESTORE PROJECT ID ###',
-  });
-  const db = firebase.firestore();
-
-  beforeEach(() => {
+  
+  beforeEach(async () => {
     jest.resetModules();
     jest.clearAllMocks();
+    firebase = await import('firebase');
+    firebase.initializeApp({
+      apiKey: '### FIREBASE API KEY ###',
+      authDomain: '### FIREBASE AUTH DOMAIN ###',
+      projectId: '### CLOUD FIRESTORE PROJECT ID ###',
+    });
+    db = firebase.firestore();
   });
 
   test('it returns a Promise', () => {
