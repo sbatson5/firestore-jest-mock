@@ -6,6 +6,7 @@ const mockSettings = jest.fn();
 const mockUseEmulator = jest.fn();
 const mockCollection = jest.fn();
 const mockDoc = jest.fn();
+const mockCreate = jest.fn();
 const mockUpdate = jest.fn();
 const mockSet = jest.fn();
 const mockAdd = jest.fn();
@@ -242,10 +243,7 @@ FakeFirestore.DocumentReference = class {
     this.id = id;
     this.parent = parent;
     this.firestore = parent.firestore;
-    this.path = parent.path
-      .split('/')
-      .concat(id)
-      .join('/');
+    this.path = parent.path.split('/').concat(id).join('/');
   }
 
   collection(collectionName) {
@@ -306,6 +304,14 @@ FakeFirestore.DocumentReference = class {
     query.mocks.mockGet(...arguments);
     const data = this._get();
     return Promise.resolve(data);
+  }
+
+  create(object) {
+    mockCreate(...arguments);
+    this.firestore._updateData(this.path, object, false);
+    return Promise.resolve(
+      buildDocFromHash({ ...object, _ref: this, _updateTime: timestamp.Timestamp.now() }),
+    );
   }
 
   update(object) {
@@ -543,6 +549,7 @@ module.exports = {
   mockDoc,
   mockAdd,
   mockDelete,
+  mockCreate,
   mockUpdate,
   mockSet,
   mockSettings,

@@ -68,6 +68,7 @@ declare class DocumentReference {
   delete(): Promise<void>;
   get(): Promise<MockedDocument>;
 
+  create(object: DocumentData): Promise<MockedDocument>;
   update(object: DocumentData): Promise<MockedDocument>;
   set(object: DocumentData): Promise<MockedDocument>;
 
@@ -121,6 +122,7 @@ export const mockRunTransaction: jest.Mock;
 export const mockCollection: jest.Mock;
 export const mockCollectionGroup: jest.Mock;
 export const mockDoc: jest.Mock;
+export const mockCreate: jest.Mock;
 export const mockUpdate: jest.Mock;
 export const mockSet: jest.Mock;
 export const mockAdd: jest.Mock;
