@@ -1,7 +1,7 @@
 const { mockFirebase } = require('firestore-jest-mock');
 mockFirebase({ database: {} });
 const firebase = require('firebase');
-const path = require('../mocks/path');
+const path = require('firestore-jest-mock/mocks/path');
 
 describe('Single values transformed by field sentinels', () => {
   test('isEqual', () => {

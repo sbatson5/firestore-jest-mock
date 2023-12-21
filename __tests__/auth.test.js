@@ -1,5 +1,5 @@
 const { mockFirebase } = require('firestore-jest-mock');
-const { mockInitializeApp } = require('../mocks/firebase');
+const { mockInitializeApp } = require('firestore-jest-mock/mocks/firebase');
 const {
   mockCreateUserWithEmailAndPassword,
   mockSignInWithEmailAndPassword,
@@ -11,7 +11,7 @@ const {
   mockCreateCustomToken,
   mockSetCustomUserClaims,
   mockUseEmulator,
-} = require('../mocks/auth');
+} = require('firestore-jest-mock/mocks/auth');
 
 describe('we can start a firebase application', () => {
   mockFirebase({
