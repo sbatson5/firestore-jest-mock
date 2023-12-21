@@ -1,6 +1,6 @@
 {
   "root": true,
-  "ignorePatterns": ["dist", "node_modules"],
+  "ignorePatterns": ["mocks", "./index.*", "dist", "node_modules"],
   "extends": ["@upstatement", "plugin:jest/recommended"],
   "plugins": ["jest"],
   "parserOptions": {
