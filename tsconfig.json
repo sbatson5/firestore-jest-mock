@@ -5,8 +5,8 @@
     "moduleResolution": "node",
     "allowJs": true,
     "checkJs": false,
-    "outDir": "dist",
-    "rootDir": ".",
+    "outDir": ".",
+    "rootDir": "src",
     "strict": true,
     "alwaysStrict": true,
     "forceConsistentCasingInFileNames": true,
@@ -20,10 +20,10 @@
     "noEmitOnError": true,
     "noUnusedLocals": true,
     "importHelpers": true,
-    "typeRoots": ["./node_modules/@types", "./@types"],
+    "typeRoots": ["./node_modules/@types", "./src/@types"],
     "lib": ["es2018"],
     "types": ["node", "jest"]
   },
   "exclude": ["node_modules", "dist"],
-  "include": ["./mocks/**/*", "./@types/**/*", "./*.ts"]
+  "include": ["./src/**/*"]
 }

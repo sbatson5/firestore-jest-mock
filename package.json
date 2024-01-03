@@ -10,8 +10,19 @@
   ],
   "main": "index.js",
   "types": "index.d.ts",
+  "files": [
+    "mocks",
+    "index.d.ts",
+    "index.d.ts.map",
+    "index.js",
+    "index.js.map"
+  ],
   "scripts": {
     "lint": "eslint . --ext .js,.ts",
+    "cleanup": "rm -fr ./mocks ./index.d.ts ./index.d.ts.map ./index.js ./index.js.map",
+    "prebuild": "npm run cleanup",
+    "build": "tsc -P tsconfig.json",
+    "prepublishOnly": "npm run build",
     "test": "jest",
     "test:watch": "npm run test -- --watch",
     "test:coverage": "npm run test -- --coverage"
@@ -53,8 +64,8 @@
     "jest": "^26.6.3",
     "jest-watch-typeahead": "^0.3.1",
     "lint-staged": "^10.0.2",
-    "prettier": "^1.19.1",
+    "prettier": "^3.1.1",
     "ts-jest": "^26.5.1",
-    "typescript": "^4.1.5"
+    "typescript": "^4.9.5"
   }
 }
