@@ -40,7 +40,6 @@ Small, easy to grok pull requests are welcome, but please note that there is no 
       - [Auth](#auth)
   - [Contributing](#contributing)
   - [Code of Conduct](#code-of-conduct)
-  - [About Upstatement](#about-upstatement)
 
 ## What's in the Box
 
@@ -477,8 +476,4 @@ Use `npm run build` to compile JavaScript from the TypeScript source. For backwa
 
 ## Code of Conduct
 
-Upstatement strives to provide a welcoming, inclusive environment for all users. To hold ourselves accountable to that mission, we have a strictly-enforced [code of conduct](CODE_OF_CONDUCT.md).
-
-## About Upstatement
-
-[Upstatement](https://www.upstatement.com/) is a digital transformation studio headquartered in Boston, MA that imagines and builds exceptional digital experiences. Make sure to check out our [services](https://www.upstatement.com/services/), [work](https://www.upstatement.com/work/), and [open positions](https://www.upstatement.com/jobs/)!
+We strive to provide a welcoming, inclusive environment for all users. To hold ourselves accountable to that mission, we have a strictly-enforced [code of conduct](CODE_OF_CONDUCT.md).
