@@ -8,10 +8,10 @@ describe.each`
 
   jest.resetModules();
   const { mockFirebase } = require('firestore-jest-mock');
-  const { mockInitializeApp } = require('../mocks/firebase');
+  const { mockInitializeApp } = require('firestore-jest-mock/mocks/firebase');
 
   const flushPromises = () => new Promise(setImmediate);
-  const { Timestamp } = require('../mocks/timestamp');
+  const { Timestamp } = require('firestore-jest-mock/mocks/timestamp');
   const {
     mockGet,
     mockSelect,
@@ -34,7 +34,7 @@ describe.each`
     FakeFirestore,
     mockQueryOnSnapshot,
     mockTimestampNow,
-  } = require('../mocks/firestore');
+  } = require('firestore-jest-mock/mocks/firestore');
 
   mockFirebase(
     {

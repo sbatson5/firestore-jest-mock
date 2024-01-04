@@ -63,10 +63,6 @@ Enforcement of those guidelines after violations overlapping with the above are 
 
 Once the maintainers get involved, they will follow a documented series of steps and do their best to preserve the well-being of project members. This section covers actual concrete steps.
 
-### Contacting Maintainers
-
-To contact members of the Upstatement engineering team, send an email to tech@upstatement.com
-
 ### Further Enforcement
 
 If you've already followed the [initial enforcement steps](#enforcement), these are the steps maintainers will take for further enforcement, as needed:

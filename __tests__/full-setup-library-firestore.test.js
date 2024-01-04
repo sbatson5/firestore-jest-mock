@@ -5,7 +5,7 @@ describe.each([
   const FirestoreMock = require('firestore-jest-mock');
 
   const flushPromises = () => new Promise(setImmediate);
-  const { Timestamp } = require('../mocks/timestamp');
+  const { Timestamp } = require('firestore-jest-mock/mocks/timestamp');
   const {
     mockGet,
     mockSelect,
@@ -24,7 +24,7 @@ describe.each([
     mockListCollections,
     mockTimestampNow,
     mockCreate,
-  } = require('../mocks/firestore');
+  } = require('firestore-jest-mock/mocks/firestore');
 
   describe('we can start a firestore application', () => {
     FirestoreMock[mockFunction]({
