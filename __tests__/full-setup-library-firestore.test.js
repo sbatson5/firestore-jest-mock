@@ -23,6 +23,7 @@ describe.each([
     mockOnSnapShot,
     mockListCollections,
     mockTimestampNow,
+    mockCreate,
   } = require('firestore-jest-mock/mocks/firestore');
 
   describe('we can start a firestore application', () => {
@@ -195,6 +196,26 @@ describe.each([
           });
       });
 
+      test('create a city', () => {
+        const firestore = new this.Firestore();
+
+        return firestore
+          .collection('cities')
+          .doc('LA')
+          .create({
+            name: 'Los Angeles',
+            state: 'CA',
+            country: 'USA',
+          })
+          .then(function() {
+            expect(mockCreate).toHaveBeenCalledWith({
+              name: 'Los Angeles',
+              state: 'CA',
+              country: 'USA',
+            });
+          });
+      });
+
       test('updating a city', () => {
         const firestore = new this.Firestore();
         const now = Timestamp._fromMillis(new Date().getTime());
@@ -243,10 +264,7 @@ describe.each([
       test('listCollections returns a promise', async () => {
         const firestore = new this.Firestore();
 
-        const listCollectionsPromise = firestore
-          .collection('cities')
-          .doc('LA')
-          .listCollections();
+        const listCollectionsPromise = firestore.collection('cities').doc('LA').listCollections();
 
         expect(listCollectionsPromise).toEqual(expect.any(Promise));
       });
@@ -254,10 +272,7 @@ describe.each([
       test('listCollections resolves with child collections', async () => {
         const firestore = new this.Firestore();
 
-        const result = await firestore
-          .collection('users')
-          .doc('123abc')
-          .listCollections();
+        const result = await firestore.collection('users').doc('123abc').listCollections();
 
         expect(result).toEqual(expect.any(Array));
         expect(result).toHaveLength(1);
@@ -268,10 +283,7 @@ describe.each([
       test('listCollections resolves with empty array if there are no collections in document', async () => {
         const firestore = new this.Firestore();
 
-        const result = await firestore
-          .collection('users')
-          .doc('abc123')
-          .listCollections();
+        const result = await firestore.collection('users').doc('abc123').listCollections();
 
         expect(result).toEqual(expect.any(Array));
         expect(result).toHaveLength(0);
@@ -280,10 +292,7 @@ describe.each([
       test('listCollections calls mockListCollections', async () => {
         const firestore = new this.Firestore();
 
-        await firestore
-          .collection('users')
-          .doc('abc123')
-          .listCollections();
+        await firestore.collection('users').doc('abc123').listCollections();
 
         expect(mockListCollections).toHaveBeenCalled();
       });
