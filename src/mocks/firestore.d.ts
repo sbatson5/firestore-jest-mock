@@ -24,6 +24,7 @@ interface FirestoreBatch {
   delete(): FirestoreBatch;
   set(doc: DocumentReference, data: DocumentData, options?: SetOptions): FirestoreBatch;
   update(doc: DocumentReference, data: DocumentData): FirestoreBatch;
+  create(doc: DocumentReference, data: DocumentData): FirestoreBatch;
   commit(): Promise<void>;
 }
 
@@ -54,6 +55,7 @@ export class FakeFirestore {
   collectionGroup(collectionName: string): Query;
   doc(path: string): DocumentReference;
   runTransaction<T>(updateFunction: (transaction: Transaction) => Promise<T>): Promise<T>;
+  recursiveDelete(ref: DocumentReference|CollectionReference): Promise<void>;
 }
 
 declare class DocumentReference {
@@ -118,6 +120,7 @@ declare class CollectionReference extends FakeFirestore.Query {
 // Mocks exported from this module
 export const mockBatch: jest.Mock;
 export const mockRunTransaction: jest.Mock;
+export const mockRecursiveDelete: jest.Mock;
 
 export const mockCollection: jest.Mock;
 export const mockCollectionGroup: jest.Mock;
