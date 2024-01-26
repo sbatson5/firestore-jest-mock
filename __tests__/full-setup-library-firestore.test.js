@@ -19,6 +19,7 @@ describe.each([
     mockBatchDelete,
     mockBatchUpdate,
     mockBatchSet,
+    mockBatchCreate,
     mockSettings,
     mockOnSnapShot,
     mockListCollections,
@@ -243,6 +244,10 @@ describe.each([
         const nycRef = firestore.collection('cities').doc('NYC');
         batch.set(nycRef, { name: 'New York City' });
 
+        // Create new city 'CHI'
+	      const chiRef = db.collection('cities').doc('CHI');
+	      batch.create(chiRef, { name: 'Chicago', state: 'IL', country: 'USA' });
+
         // Update the population of 'SF'
         const sfRef = firestore.collection('cities').doc('SF');
         batch.update(sfRef, { population: 1000000 });
@@ -257,6 +262,7 @@ describe.each([
           expect(mockBatchDelete).toHaveBeenCalledWith(laRef);
           expect(mockBatchUpdate).toHaveBeenCalledWith(sfRef, { population: 1000000 });
           expect(mockBatchSet).toHaveBeenCalledWith(nycRef, { name: 'New York City' });
+          expect(mockBatchCreate).toHaveBeenCalledWith(chiRef, { name: 'Chicago', state: 'IL', country: 'USA' });
           expect(mockBatchCommit).toHaveBeenCalled();
         });
       });
