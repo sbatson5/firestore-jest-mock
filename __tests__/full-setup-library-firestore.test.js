@@ -25,6 +25,7 @@ describe.each([
     mockListCollections,
     mockTimestampNow,
     mockCreate,
+    mockRecursiveDelete,
   } = require('firestore-jest-mock/mocks/firestore');
 
   describe('we can start a firestore application', () => {
@@ -380,6 +381,15 @@ describe.each([
         expect(unsubscribe).toBeInstanceOf(Function);
         expect(mockWhere).toHaveBeenCalled();
         expect(mockOnSnapShot).toHaveBeenCalled();
+      });
+
+      test('recursiveDelete', async () => {
+        const db = firebase.firestore();
+	      const citiesRef = db.collection('cities');
+	  
+	      db.recursiveDelete(citiesRef)
+
+        expect(mockRecursiveDelete).toHaveBeenCalledWith(citiesRef);
       });
     });
   });
