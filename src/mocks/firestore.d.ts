@@ -137,6 +137,7 @@ export const mockBatchDelete: jest.Mock;
 export const mockBatchCommit: jest.Mock;
 export const mockBatchUpdate: jest.Mock;
 export const mockBatchSet: jest.Mock;
+export const mockBatchCreate: jest.Mock;
 
 export const mockOnSnapShot: jest.Mock;
 
