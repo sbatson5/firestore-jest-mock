@@ -246,7 +246,7 @@ describe.each([
         batch.set(nycRef, { name: 'New York City' });
 
         // Create new city 'CHI'
-	      const chiRef = db.collection('cities').doc('CHI');
+	      const chiRef = firestore.collection('cities').doc('CHI');
 	      batch.create(chiRef, { name: 'Chicago', state: 'IL', country: 'USA' });
 
         // Update the population of 'SF'
@@ -384,10 +384,10 @@ describe.each([
       });
 
       test('recursiveDelete', async () => {
-        const db = firebase.firestore();
-	      const citiesRef = db.collection('cities');
+        const firestore = new this.Firestore();
+	      const citiesRef = firestore.collection('cities');
 	  
-	      db.recursiveDelete(citiesRef)
+	      firestore.recursiveDelete(citiesRef)
 
         expect(mockRecursiveDelete).toHaveBeenCalledWith(citiesRef);
       });
