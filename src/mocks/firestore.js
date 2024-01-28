@@ -1,6 +1,7 @@
 const mockCollectionGroup = jest.fn();
 const mockBatch = jest.fn();
 const mockRunTransaction = jest.fn();
+const mockRecursiveDelete = jest.fn();
 
 const mockSettings = jest.fn();
 const mockUseEmulator = jest.fn();
@@ -18,6 +19,7 @@ const mockBatchDelete = jest.fn();
 const mockBatchCommit = jest.fn();
 const mockBatchUpdate = jest.fn();
 const mockBatchSet = jest.fn();
+const mockBatchCreate = jest.fn();
 
 const mockOnSnapShot = jest.fn();
 
@@ -71,6 +73,11 @@ class FakeFirestore {
       update(doc, data) {
         mockBatchUpdate(...arguments);
         this._ref._updateData(doc.path, data, true);
+        return this;
+      },
+      create(doc, data) {
+        mockBatchCreate(...arguments);
+        this._ref._updateData(doc.path, data, false);
         return this;
       },
       commit() {
@@ -223,6 +230,11 @@ class FakeFirestore {
       ...object,
       id: docId,
     };
+  }
+
+  recursiveDelete(ref, bulkWriter) {
+    mockRecursiveDelete(...arguments);
+  	return Promise.resolve();
   }
 }
 
@@ -544,6 +556,7 @@ module.exports = {
   FakeFirestore,
   mockBatch,
   mockRunTransaction,
+  mockRecursiveDelete,
   mockCollection,
   mockCollectionGroup,
   mockDoc,
@@ -558,6 +571,7 @@ module.exports = {
   mockBatchCommit,
   mockBatchUpdate,
   mockBatchSet,
+  mockBatchCreate,
   mockOnSnapShot,
   mockListDocuments,
   mockListCollections,

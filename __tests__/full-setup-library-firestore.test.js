@@ -19,11 +19,13 @@ describe.each([
     mockBatchDelete,
     mockBatchUpdate,
     mockBatchSet,
+    mockBatchCreate,
     mockSettings,
     mockOnSnapShot,
     mockListCollections,
     mockTimestampNow,
     mockCreate,
+    mockRecursiveDelete,
   } = require('firestore-jest-mock/mocks/firestore');
 
   describe('we can start a firestore application', () => {
@@ -243,6 +245,10 @@ describe.each([
         const nycRef = firestore.collection('cities').doc('NYC');
         batch.set(nycRef, { name: 'New York City' });
 
+        // Create new city 'CHI'
+	      const chiRef = firestore.collection('cities').doc('CHI');
+	      batch.create(chiRef, { name: 'Chicago', state: 'IL', country: 'USA' });
+
         // Update the population of 'SF'
         const sfRef = firestore.collection('cities').doc('SF');
         batch.update(sfRef, { population: 1000000 });
@@ -257,6 +263,7 @@ describe.each([
           expect(mockBatchDelete).toHaveBeenCalledWith(laRef);
           expect(mockBatchUpdate).toHaveBeenCalledWith(sfRef, { population: 1000000 });
           expect(mockBatchSet).toHaveBeenCalledWith(nycRef, { name: 'New York City' });
+          expect(mockBatchCreate).toHaveBeenCalledWith(chiRef, { name: 'Chicago', state: 'IL', country: 'USA' });
           expect(mockBatchCommit).toHaveBeenCalled();
         });
       });
@@ -374,6 +381,15 @@ describe.each([
         expect(unsubscribe).toBeInstanceOf(Function);
         expect(mockWhere).toHaveBeenCalled();
         expect(mockOnSnapShot).toHaveBeenCalled();
+      });
+
+      test('recursiveDelete', async () => {
+        const firestore = new this.Firestore();
+	      const citiesRef = firestore.collection('cities');
+	  
+	      firestore.recursiveDelete(citiesRef)
+
+        expect(mockRecursiveDelete).toHaveBeenCalledWith(citiesRef);
       });
     });
   });

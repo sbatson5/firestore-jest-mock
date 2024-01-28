@@ -25,6 +25,7 @@ describe.each`
     mockBatchDelete,
     mockBatchUpdate,
     mockBatchSet,
+    mockBatchCreate,
     mockSettings,
     mockOnSnapShot,
     mockUseEmulator,
@@ -34,6 +35,7 @@ describe.each`
     FakeFirestore,
     mockQueryOnSnapshot,
     mockTimestampNow,
+    mockRecursiveDelete,
   } = require('firestore-jest-mock/mocks/firestore');
 
   mockFirebase(
@@ -292,6 +294,10 @@ describe.each`
       const nycRef = db.collection('cities').doc('NYC');
       batch.set(nycRef, { name: 'New York City' });
 
+      // Create new city 'CHI'
+	    const chiRef = db.collection('cities').doc('CHI');
+	    batch.create(chiRef, { name: 'Chicago', state: 'IL', country: 'USA' });
+
       // Update the population of 'SF'
       const sfRef = db.collection('cities').doc('SF');
       batch.update(sfRef, { population: 1000000 });
@@ -307,6 +313,7 @@ describe.each`
         expect(mockBatchDelete).toHaveBeenCalledWith(laRef);
         expect(mockBatchUpdate).toHaveBeenCalledWith(sfRef, { population: 1000000 });
         expect(mockBatchSet).toHaveBeenCalledWith(nycRef, { name: 'New York City' });
+        expect(mockBatchCreate).toHaveBeenCalledWith(chiRef, { name: 'Chicago', state: 'IL', country: 'USA' });
         expect(mockBatchCommit).toHaveBeenCalled();
       });
     });
@@ -408,6 +415,15 @@ describe.each`
       expect(mockWhere).toHaveBeenCalled();
       expect(mockOnSnapShot).not.toHaveBeenCalled();
       expect(mockQueryOnSnapshot).toHaveBeenCalled();
+    });
+
+    test('recursiveDelete', async () => {
+      const db = firebase.firestore();
+	    const citiesRef = db.collection('cities');
+	  
+	    db.recursiveDelete(citiesRef)
+
+      expect(mockRecursiveDelete).toHaveBeenCalledWith(citiesRef);
     });
 
     describe('withConverter', () => {
