@@ -34,6 +34,7 @@ describe.each`
     mockWithConverter,
     FakeFirestore,
     mockQueryOnSnapshot,
+    mockQueryOnSnapshotUnsubscribe,
     mockTimestampNow,
     mockRecursiveDelete,
   } = require('firestore-jest-mock/mocks/firestore');
@@ -411,7 +412,7 @@ describe.each`
 
       await flushPromises();
 
-      expect(unsubscribe).toBeInstanceOf(Function);
+      expect(unsubscribe).toBe(mockQueryOnSnapshotUnsubscribe);
       expect(mockWhere).toHaveBeenCalled();
       expect(mockOnSnapShot).not.toHaveBeenCalled();
       expect(mockQueryOnSnapshot).toHaveBeenCalled();

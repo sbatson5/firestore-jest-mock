@@ -160,6 +160,7 @@ export const mockOffset: jest.Mock;
 export const mockStartAfter: jest.Mock;
 export const mockStartAt: jest.Mock;
 export const mockQueryOnSnapshot: jest.Mock;
+export const mockQueryOnSnapshotUnsubscribe: jest.Mock;
 export const mockWithConverter: jest.Mock;
 
 // Mocks exported from Timestamp
