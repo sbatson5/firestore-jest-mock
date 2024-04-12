@@ -9,6 +9,7 @@ const mockOffset = jest.fn();
 const mockStartAfter = jest.fn();
 const mockStartAt = jest.fn();
 const mockQueryOnSnapshot = jest.fn();
+const mockQueryOnSnapshotUnsubscribe = jest.fn();
 const mockWithConverter = jest.fn();
 
 class Query {
@@ -140,8 +141,8 @@ class Query {
       }
     }
 
-    // Returns an unsubscribe function
-    return () => {};
+    // Returns an unsubscribe mock
+    return mockQueryOnSnapshotUnsubscribe;
   }
 }
 
@@ -157,6 +158,7 @@ module.exports = {
     mockStartAfter,
     mockStartAt,
     mockQueryOnSnapshot,
+    mockQueryOnSnapshotUnsubscribe,
     mockWithConverter,
   },
 };

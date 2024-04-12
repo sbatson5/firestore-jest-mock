@@ -22,6 +22,7 @@ describe.each([
     mockBatchCreate,
     mockSettings,
     mockOnSnapShot,
+    mockQueryOnSnapshotUnsubscribe,
     mockListCollections,
     mockTimestampNow,
     mockCreate,
@@ -378,7 +379,7 @@ describe.each([
 
         await flushPromises();
 
-        expect(unsubscribe).toBeInstanceOf(Function);
+        expect(unsubscribe).toBe(mockQueryOnSnapshotUnsubscribe);
         expect(mockWhere).toHaveBeenCalled();
         expect(mockOnSnapShot).toHaveBeenCalled();
       });

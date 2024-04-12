@@ -26,5 +26,6 @@ export const mocks: {
   mockStartAfter: jest.Mock,
   mockStartAt: jest.Mock,
   mockQueryOnSnapshot: jest.Mock,
+  mockQueryOnSnapshotUnsubscribe: jest.Mock,
   mockWithConverter: jest.Mock,
 };
