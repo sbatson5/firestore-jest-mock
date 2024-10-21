@@ -29,9 +29,15 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectField
       delete copy._updateTime;
 
       if (selectFields !== undefined) {
-        copy = Object.keys(copy)
-          .filter(key => key === 'id' || selectFields.includes(key))
-          .reduce((res, key) => ((res[key] = copy[key]), res), {});
+        copy = selectFields.reduce((acc, field) => {
+          const path = field.split('.');
+          return {
+            ...acc,
+            ...buildDocFromPath(copy, path)
+          }
+        }, {});
+
+        copy.id = this.id;
       }
 
       return copy;
@@ -56,3 +62,10 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectField
     },
   };
 };
+
+function buildDocFromPath(data, path) {
+  const [root, ...subPath] = path;
+  return {
+    [root]: subPath.length ? buildDocFromPath(data[root], subPath) : data[root]
+  };
+}

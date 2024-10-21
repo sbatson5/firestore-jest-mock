@@ -194,6 +194,24 @@ describe('Queries', () => {
     expect(cow).toHaveProperty('id', 'cow');
   });
 
+  test('it can select nested values', async () => {
+    const res = await db
+      .collection('animals')
+      .where('id', '==', 'cow')
+      .select('appearance.color')
+      .get();
+
+    expect(res).toHaveProperty('size', 1);
+    const cow = res.docs[0].data();
+    expect(cow).toBeDefined();
+    expect(cow).toHaveProperty('id', 'cow');
+    expect(cow).toHaveProperty('appearance', { color: 'brown' });
+  });
+
+  test.todo('it can select and get nested values');
+
+  test.todo('iot can select many nested values');
+
   test('it can query date values for equality', async () => {
     const elephant = await db
       .collection('animals')
@@ -443,10 +461,7 @@ describe('Queries', () => {
       // eslint-disable-next-line quotes
       "it performs '$comp' queries on number values ($count doc(s) where legCount $comp $value)",
       async ({ comp, value, count }) => {
-        const results = await db
-          .collection('animals')
-          .where('legCount', comp, value)
-          .get();
+        const results = await db.collection('animals').where('legCount', comp, value).get();
         expect(results.size).toBe(count);
       },
     );
@@ -475,10 +490,7 @@ describe('Queries', () => {
       // eslint-disable-next-line quotes
       "it performs '$comp' queries on number values that may be zero ($count doc(s) where foodCount $comp $value)",
       async ({ comp, value, count }) => {
-        const results = await db
-          .collection('animals')
-          .where('foodCount', comp, value)
-          .get();
+        const results = await db.collection('animals').where('foodCount', comp, value).get();
         expect(results.size).toBe(count);
       },
     );
@@ -505,10 +517,7 @@ describe('Queries', () => {
       // eslint-disable-next-line quotes
       "it performs '$comp' queries on string values ($count doc(s) where type $comp '$value')",
       async ({ comp, value, count }) => {
-        const results = await db
-          .collection('animals')
-          .where('type', comp, value)
-          .get();
+        const results = await db.collection('animals').where('type', comp, value).get();
         expect(results.size).toBe(count);
       },
     );
@@ -527,10 +536,7 @@ describe('Queries', () => {
       // eslint-disable-next-line quotes
       "it performs '$comp' queries on array values ($count doc(s) where food $comp '$value')",
       async ({ comp, value, count }) => {
-        const results = await db
-          .collection('animals')
-          .where('food', comp, value)
-          .get();
+        const results = await db.collection('animals').where('food', comp, value).get();
         expect(results.size).toBe(count);
       },
     );
@@ -550,10 +556,7 @@ describe('Queries', () => {
       // eslint-disable-next-line quotes
       "it performs '$comp' queries on array values that may be zero ($count doc(s) where foodEaten $comp '$value')",
       async ({ comp, value, count }) => {
-        const results = await db
-          .collection('animals')
-          .where('foodEaten', comp, value)
-          .get();
+        const results = await db.collection('animals').where('foodEaten', comp, value).get();
         expect(results.size).toBe(count);
       },
     );
