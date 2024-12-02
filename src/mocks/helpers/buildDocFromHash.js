@@ -36,8 +36,6 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectField
             ...buildDocFromPath(copy, path)
           }
         }, {});
-
-        copy.id = this.id;
       }
 
       return copy;

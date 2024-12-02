@@ -134,7 +134,7 @@ describe('Queries', () => {
       },
       currentUser: { uid: 'homer-user' },
     },
-    { simulateQueryFilters: true },
+    { simulateQueryFilters: true }
   );
 
   const firebase = require('firebase');
@@ -204,13 +204,36 @@ describe('Queries', () => {
     expect(res).toHaveProperty('size', 1);
     const cow = res.docs[0].data();
     expect(cow).toBeDefined();
-    expect(cow).toHaveProperty('id', 'cow');
     expect(cow).toHaveProperty('appearance', { color: 'brown' });
   });
 
-  test.todo('it can select and get nested values');
+  test('it can select and get nested values', async () => {
+    const res = await db
+      .collection('animals')
+      .where('id', '==', 'cow')
+      .select('appearance.color')
+      .get();
 
-  test.todo('iot can select many nested values');
+    expect(res).toHaveProperty('size', 1);
+    const appearance = res.docs[0].get('appearance');
+    expect(appearance).toEqual({ color: 'brown' });
+    const color = res.docs[0].get('appearance.color');
+    expect(color).toEqual('brown');
+  });
+
+  // TODO should add support
+  test.skip('it can select many nested values', async () => {
+    const res = await db
+      .collection('animals')
+      .where('id', '==', 'cow')
+      .select('appearance.color', 'appearance.size')
+      .get();
+
+    expect(res).toHaveProperty('size', 1);
+    const cow = res.docs[0].data();
+    expect(cow).toBeDefined();
+    expect(cow).toHaveProperty('appearance', {color: 'brown', size: 'large'});
+  });
 
   test('it can query date values for equality', async () => {
     const elephant = await db
