@@ -221,6 +221,18 @@ describe('Queries', () => {
     expect(color).toEqual('brown');
   });
 
+  test('it can handle missing nested values', async () => {
+    const res = await db
+      .collection('animals')
+      .where('id', '==', 'cow')
+      .select('size.height.shoulder')
+      .get();
+
+    expect(res).toHaveProperty('size', 1);
+    const data = res.docs[0].data();
+    expect(data).toHaveProperty('size', {});
+  });
+
   // TODO should add support
   test.skip('it can select many nested values', async () => {
     const res = await db

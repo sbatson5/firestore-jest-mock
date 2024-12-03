@@ -62,8 +62,13 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectField
 };
 
 function buildDocFromPath(data, path) {
+  if (data === undefined || data === null) {
+    return {};
+  }
+
   const [root, ...subPath] = path;
+  const rootData = data[root];
   return {
-    [root]: subPath.length ? buildDocFromPath(data[root], subPath) : data[root]
+    [root]: subPath.length ? buildDocFromPath(rootData, subPath) : rootData
   };
 }
