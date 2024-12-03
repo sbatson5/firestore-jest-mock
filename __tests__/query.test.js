@@ -233,8 +233,7 @@ describe('Queries', () => {
     expect(data).toHaveProperty('size', {});
   });
 
-  // TODO should add support
-  test.skip('it can select many nested values', async () => {
+  test('it can select many nested values', async () => {
     const res = await db
       .collection('animals')
       .where('id', '==', 'cow')
