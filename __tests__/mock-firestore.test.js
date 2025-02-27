@@ -53,6 +53,10 @@ describe('Queries', () => {
             },
           },
         ],
+        'subcollection/as/string': [
+          { id: '1', name: 'One' },
+          { id: '2', name: 'Two' }
+        ]
       },
       { simulateQueryFilters },
     );
@@ -267,6 +271,17 @@ describe('Queries', () => {
       expect(record).toHaveProperty('data');
       expect(record.data()).toHaveProperty('name', 'Violet');
     });
+
+    test('it can fetch records from subcollections with a string path', async () => {
+      // expect.assertions(8);
+      const subCollection = await db()
+        .collection('subcollection/as/string')
+
+      const allSubcollectionItems = await subCollection.get();
+      expect(allSubcollectionItems.docs.length).toBe(2);
+      expect(allSubcollectionItems.forEach).toBeTruthy();
+    });
+    
 
     test.each`
       simulateQueryFilters | expectedSize
