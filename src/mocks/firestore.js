@@ -482,6 +482,11 @@ FakeFirestore.CollectionReference = class extends FakeFirestore.Query {
    * @returns {Object[]} An array of mocked document records.
    */
   _records() {
+    // Support subcollections as paths: "collection/documentId/subcollection"
+    if (this.firestore.database[this.path]) {
+      return this.firestore.database[this.path];
+    }
+    
     // Ignore leading slash
     const pathArray = this.path.replace(/^\/+/, '').split('/');
 
