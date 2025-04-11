@@ -1,4 +1,5 @@
 const timestamp = require('../timestamp');
+const {merge} = require('lodash');
 
 module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectFields = undefined) {
   const exists = !!hash || false;
@@ -29,9 +30,10 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectField
       delete copy._updateTime;
 
       if (selectFields !== undefined) {
-        copy = Object.keys(copy)
-          .filter(key => key === 'id' || selectFields.includes(key))
-          .reduce((res, key) => ((res[key] = copy[key]), res), {});
+        copy = selectFields.reduce((acc, field) => {
+          const path = field.split('.');
+          return merge(acc, buildDocFromPath(copy, path));
+        }, {});
       }
 
       return copy;
@@ -56,3 +58,15 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectField
     },
   };
 };
+
+function buildDocFromPath(data, path) {
+  if (data === undefined || data === null) {
+    return {};
+  }
+
+  const [root, ...subPath] = path;
+  const rootData = data[root];
+  return {
+    [root]: subPath.length ? buildDocFromPath(rootData, subPath) : rootData
+  };
+}
