@@ -1,5 +1,5 @@
 const timestamp = require('../timestamp');
-const {merge} = require('lodash');
+const merge = require('lodash/merge');
 
 module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectFields = undefined) {
   const exists = !!hash || false;
