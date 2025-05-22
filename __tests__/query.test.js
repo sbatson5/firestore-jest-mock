@@ -134,7 +134,7 @@ describe('Queries', () => {
       },
       currentUser: { uid: 'homer-user' },
     },
-    { simulateQueryFilters: true },
+    { simulateQueryFilters: true }
   );
 
   const firebase = require('firebase');
@@ -192,6 +192,58 @@ describe('Queries', () => {
     const cow = brownColor.docs[0];
     expect(cow).toBeDefined();
     expect(cow).toHaveProperty('id', 'cow');
+  });
+
+  test('it can select nested values', async () => {
+    const res = await db
+      .collection('animals')
+      .where('id', '==', 'cow')
+      .select('appearance.color')
+      .get();
+
+    expect(res).toHaveProperty('size', 1);
+    const cow = res.docs[0].data();
+    expect(cow).toBeDefined();
+    expect(cow).toHaveProperty('appearance', { color: 'brown' });
+  });
+
+  test('it can select and get nested values', async () => {
+    const res = await db
+      .collection('animals')
+      .where('id', '==', 'cow')
+      .select('appearance.color')
+      .get();
+
+    expect(res).toHaveProperty('size', 1);
+    const appearance = res.docs[0].get('appearance');
+    expect(appearance).toEqual({ color: 'brown' });
+    const color = res.docs[0].get('appearance.color');
+    expect(color).toEqual('brown');
+  });
+
+  test('it can handle missing nested values', async () => {
+    const res = await db
+      .collection('animals')
+      .where('id', '==', 'cow')
+      .select('size.height.shoulder')
+      .get();
+
+    expect(res).toHaveProperty('size', 1);
+    const data = res.docs[0].data();
+    expect(data).toHaveProperty('size', {});
+  });
+
+  test('it can select many nested values', async () => {
+    const res = await db
+      .collection('animals')
+      .where('id', '==', 'cow')
+      .select('appearance.color', 'appearance.size')
+      .get();
+
+    expect(res).toHaveProperty('size', 1);
+    const cow = res.docs[0].data();
+    expect(cow).toBeDefined();
+    expect(cow).toHaveProperty('appearance', {color: 'brown', size: 'large'});
   });
 
   test('it can query date values for equality', async () => {
@@ -443,10 +495,7 @@ describe('Queries', () => {
       // eslint-disable-next-line quotes
       "it performs '$comp' queries on number values ($count doc(s) where legCount $comp $value)",
       async ({ comp, value, count }) => {
-        const results = await db
-          .collection('animals')
-          .where('legCount', comp, value)
-          .get();
+        const results = await db.collection('animals').where('legCount', comp, value).get();
         expect(results.size).toBe(count);
       },
     );
@@ -475,10 +524,7 @@ describe('Queries', () => {
       // eslint-disable-next-line quotes
       "it performs '$comp' queries on number values that may be zero ($count doc(s) where foodCount $comp $value)",
       async ({ comp, value, count }) => {
-        const results = await db
-          .collection('animals')
-          .where('foodCount', comp, value)
-          .get();
+        const results = await db.collection('animals').where('foodCount', comp, value).get();
         expect(results.size).toBe(count);
       },
     );
@@ -505,10 +551,7 @@ describe('Queries', () => {
       // eslint-disable-next-line quotes
       "it performs '$comp' queries on string values ($count doc(s) where type $comp '$value')",
       async ({ comp, value, count }) => {
-        const results = await db
-          .collection('animals')
-          .where('type', comp, value)
-          .get();
+        const results = await db.collection('animals').where('type', comp, value).get();
         expect(results.size).toBe(count);
       },
     );
@@ -527,10 +570,7 @@ describe('Queries', () => {
       // eslint-disable-next-line quotes
       "it performs '$comp' queries on array values ($count doc(s) where food $comp '$value')",
       async ({ comp, value, count }) => {
-        const results = await db
-          .collection('animals')
-          .where('food', comp, value)
-          .get();
+        const results = await db.collection('animals').where('food', comp, value).get();
         expect(results.size).toBe(count);
       },
     );
@@ -550,10 +590,7 @@ describe('Queries', () => {
       // eslint-disable-next-line quotes
       "it performs '$comp' queries on array values that may be zero ($count doc(s) where foodEaten $comp '$value')",
       async ({ comp, value, count }) => {
-        const results = await db
-          .collection('animals')
-          .where('foodEaten', comp, value)
-          .get();
+        const results = await db.collection('animals').where('foodEaten', comp, value).get();
         expect(results.size).toBe(count);
       },
     );
