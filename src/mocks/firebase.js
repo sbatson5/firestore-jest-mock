@@ -1,6 +1,4 @@
-const mockInitializeApp = jest.fn();
-const mockCert = jest.fn();
-
+const { mockInitializeApp, mockCert } = require('./mockRegistry');
 const defaultOptions = require('./helpers/defaultMockOptions');
 
 const firebaseStub = (overrides, options = defaultOptions) => {

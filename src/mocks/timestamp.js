@@ -1,8 +1,10 @@
-const mockTimestampToDate = jest.fn();
-const mockTimestampToMillis = jest.fn();
-const mockTimestampFromDate = jest.fn();
-const mockTimestampFromMillis = jest.fn();
-const mockTimestampNow = jest.fn();
+const {
+  mockTimestampToDate,
+  mockTimestampToMillis,
+  mockTimestampFromDate,
+  mockTimestampFromMillis,
+  mockTimestampNow,
+} = require('./mockRegistry');
 
 class Timestamp {
   constructor(seconds, nanoseconds) {

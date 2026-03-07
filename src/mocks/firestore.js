@@ -1,27 +1,26 @@
-const mockCollectionGroup = jest.fn();
-const mockBatch = jest.fn();
-const mockRunTransaction = jest.fn();
-const mockRecursiveDelete = jest.fn();
-
-const mockSettings = jest.fn();
-const mockUseEmulator = jest.fn();
-const mockCollection = jest.fn();
-const mockDoc = jest.fn();
-const mockCreate = jest.fn();
-const mockUpdate = jest.fn();
-const mockSet = jest.fn();
-const mockAdd = jest.fn();
-const mockDelete = jest.fn();
-const mockListDocuments = jest.fn();
-const mockListCollections = jest.fn();
-
-const mockBatchDelete = jest.fn();
-const mockBatchCommit = jest.fn();
-const mockBatchUpdate = jest.fn();
-const mockBatchSet = jest.fn();
-const mockBatchCreate = jest.fn();
-
-const mockOnSnapShot = jest.fn();
+const {
+  mockCollectionGroup,
+  mockBatch,
+  mockRunTransaction,
+  mockRecursiveDelete,
+  mockSettings,
+  mockUseEmulator,
+  mockCollection,
+  mockDoc,
+  mockCreate,
+  mockUpdate,
+  mockSet,
+  mockAdd,
+  mockDelete,
+  mockListDocuments,
+  mockListCollections,
+  mockOnSnapShot,
+  mockBatchDelete,
+  mockBatchCommit,
+  mockBatchUpdate,
+  mockBatchSet,
+  mockBatchCreate,
+} = require('./mockRegistry');
 
 const timestamp = require('./timestamp');
 const fieldValue = require('./fieldValue');

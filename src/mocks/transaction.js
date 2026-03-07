@@ -1,10 +1,12 @@
-const mockGetAll = jest.fn();
-const mockGetAllTransaction = jest.fn();
-const mockGetTransaction = jest.fn();
-const mockSetTransaction = jest.fn();
-const mockUpdateTransaction = jest.fn();
-const mockDeleteTransaction = jest.fn();
-const mockCreateTransaction = jest.fn();
+const {
+  mockGetAll,
+  mockGetAllTransaction,
+  mockGetTransaction,
+  mockSetTransaction,
+  mockUpdateTransaction,
+  mockDeleteTransaction,
+  mockCreateTransaction,
+} = require('./mockRegistry');
 
 class Transaction {
   getAll(...refsOrReadOptions) {
