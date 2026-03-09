@@ -1,5 +1,5 @@
 const { mockInitializeApp, mockCert } = require('./mockRegistry');
-const defaultOptions = require('./helpers/defaultMockOptions');
+const defaultOptions = require('./helpers/defaultMockOptions').default;
 
 const firebaseStub = (overrides, options = defaultOptions) => {
   const { FakeFirestore, FakeAuth } = require('firestore-jest-mock');

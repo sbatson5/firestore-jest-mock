@@ -4,10 +4,11 @@ import type { Timestamp } from './timestamp';
 import type { Transaction } from './transaction';
 import type { FieldPath } from './path';
 
-import type { MockedDocument, DocumentData } from './helpers/buildDocFromHash';
-import type { MockedQuerySnapshot } from './helpers/buildQuerySnapShot';
+import type { DocumentSnapshot } from './helpers/buildDocFromHash';
+import type { QuerySnapshot } from './helpers/buildQuerySnapShot';
 
-interface DatabaseDocument extends DocumentData {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface DatabaseDocument extends Record<string, any> {
   id: string;
   _collections?: DatabaseCollections;
 }
@@ -22,9 +23,12 @@ interface SetOptions {
 
 interface FirestoreBatch {
   delete(): FirestoreBatch;
-  set(doc: DocumentReference, data: DocumentData, options?: SetOptions): FirestoreBatch;
-  update(doc: DocumentReference, data: DocumentData): FirestoreBatch;
-  create(doc: DocumentReference, data: DocumentData): FirestoreBatch;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  set(doc: DocumentReference, data: Record<string, any>, options?: SetOptions): FirestoreBatch;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  update(doc: DocumentReference, data: Record<string, any>): FirestoreBatch;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  create(doc: DocumentReference, data: Record<string, any>): FirestoreBatch;
   commit(): Promise<void>;
 }
 
@@ -47,7 +51,7 @@ export class FakeFirestore {
   
   constructor(stubbedDatabase?: DatabaseCollections, options?: Record<string, never>);
 
-  getAll(): Array<MockedQuerySnapshot>;
+  getAll(): Array<QuerySnapshot>;
   batch(): FirestoreBatch;
   settings(): void;
   useEmulator(): void;
@@ -68,11 +72,14 @@ declare class DocumentReference {
 
   collection(collectionName: string): CollectionReference;
   delete(): Promise<void>;
-  get(): Promise<MockedDocument>;
+  get(): Promise<DocumentSnapshot>;
 
-  create(object: DocumentData): Promise<MockedDocument>;
-  update(object: DocumentData): Promise<MockedDocument>;
-  set(object: DocumentData): Promise<MockedDocument>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  create(object: Record<string, any>): Promise<DocumentSnapshot>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  update(object: Record<string, any>): Promise<DocumentSnapshot>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  set(object: Record<string, any>): Promise<DocumentSnapshot>;
 
   isEqual(other: DocumentReference): boolean;
 
@@ -105,8 +112,9 @@ declare class CollectionReference extends FakeFirestore.Query {
   constructor(id: string, parent: DocumentReference, firestore?: FakeFirestore);
 
   doc(id?: string): DocumentReference;
-  get(): Promise<MockedQuerySnapshot>;
-  add(data: DocumentData): Promise<DocumentReference>;
+  get(): Promise<QuerySnapshot>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  add(data: Record<string, any>): Promise<DocumentReference>;
   isEqual(other: CollectionReference): boolean;
 
   /**
@@ -114,7 +122,7 @@ declare class CollectionReference extends FakeFirestore.Query {
    * the list of database records referenced by this CollectionReference.
    * @returns An array of mocked document records.
    */
-  private _records(): Array<MockedDocument>
+  private _records(): Array<DocumentSnapshot>
 }
 
 // Mocks exported from this module

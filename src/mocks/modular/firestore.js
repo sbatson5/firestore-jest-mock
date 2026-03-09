@@ -7,7 +7,7 @@
  *   const { getFirestore, collection, getDocs } = require('firebase/firestore');
  */
 
-const defaultOptions = require('../helpers/defaultMockOptions');
+const defaultOptions = require('../helpers/defaultMockOptions').default;
 
 const mockGetFirestore = jest.fn();
 const mockInitializeFirestore = jest.fn();

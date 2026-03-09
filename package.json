@@ -24,7 +24,7 @@
     "lint": "eslint . --ext .js,.ts",
     "cleanup": "rm -fr ./mocks ./index.d.ts ./index.d.ts.map ./index.js ./index.js.map",
     "prebuild": "npm run cleanup",
-    "build": "tsc -P tsconfig.json && cp -r src/mocks/ mocks/",
+    "build": "tsc -P tsconfig.json && cp -r src/mocks/ mocks/ && find mocks -name '*.ts' ! -name '*.d.ts' -delete",
     "prepublishOnly": "npm run build",
     "test": "jest",
     "test:watch": "npm run test -- --watch",
