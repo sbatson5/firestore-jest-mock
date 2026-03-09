@@ -47,11 +47,18 @@ const mockFirebase = (overrides = {}, options = defaultOptions) => {
 };
 
 function mockModuleIfFound(moduleName, overrides, options) {
+  const factory = () => firebaseStub(overrides, options);
   try {
     require.resolve(moduleName);
-    jest.doMock(moduleName, () => firebaseStub(overrides, options));
+    jest.doMock(moduleName, factory);
     return true;
   } catch (e) {
+    // Firebase v11+ removed the bare 'firebase' entry point.
+    // Use virtual mock so `require('firebase')` still works in tests.
+    if (moduleName === 'firebase' || moduleName === 'firebase-admin') {
+      jest.doMock(moduleName, factory, { virtual: true });
+      return true;
+    }
     return false;
   }
 }
