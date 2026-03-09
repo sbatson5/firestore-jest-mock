@@ -1,16 +1,18 @@
 const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
 
-const mockGet = jest.fn();
-const mockSelect = jest.fn();
-const mockWhere = jest.fn();
-const mockLimit = jest.fn();
-const mockOrderBy = jest.fn();
-const mockOffset = jest.fn();
-const mockStartAfter = jest.fn();
-const mockStartAt = jest.fn();
-const mockQueryOnSnapshot = jest.fn();
-const mockQueryOnSnapshotUnsubscribe = jest.fn();
-const mockWithConverter = jest.fn();
+const {
+  mockGet,
+  mockSelect,
+  mockWhere,
+  mockLimit,
+  mockOrderBy,
+  mockOffset,
+  mockStartAfter,
+  mockStartAt,
+  mockQueryOnSnapshot,
+  mockQueryOnSnapshotUnsubscribe,
+  mockWithConverter,
+} = require('./mockRegistry');
 
 class Query {
   constructor(collectionName, firestore, isGroupQuery = false) {

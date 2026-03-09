@@ -1,14 +1,16 @@
-const mockCreateUserWithEmailAndPassword = jest.fn();
-const mockDeleteUser = jest.fn();
-const mockSendVerificationEmail = jest.fn();
-const mockSignInWithEmailAndPassword = jest.fn();
-const mockSendPasswordResetEmail = jest.fn();
-const mockVerifyIdToken = jest.fn();
-const mockGetUser = jest.fn();
-const mockCreateCustomToken = jest.fn();
-const mockSetCustomUserClaims = jest.fn();
-const mockSignOut = jest.fn();
-const mockUseEmulator = jest.fn();
+const {
+  mockCreateUserWithEmailAndPassword,
+  mockDeleteUser,
+  mockSendVerificationEmail,
+  mockSignInWithEmailAndPassword,
+  mockSendPasswordResetEmail,
+  mockVerifyIdToken,
+  mockGetUser,
+  mockCreateCustomToken,
+  mockSetCustomUserClaims,
+  mockSignOut,
+  mockUseEmulatorAuth,
+} = require('./mockRegistry');
 
 class FakeAuth {
   constructor(currentUser = {}) {
@@ -57,7 +59,7 @@ class FakeAuth {
   }
 
   useEmulator() {
-    mockUseEmulator(...arguments);
+    mockUseEmulatorAuth(...arguments);
   }
 
   get currentUser() {
@@ -78,5 +80,5 @@ module.exports = {
   mockGetUser,
   mockCreateCustomToken,
   mockSetCustomUserClaims,
-  mockUseEmulator,
+  mockUseEmulator: mockUseEmulatorAuth,
 };

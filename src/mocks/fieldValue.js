@@ -1,8 +1,10 @@
-const mockArrayUnionFieldValue = jest.fn();
-const mockArrayRemoveFieldValue = jest.fn();
-const mockDeleteFieldValue = jest.fn();
-const mockIncrementFieldValue = jest.fn();
-const mockServerTimestampFieldValue = jest.fn();
+const {
+  mockArrayUnionFieldValue,
+  mockArrayRemoveFieldValue,
+  mockDeleteFieldValue,
+  mockIncrementFieldValue,
+  mockServerTimestampFieldValue,
+} = require('./mockRegistry');
 
 class FieldValue {
   constructor(type, value) {
