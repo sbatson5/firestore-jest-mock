@@ -12,7 +12,7 @@
  *   const { getAuth } = require('firebase-admin/auth');
  */
 
-const defaultOptions = require('../helpers/defaultMockOptions');
+const defaultOptions = require('../helpers/defaultMockOptions').default;
 
 const mockAdminInitializeApp = jest.fn();
 const mockAdminGetApp = jest.fn();

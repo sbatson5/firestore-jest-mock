@@ -28,8 +28,8 @@ const query = require('./query');
 const transaction = require('./transaction');
 const path = require('./path');
 
-const buildDocFromHash = require('./helpers/buildDocFromHash');
-const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
+const buildDocFromHash = require('./helpers/buildDocFromHash').default;
+const buildQuerySnapShot = require('./helpers/buildQuerySnapShot').default;
 
 const _randomId = () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString();
 

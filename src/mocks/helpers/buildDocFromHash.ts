@@ -1,10 +1,29 @@
-const timestamp = require('../timestamp');
+import { Timestamp } from '../timestamp';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const merge = require('lodash/merge');
 
-module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectFields = undefined) {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+export interface DocumentSnapshot {
+  createTime: any;
+  exists: boolean;
+  id: string;
+  readTime: any;
+  ref: any;
+  metadata: { hasPendingWrites: string };
+  updateTime: any;
+  data(): any;
+  get(fieldPath: string): any;
+}
+
+export default function buildDocFromHash(
+  hash: any = {},
+  id = 'abc123',
+  selectFields?: string[],
+): DocumentSnapshot {
   const exists = !!hash || false;
   return {
-    createTime: (hash && hash._createTime) || timestamp.Timestamp.now(),
+    createTime: (hash && hash._createTime) || Timestamp.now(),
     exists,
     id: (hash && hash.id) || id,
     readTime: hash && hash._readTime,
@@ -15,8 +34,6 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectField
     updateTime: hash && hash._updateTime,
     data() {
       if (!exists) {
-        // From Firestore docs: "Returns 'undefined' if the document doesn't exist."
-        // See https://firebase.google.com/docs/reference/js/firestore_.documentsnapshot#documentsnapshotdata
         return undefined;
       }
       let copy = { ...hash };
@@ -30,7 +47,7 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectField
       delete copy._updateTime;
 
       if (selectFields !== undefined) {
-        copy = selectFields.reduce((acc, field) => {
+        copy = selectFields.reduce((acc: any, field: string) => {
           const path = field.split('.');
           return merge(acc, buildDocFromPath(copy, path));
         }, {});
@@ -38,28 +55,21 @@ module.exports = function buildDocFromHash(hash = {}, id = 'abc123', selectField
 
       return copy;
     },
-    get(fieldPath) {
-      // The field path can be compound: from the firestore docs
-      //  fieldPath The path (e.g. 'foo' or 'foo.bar') to a specific field.
+    get(fieldPath: string) {
       const parts = fieldPath.split('.');
       const data = this.data();
-      return parts.reduce((acc, part, index) => {
+      return parts.reduce((acc: any, part: string, index: number) => {
         const value = acc[part];
-        // if no key is found
         if (value === undefined) {
-          // return null if we are on the last item in parts
-          // otherwise, return an empty object, so we can continue to iterate
           return parts.length - 1 === index ? null : {};
         }
-
-        // if there is a value, return it
         return value;
       }, data);
     },
   };
-};
+}
 
-function buildDocFromPath(data, path) {
+function buildDocFromPath(data: any, path: string[]): any {
   if (data === undefined || data === null) {
     return {};
   }
@@ -67,6 +77,8 @@ function buildDocFromPath(data, path) {
   const [root, ...subPath] = path;
   const rootData = data[root];
   return {
-    [root]: subPath.length ? buildDocFromPath(rootData, subPath) : rootData
+    [root]: subPath.length ? buildDocFromPath(rootData, subPath) : rootData,
   };
 }
+
+/* eslint-enable @typescript-eslint/no-explicit-any */

@@ -1,4 +1,4 @@
-const buildQuerySnapShot = require('./helpers/buildQuerySnapShot');
+const buildQuerySnapShot = require('./helpers/buildQuerySnapShot').default;
 
 const {
   mockGet,

@@ -1,4 +1,4 @@
-const defaultOptions = require('./helpers/defaultMockOptions');
+const defaultOptions = require('./helpers/defaultMockOptions').default;
 
 const firestoreStub = (overrides, options = defaultOptions) => {
   const { FakeFirestore } = require('firestore-jest-mock');

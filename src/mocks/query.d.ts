@@ -1,10 +1,10 @@
 import type { FakeFirestore } from './firestore';
-import type { MockedQuerySnapshot } from './helpers/buildQuerySnapShot';
+import type { QuerySnapshot } from './helpers/buildQuerySnapShot';
 
 export class Query {
   constructor(collectionName: string, firestore: typeof FakeFirestore);
 
-  get(): Promise<MockedQuerySnapshot>;
+  get(): Promise<QuerySnapshot>;
   select(): Query;
   where(): Query;
   offset(): Query;
