@@ -15,29 +15,20 @@ Small, easy to grok pull requests are welcome, but please note that there is no 
 ## Table of Contents
 
 - [Mock Firestore](#mock-firestore)
-  - [⚠️ WARNING ⚠️](#️-warning-️)
-  - [Table of Contents](#table-of-contents)
   - [What's in the Box](#whats-in-the-box)
   - [Installation](#installation)
   - [Usage](#usage)
-    - [`mockFirebase`](#mockfirebase)
+    - [Modular API (Firebase v9+)](#modular-api-firebase-v9)
+    - [Namespaced API (Firebase v8 / compat)](#namespaced-api-firebase-v8--compat)
     - [`@google-cloud/firestore` compatibility](#google-cloudfirestore-compatibility)
     - [`@react-native-firebase/firestore` compatibility](#react-native-firebasefirestore-compatibility)
+    - [`firebase-admin` modular API (v10+)](#firebase-admin-modular-api-v10)
     - [Subcollections](#subcollections)
     - [What would you want to test?](#what-would-you-want-to-test)
     - [Don't forget to reset your mocks](#dont-forget-to-reset-your-mocks)
-      - [I wrote a where clause, but all the records were returned!](#i-wrote-a-where-clause-but-all-the-records-were-returned)
     - [Additional options](#additional-options)
-      - [`includeIdsInData`](#includeidsindata)
-      - [`mutable`](#mutable)
-      - [`simulateQueryFilters`](#simulatequeryfilters)
     - [Functions you can test](#functions-you-can-test)
-      - [Firestore](#firestore)
-      - [Firestore.Query](#firestorequery)
-      - [Firestore.FieldValue](#firestorefieldvalue)
-      - [Firestore.Timestamp](#firestoretimestamp)
-      - [Firestore.Transaction](#firestoretransaction)
-      - [Auth](#auth)
+  - [Migration Guide](#migration-guide)
   - [Contributing](#contributing)
   - [Code of Conduct](#code-of-conduct)
 
@@ -60,6 +51,96 @@ yarn add --dev firestore-jest-mock
 ```
 
 ## Usage
+
+### Modular API (Firebase v9+)
+
+If you use the Firebase v9+ modular API (`import { getFirestore, collection, getDocs } from 'firebase/firestore'`), use `mockModularFirestore`:
+
+```js
+const { mockModularFirestore } = require('firestore-jest-mock');
+const {
+  mockGetDoc,
+  mockGetDocs,
+  mockAddDoc,
+  mockSetDoc,
+  mockUpdateDoc,
+  mockDeleteDoc,
+  mockModularCollection,
+  mockModularDoc,
+  mockModularWhere,
+} = require('firestore-jest-mock/mocks/modular/firestore');
+
+describe('my tests', () => {
+  mockModularFirestore({
+    database: {
+      users: [
+        { id: 'abc123', name: 'Homer Simpson', state: 'IL' },
+        { id: 'abc456', name: 'Lisa Simpson', state: 'IL' },
+      ],
+    },
+  });
+
+  const {
+    getFirestore,
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    addDoc,
+    setDoc,
+    query,
+    where,
+  } = require('firebase/firestore');
+
+  test('get all users', async () => {
+    const db = getFirestore();
+    const usersRef = collection(db, 'users');
+    const snapshot = await getDocs(usersRef);
+
+    expect(snapshot.size).toBe(2);
+    expect(mockModularCollection).toHaveBeenCalledWith(db, 'users');
+    expect(mockGetDocs).toHaveBeenCalled();
+  });
+
+  test('get a single user', async () => {
+    const db = getFirestore();
+    const docRef = doc(db, 'users/abc123');
+    const docSnap = await getDoc(docRef);
+
+    expect(docSnap.exists).toBe(true);
+    expect(docSnap.data().name).toBe('Homer Simpson');
+  });
+
+  test('query with where', async () => {
+    const db = getFirestore();
+    const q = query(collection(db, 'users'), where('state', '==', 'IL'));
+    await getDocs(q);
+
+    expect(mockModularWhere).toHaveBeenCalledWith('state', '==', 'IL');
+  });
+});
+```
+
+For modular auth, use `mockModularAuth`:
+
+```js
+const { mockModularAuth } = require('firestore-jest-mock/mocks/modular/auth');
+const {
+  mockModularSignInWithEmailAndPassword,
+} = require('firestore-jest-mock/mocks/modular/auth');
+
+mockModularAuth({ currentUser: { uid: '123', email: 'test@test.com' } });
+
+const { getAuth, signInWithEmailAndPassword } = require('firebase/auth');
+
+test('sign in', async () => {
+  const auth = getAuth();
+  await signInWithEmailAndPassword(auth, 'test@test.com', 'password');
+  expect(mockModularSignInWithEmailAndPassword).toHaveBeenCalled();
+});
+```
+
+### Namespaced API (Firebase v8 / compat)
 
 ### `mockFirebase`
 
@@ -193,6 +274,42 @@ test('testing stuff', () => {
 
 _Note: Authentication with `@react-native-firebase/firestore` is not handled in the same way as with `firebase`.
 The `Auth` module is not available for `@react-native-firebase/firestore` compatibility._
+
+### `firebase-admin` modular API (v10+)
+
+If you use the firebase-admin v10+ modular entry points (`import { getFirestore } from 'firebase-admin/firestore'`), use `mockModularAdmin`:
+
+```js
+const { mockModularAdmin } = require('firestore-jest-mock/mocks/modular/admin');
+const {
+  mockAdminGetFirestore,
+  mockAdminGetAuth,
+} = require('firestore-jest-mock/mocks/modular/admin');
+
+mockModularAdmin({
+  database: {
+    users: [{ id: 'abc123', name: 'Homer Simpson' }],
+  },
+  currentUser: { uid: 'admin-user' },
+});
+
+const { initializeApp } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
+const { getAuth } = require('firebase-admin/auth');
+
+test('admin firestore operations', async () => {
+  initializeApp();
+  const db = getFirestore();
+  const snapshot = await db.collection('users').get();
+  expect(snapshot.size).toBe(1);
+});
+
+test('admin auth operations', async () => {
+  const auth = getAuth();
+  const user = await auth.verifyIdToken('some-token');
+  expect(user).toBeDefined();
+});
+```
 
 ### Subcollections
 
@@ -465,6 +582,10 @@ If you need your tests to perform `where` queries on mock database data, you can
 | `mockVerifyIdToken`                  | Assert correct token is passed. Returns a promise                          | [verifyIdToken](https://firebase.google.com/docs/auth/admin/verify-id-tokens)                                                        |
 | `mockUseEmulator`                    | Assert correct emulator url is passed                                      | [useEmulator](https://firebase.google.com/docs/reference/js/v8/firebase.auth.Auth#useemulator)                                       |
 | `mockSignOut`                        | Assert sign out is called. Returns a promise                               | [signOut](https://firebase.google.com/docs/reference/js/auth.auth.md#authsignout)                                                    |
+
+## Migration Guide
+
+If you are migrating from the Firebase v8 namespaced API to the v9+ modular API, see [MIGRATION.md](MIGRATION.md) for a step-by-step guide on updating your test mocks.
 
 ## Contributing
 
